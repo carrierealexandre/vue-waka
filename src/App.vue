@@ -1,32 +1,114 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view />
+    <navbar v-if="!$route.meta.hideNavigation"></navbar>
+    <homemenu 
+      v-if="!$route.meta.hideNavigation"
+      v-bind:Airports="Airports"
+      v-bind:Current="Current"
+      v-bind:Currentwx="Currentwx"
+      v-bind:Path="Path"
+      
+      ></homemenu>
+    <router-view
+      v-bind:Airports="Airports"
+      v-bind:Current="Current"
+      v-bind:Currentwx="Currentwx"
+      v-bind:Path="Path"
+      
+    />
+    <callus v-if="!$route.meta.hideNavigation"></callus>
+    <wakafooter v-if="!$route.meta.hideNavigation"></wakafooter>
+    
   </div>
 </template>
+<script>
+export default {
+  
+  
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+  data() {
+    return {
+      
+      Current: '',
+      Airport: '',
+      Currentwx: '',
+      Path:'',
+      Airports: [
+        {
+          name: 'Pikangikum',
+          wx: 'https://weather.gc.ca/city/pages/on-55_metric_e.html',
+          path: '/airports/pikangikum',
+          Page: name
+        },
+        {
+          name: 'Poplar Hill',
+          wx: 'https://weather.gc.ca/city/pages/on-55_metric_e.html',
+          path: '/airports/poplarhill',
+          random: 'Random'
+        },
+        {
+          name: 'Deer Lake',
+          wx: 'https://weather.gc.ca/city/pages/on-129_metric_e.html',
+          path: '/airports/deerlake'
+        },
+        {
+          name: 'Northspirit',
+          wx: 'https://weather.gc.ca/city/pages/on-129_metric_e.html',
+          path: '/airports/northspirit'
+        },
+        {
+          name: 'Sandy Lake',
+          wx: 'https://weather.gc.ca/city/pages/on-129_metric_e.html',
+          path: '/airports/sandylake'
+        }
+      ]
 
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
     }
+  },
+mounted() {
+    if (localStorage.path) {
+      
+    }
+   
+    if (localStorage.current) {
+      this.Current = localStorage.current;
+      console.log('I running current');
+      this.Airports.forEach((airport,index) => {
+        if(airport.name == this.Current){
+          console.log(this.$route.name);
+          this.Path = this.Airports[index].path;
+          console.log(this.Airports[index].wx);
+          this.Currentwx = this.Airports[index].wx
+          
+        }
+
+      })
+    }
+    if (localStorage.wx) {
+      this.Airport = localStorage.airport;
+      console.log('I running airport');
+    }
+  },
+watch: {
+    Path(newName) {
+    localStorage.path = this.Path;
+    },
+    Current(newName) {
+    localStorage.current = this.Current;
+    },
+    Currentwx(newName) {
+    localStorage.wx = this.Currentwx;
+    }
+  },
+  methods:{
+    
+    
+
+    
   }
+
 }
+</script>
+<style lang="scss">
+
 </style>

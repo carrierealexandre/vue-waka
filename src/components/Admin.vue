@@ -1,13 +1,13 @@
 /* eslint-disable */ 
 <template>
-  <div class="hello">
+  <div class="Admin">
     
   </div>
 </template>
 
 <script>
 export default {
-  name: "HelloWorld",
+  name: "Admin",
   props: {
     msg: String
   }
