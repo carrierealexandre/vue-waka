@@ -2,12 +2,141 @@
 <template>
   <div class="products">
     
-      <whenempty
+      <whenempty v-show="pageEmpty"
       :ImgSource='ImgSource'
       :AdminPage='AdminPage'
       :AdminPageContent='AdminPageContent'
       ></whenempty>
-    
+    <div class="header-wrapper">
+      <div class="">
+        <h3>Products Admin</h3>
+      </div>
+      <div class="">
+        <button class="btn btn-success" data-toggle="modal" data-target=".bd-example-modal-lg" @click="modalAddProduct"><fa-icon :icon="['fa', 'plus']"/> Add</button>
+        <button class="btn btn-danger" @click="modalAddProduct"><fa-icon :icon="['fa', 'trash-alt']"/> Delete</button>
+      </div>
+      
+      
+      <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header container">
+              <h5 class="modal-title">Add Product</h5>
+              <h5 v-show="editProduct" class="modal-title">Add Product</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form>
+              <div class="form-group">
+                <label for="exampleFormControlFile1">Image</label>
+                <input type="file" class="form-control-file" id="exampleFormControlFile1">
+              </div>
+              <div class="form-group">
+                <label for="exampleFormControlInput1">Product name</label>
+                <input type="text" class="form-control"  placeholder="Product Name">
+              </div>
+              
+              <div class="form-group">
+                <label for="exampleFormControlSelect1">Categorie</label>
+                <select class="form-control" id="exampleFormControlSelect1">
+                  <option v-for="cat in cats" :key="cat" >{{cat}}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="exampleFormControlTextarea1">description Maxiumum 30 </label>
+                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+              </div>
+
+
+              <div class="form-group">
+                <label for="exampleFormControlInput1">Price example: if $10.00 then enter 1000 </label>
+                <input type="text" class="form-control"  placeholder="Price $CAD">
+              </div>
+              <div class="form-group">
+                <label for="exampleFormControlInput1">weight</label>
+                <input type="text" class="form-control"  placeholder="Weight">
+              </div>
+              <div class="form-group">
+                <label for="exampleFormControlInput1">Size</label>
+                <input type="text" class="form-control"  placeholder="Size">
+              </div>
+              <div class="form-group">
+                <label for="exampleFormControlInput1">Product Shipping Cost</label>
+                <input type="text" class="form-control"  placeholder="Shipping Cost">
+              </div>
+              <div class="form-group">
+                <label for="exampleFormControlInput1">Quatity in Stock</label>
+                <input type="text" class="form-control"  placeholder="Qty">
+              </div>
+
+              
+              
+            </form>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary">Save changes</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-wrapper">
+      <form>
+        <div class="searchbar">
+          <div class="searchbar-collection">
+            <select id="cats" class="searchbar__select">
+              <option class="searchbar__options" v-for="cat in cats" :key="cat" :value="cat">{{cat}}</option>
+            </select>
+            <input type="text" class="searchbar__input" name="q" placeholder="Search Items" autocomplete="off" >
+            <button type="submit" class="searchbar__button">
+              <fa-icon class="material-icons" :icon="['fa', 'search']" />
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="content-wrapper">
+      <div class="table-wrapper">
+        <table class="table sticky">
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col">Id</th>
+              <th scope="col">Img</th>
+              <th scope="col">Name</th>
+              <th scope="col">Description</th>
+              <th scope="col">Price</th>
+              <th scope="col">Weight</th>
+              <th scope="col">Shipping cost</th>
+              <th scope="col">Qty</th>
+              <th scope="col"></th>
+              <th scope="col"></th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="product in products" :key="product">
+              <th data-label="Select"><input type="checkbox" value="" ></th>
+              <td data-label="Id"></td>
+              <td data-label="Image">{{product.img}}</td>
+              <td data-label="Product Name">{{product.name}}</td>
+              <td data-label="Description">{{product.description}}</td>
+              <td data-label="Price">{{product.price}}</td>
+              <td data-label="Weight">{{product.weight}}</td>
+              <td data-label="Shipping Cost">{{product.ShippingCost}}</td>
+              <td data-label="In-Stock Quatity">{{product.qty}}</td>
+              <th data-label=""><button class="btn btn-warning"><fa-icon :icon="['fa', 'eye']"/></button></th>
+              <th data-label="Modify"><button @click="modalAddProduct" class="btn btn-primary"><fa-icon :icon="['fa', 'edit']"/></button></th>
+              <th data-label=""><button class="btn btn-danger"><fa-icon :icon="['fa', 'trash-alt']"/></button></th>
+              
+            </tr>
+            
+          </tbody>
+        </table>
+
+      </div>
+    </div>
   </div>
 </template>
 
@@ -19,6 +148,137 @@ export default {
   },
   data() {
     return {
+      editProduct: false,
+      products: [
+        {
+          img: 'pepsi.jpg',
+          name: 'Pepsi',
+          description: '24 Cans',
+          price: '19.99',
+          weight: '20 Lbs',
+          ShippingCost: '8.00',
+          size: '30',
+          qty: '23',
+          InStock: 'In Stock!'
+        },
+        {
+          img: 'pepsi.jpg',
+          name: 'Orange Crush',
+          description: '12 Cans',
+          price: '9.99',
+          weight: '10 Lbs',
+          ShippingCost: '4.00',
+          size: '20',
+          qty: '0',
+          InStock: 'Out Of Stock!'
+        },
+        {
+          img: 'pepsi.jpg',
+          name: 'Coke',
+          description: '32 Cans',
+          price: '15.99',
+          weight: '30 Lbs',
+          ShippingCost: '12.00',
+          size: '30',
+          qty: '33',
+          InStock: 'In Stock!'
+        },
+        {
+          img: 'pepsi.jpg',
+          name: 'Grape Crush',
+          description: '12 Cans',
+          price: '8.99',
+          weight: '10 Lbs',
+          ShippingCost: '8.00',
+          size: '20',
+          qty: '16',
+          InStock: 'In Stock!'
+        },
+        {
+          img: 'pepsi.jpg',
+          name: 'Grape Crush',
+          description: '12 Cans',
+          price: '8.99',
+          weight: '10 Lbs',
+          ShippingCost: '8.00',
+          size: '20',
+          qty: '16',
+          InStock: 'In Stock!'
+        },
+        {
+          img: 'pepsi.jpg',
+          name: 'Grape Crush',
+          description: '12 Cans',
+          price: '8.99',
+          weight: '10 Lbs',
+          ShippingCost: '8.00',
+          size: '20',
+          qty: '16',
+          InStock: 'In Stock!'
+        },
+        {
+          img: 'pepsi.jpg',
+          name: 'Orange Crush',
+          description: '12 Cans',
+          price: '9.99',
+          weight: '10 Lbs',
+          ShippingCost: '4.00',
+          size: '20',
+          qty: '0',
+          InStock: 'Out Of Stock!'
+        },
+        {
+          img: 'pepsi.jpg',
+          name: 'Coke',
+          description: '32 Cans',
+          price: '15.99',
+          weight: '30 Lbs',
+          ShippingCost: '12.00',
+          size: '30',
+          qty: '33',
+          InStock: 'In Stock!'
+        },
+        {
+          img: 'pepsi.jpg',
+          name: 'Grape Crush',
+          description: '12 Cans',
+          price: '8.99',
+          weight: '10 Lbs',
+          ShippingCost: '8.00',
+          size: '20',
+          qty: '16',
+          InStock: 'In Stock!'
+        },
+        {
+          img: 'pepsi.jpg',
+          name: 'Grape Crush',
+          description: '12 Cans',
+          price: '8.99',
+          weight: '10 Lbs',
+          ShippingCost: '8.00',
+          size: '20',
+          qty: '16',
+          InStock: 'In Stock!'
+        },
+        {
+          img: 'pepsi.jpg',
+          name: 'Grape Crush',
+          description: '12 Cans',
+          price: '8.99',
+          weight: '10 Lbs',
+          ShippingCost: '8.00',
+          size: '20',
+          qty: '16',
+          InStock: 'In Stock!'
+        }
+
+ 
+
+        
+
+      ],
+      cats:['All', 'Pops', 'Chips', 'Supplies', 'Frozen'],
+      pageEmpty: false,
       ImgSource: 'public/admin_img/products.svg',
       AdminPage: 'Products',
       AdminPageContent: `Lorem ipsum dolor, sit amet consectetur adipisicing 
@@ -26,10 +286,243 @@ export default {
                          aspernatur possimus exercitationem.`
     }
   },
+  methods:{
+    modalAddProduct(){
+      this.$modal.show('modal-addProduct');
+    }
+  }
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+*{
+  font-size: 1.1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
 
+// HEADER STYLE START <----
+.header-wrapper{
+  display: flex;
+  width: 100%;
+  padding: 5px 20px 0 60px;
+  height: 60px;
+  align-items: center;
+}
+.header-wrapper h3 {
+  font-size: 2.5rem;
+  padding-right: 20px;
+}
+.header-wrapper button{
+  width: 100%;
+  padding: 0 20px 0 20px;
+}
+
+// HEADER STYLE FINISH <----
+
+.modal-content{
+  padding:30px;
+  height: 600px;
+  overflow-y: scroll ;
+}
+// SEARCHBAR STYLE START <----
+.form-wrapper {
+  padding: 10px 30px 0 30px;
+  
+}
+.searchbar-collection{
+  width: 100%;
+  display: inline-flex;
+}
+.searchbar{
+  width: 100%;
+}
+.searchbar--max-width {
+  max-width: 100%;
+}
+.searchbar__button,
+.searchbar__select,
+.searchbar__input {
+  padding: 10px;
+  outline: none;
+  border: none;
+  background: var(--lightwhite1);
+  transition: background 0.25s, box-shadow 0.25s;
+}
+.searchbar__input{
+  width: 70%;
+  padding-left: 20px;
+}
+.searchbar__select{
+  width: 20%;
+  
+}
+.searchbar{
+  border-bottom: 1px solid var(--primary);
+}
+.searchbar::after{
+    content: '';
+    display: block;
+    width: 0;
+    height: 2px;
+    background:var(--grenner);
+    transition: width .3s;
+}
+.searchbar:focus-within::after {
+    width: 100%;
+    //transition: width .3s;
+}
+.searchbar:focus{
+    background: white;
+    box-shadow: 0 0 2px #8CC6BA;
+}
+.searchbar__select option,
+.searchbar__select,
+.searchbar__input::placeholder {
+    color: var(--grenner);
+    font-size: 1.1rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+.searchbar__button {
+    width: 10%;
+    background: var(--lightwhite1);
+    color: #ffffff;
+    background: #F4FAF9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+}
+.searchbar__button:active {
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.25);
+}
+.material-icons{
+  font-size: 1.5rem;
+  color: var(--grenner);
+}
+@keyframes search {
+  0% { border-width: 0%;}
+  50% { border-width: 50%;}
+  100% {border-width: 100%;}
+}
+// SEARCHBAR STYLE FINISH <----
+
+// TABLE STYLE START <----
+.table th,.table td{
+  vertical-align: inherit;
+}
+.table td{
+  margin-top: 60px;
+  color: var(--grenner);
+}
+tr:hover{
+  background-color: var(--primary);
+}
+.table.sticky th{
+  position: sticky;
+  top: 0;
+}
+.table.sticky thead th::after{
+  content: '';
+  width: 100%;
+  height: 2px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background-color: var(--dark);
+}
+.table{
+  border-radius: 5px;
+  border-top: 1px solid var(--primary);
+  overflow: scroll;
+}
+thead tr th{
+  background-color: var(--grenner);
+  
+  z-index: 999;
+}
+.table-wrapper{
+  box-shadow: var(--shadow1);
+  width: 95%;
+  border: 1px solid var(--primary);
+  overflow-y: scroll;
+}
+.content-wrapper{
+  margin-top: 30px;
+  display: flex;
+  height: 580px;
+  justify-content: center;
+}
+// TABLE STYLE FINISH <----
+
+// Scrool bar styling start <----
+/* Let's get this party started */
+::-webkit-scrollbar {
+    width: 6px;
+}
+ 
+/* Track */
+::-webkit-scrollbar-track {
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    background: var(--scrollBar) 
+}
+::-webkit-scrollbar-thumb:window-inactive {
+	background: var(--boxes) 
+}
+// Scrool bar styling FINISH <----
+
+// MEDIA STYLE START <----
+/* 
+Max width before this PARTICULAR table gets nasty
+This query will take effect for any screen smaller than 760px
+and also iPads specifically.
+*/
+@media 
+only screen and (max-width: 1236px),
+(min-device-width: 768px) and (max-device-width: 1024px)  {
+
+	/* Force table to not be like tables anymore */
+	.table thead{
+    display: none;
+  }
+	.table, .table tbody, .table tr, .table td{
+    display: block;
+    width: 100%;
+  }
+  .table tr{
+    margin-bottom: 15px;
+  }
+  .table th{
+    text-align: center;
+    width: 100vw;
+  }
+  .table td{
+    text-align: right;
+    padding-left:50%;
+    position: relative;
+  }
+  .table td::before{
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    width: 50%;
+    padding-left: 15px;
+    font-size: 15px ;
+    font-weight: bold;
+    text-align: left;
+  }
+	/*
+	Label the data
+	*/
+  
+}
+// MEDIA STYLE fINISH <----
 </style>
