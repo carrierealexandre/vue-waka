@@ -8,12 +8,18 @@
       :AdminPageContent='AdminPageContent'
       ></whenempty>
     <div class="header-wrapper">
-      <div class="">
-        <h3>Products Admin</h3>
-      </div>
-      <div class="">
-        <button class="btn btn-success" data-toggle="modal" data-target=".bd-example-modal-lg" @click="modalAddProduct"><fa-icon :icon="['fa', 'plus']"/> Add</button>
-        <button class="btn btn-danger" @click="modalAddProduct"><fa-icon :icon="['fa', 'trash-alt']"/> Delete</button>
+      <div class="btn-group-wrapper">
+        <div class="">
+          <h3>Products Admin</h3>
+        </div>
+        <div class="btn-top__wrapper">
+          <div class="btnadd-top-admin">
+            <button class="btn " data-toggle="modal" data-target=".bd-example-modal-lg" @click="modalAddProduct"><fa-icon :icon="['fa', 'plus']"/><span>Add</span></button>
+          </div>
+          <div class="btndel-top-admin"> 
+            <button class="btn " @click="modalAddProduct"><fa-icon :icon="['fa', 'trash-alt']"/> <span>Delete</span> </button>
+          </div>
+        </div>
       </div>
       
       
@@ -112,13 +118,13 @@
               <th scope="col">Qty</th>
               <th scope="col"></th>
               <th scope="col"></th>
-              <th scope="col"></th>
+              
             </tr>
           </thead>
           <tbody>
             <tr v-for="product in products" :key="product">
               <th data-label="Select"><input type="checkbox" value="" ></th>
-              <td data-label="Id"></td>
+              <td data-label="Id">1</td>
               <td data-label="Image">{{product.img}}</td>
               <td data-label="Product Name">{{product.name}}</td>
               <td data-label="Description">{{product.description}}</td>
@@ -128,7 +134,7 @@
               <td data-label="In-Stock Quatity">{{product.qty}}</td>
               <th data-label=""><button class="btn btn-warning"><fa-icon :icon="['fa', 'eye']"/></button></th>
               <th data-label="Modify"><button @click="modalAddProduct" class="btn btn-primary"><fa-icon :icon="['fa', 'edit']"/></button></th>
-              <th data-label=""><button class="btn btn-danger"><fa-icon :icon="['fa', 'trash-alt']"/></button></th>
+              
               
             </tr>
             
@@ -302,21 +308,50 @@ export default {
 }
 
 // HEADER STYLE START <----
-.header-wrapper{
-  display: flex;
+.btn-group-wrapper{
+  display: grid;
   width: 100%;
   padding: 5px 20px 0 60px;
   height: 60px;
+  justify-content: space-between;
+  
+  grid-template-columns: repeat(2, auto);
   align-items: center;
 }
-.header-wrapper h3 {
-  font-size: 2.5rem;
-  padding-right: 20px;
+.btn-top__wrapper{
+  display: flex;
+  justify-content: flex-end;
 }
-.header-wrapper button{
-  width: 100%;
+.btn-group-wrapper h3 {
+  font-size: 2.5rem;
+  color: var(--blue);
+  padding-right: 30px;
+}
+.btn-group-wrapper button{
+  margin-right: 30px;;
   padding: 0 20px 0 20px;
 }
+.btnadd-top-admin button{
+  background-color: var(--lightBlue);
+  color: var(--lightwhite1);
+  border: none;
+  outline: none;
+}
+.btndel-top-admin button{
+  background-color: var(--lightBlue);
+  border: none;
+  outline: none;
+  color: var(--lightwhite1);
+}
+.btndel-top-admin button span,
+.btnadd-top-admin button span{
+  padding-left: 5px;
+}
+.btndel-top-admin button:hover,
+.btnadd-top-admin button:hover{
+  color: var(--primary);
+}
+
 
 // HEADER STYLE FINISH <----
 
@@ -354,7 +389,7 @@ export default {
   padding-left: 20px;
 }
 .searchbar__select{
-  width: 20%;
+  width: auto;
   
 }
 .searchbar{
@@ -412,6 +447,8 @@ export default {
 .table th,.table td{
   vertical-align: inherit;
 }
+
+
 .table td{
   margin-top: 60px;
   color: var(--grenner);
@@ -504,10 +541,13 @@ only screen and (max-width: 1236px),
     text-align: center;
     width: 100vw;
   }
+  
   .table td{
     text-align: right;
     padding-left:50%;
     position: relative;
+    font-size: 1.2rem;
+    margin-top: 10px;
   }
   .table td::before{
     content: attr(data-label);
@@ -515,14 +555,52 @@ only screen and (max-width: 1236px),
     left: 0;
     width: 50%;
     padding-left: 15px;
-    font-size: 15px ;
+    font-size: 1.3rem;
     font-weight: bold;
     text-align: left;
   }
+  
 	/*
 	Label the data
 	*/
-  
+
+} 
+@media (max-width: 950px){
+   .btn-group-wrapper{
+      display: grid;
+      width: 100%;
+      padding: 0;
+      height: 60px;
+      justify-content: center;
+      margin-bottom: 60px;
+      grid-template-columns: 1fr;
+      align-items: center;
+    }
+    .btn-group-wrapper h3{
+      padding-right: 0;
+      
+    }
+    .btnadd-top-admin button,
+    .btndel-top-admin button{
+      width: 100px;
+      padding: 10px 0 10px 0;
+      
+      
+      margin-right:30px;
+    }
+    .btn-group-wrapper h3,
+    .btnadd-top-admin,
+    .btndel-top-admin,
+    .btnadd-top-admin button,
+    .btndel-top-admin button{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .btn-group-wrapper h3{
+      justify-content: flex-start;
+      margin-left: 60px;
+    }
 }
 // MEDIA STYLE fINISH <----
 </style>
