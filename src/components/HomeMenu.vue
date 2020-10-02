@@ -116,6 +116,7 @@
 </template>
 
 <script>
+
 export default {
   name: "HomeMenu",
   props:{
@@ -161,7 +162,7 @@ export default {
 .homenav{
   width: 100%;
   height: 40px;
-  background-color: var(--lightwhite1);
+  background-color: var(--dark);
   
   display: grid;
   grid-template-columns: auto auto;
@@ -273,11 +274,11 @@ export default {
   border: none;
   border-left: 1px solid var(--primary) ;
   border-right: 1px solid var(--primary) ;
-  background-color: var(--lightwhite1);
+  background-color: var(--dark);
   justify-content: center;
   align-items: center;
   text-decoration: none;
-  color: var(--blue);
+  color: var(--lightwhite1);
 }
 .btn__wrapper:hover{
   color: var(--dark);
@@ -323,8 +324,9 @@ export default {
   height: 100%;
 }
 .link__homemenu{
-  display: flex;
+  display: grid;
   height: 100%;
+  grid-template-columns: repeat(5,150px);
   justify-content: start;
   align-items: center;
 }
@@ -335,14 +337,15 @@ export default {
   text-decoration: none;
   height: 100%;
   padding: 7px;
-  font-weight: 600;
+  font-weight: 400;
+  text-transform: uppercase;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  font-size: 1.2rem;
-  color: var(--blue);
+  font-size: 1rem;
+  color: var(--lightwhite1);
 }
 .link__homemenu > li a:hover{
-  color: var(--dark);
-  background-color: var(--primary);
+  font-weight: 800;
+  
 }
 // HOMEMENU END
 

@@ -14,13 +14,13 @@
         </div>
         <div class="btn-top__wrapper">
           <div>
-            <label class="switch">
+            <!-- <label class="switch">
               <input v-model="tabelStyle" type="checkbox">
               <span class="slider round"></span>
-            </label>
+            </label> -->
           </div>
           <div class="btnadd-top-admin">
-            <button class="btn " data-toggle="modal" data-target=".bd-example-modal-lg" @click="modalAddProduct"><fa-icon :icon="['fa', 'plus']"/><span>Add</span></button>
+            <button class="btn " data-toggle="modal" data-target=".bd-example-modal-lg" ><fa-icon :icon="['fa', 'plus']"/><span>Add</span></button>
           </div>
           <div class="btndel-top-admin"> 
             <button class="btn " @click="modalAddProduct"><fa-icon :icon="['fa', 'trash-alt']"/> <span>Delete</span> </button>
@@ -34,7 +34,7 @@
           <div class="modal-content">
             <div class="modal-header container">
               <h5 class="modal-title">Add Product</h5>
-              <h5 v-show="editProduct" class="modal-title">Add Product</h5>
+              <h5 v-show="editProduct" class="modal-title">Edit Product</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -46,47 +46,47 @@
               </div>
               <div class="form-group">
                 <label for="exampleFormControlInput1">Product name</label>
-                <input type="text" class="form-control"  placeholder="Product Name">
+                <input v-model="product.name" type="text" class="form-control"  placeholder="Product Name">
               </div>
               
               <div class="form-group">
                 <label for="exampleFormControlSelect1">Categorie</label>
-                <select class="form-control" id="exampleFormControlSelect1">
-                  <option v-for="cat in cats" :key="cat" >{{cat}}</option>
+                <select v-model="product.categorie" class="form-control" id="exampleFormControlSelect1">
+                  <option v-for="(cat, idx) in cats" :key="idx" >{{cat}}</option>
                 </select>
               </div>
               <div class="form-group">
                 <label for="exampleFormControlTextarea1">description Maxiumum 30 </label>
-                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                <textarea v-model="product.description" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
               </div>
 
 
               <div class="form-group">
                 <label for="exampleFormControlInput1">Price example: if $10.00 then enter 1000 </label>
-                <input type="text" class="form-control"  placeholder="Price $CAD">
+                <input v-model="product.price"  type="text" class="form-control"  placeholder="Price $CAD">
               </div>
               <div class="form-group">
                 <label for="exampleFormControlInput1">weight</label>
-                <input type="text" class="form-control"  placeholder="Weight">
+                <input v-model="product.weight"  type="text" class="form-control"  placeholder="Weight">
               </div>
               <div class="form-group">
                 <label for="exampleFormControlInput1">Size</label>
-                <input type="text" class="form-control"  placeholder="Size">
+                <input v-model="product.size"  type="text" class="form-control"  placeholder="Size">
               </div>
               <div class="form-group">
                 <label for="exampleFormControlInput1">Product Shipping Cost</label>
-                <input type="text" class="form-control"  placeholder="Shipping Cost">
+                <input v-model="product.shippingcost"  type="text" class="form-control"  placeholder="Shipping Cost">
               </div>
               <div class="form-group">
                 <label for="exampleFormControlInput1">Quatity in Stock</label>
-                <input type="text" class="form-control"  placeholder="Qty">
+                <input v-model="product.qty"  type="text" class="form-control"  placeholder="Qty">
               </div>
 
               
               
             </form>
             <div class="modal-footer">
-              <button type="button" class="btn btn-primary">Save changes</button>
+              <button @click="saveData()" type="button" class="btn btn-primary">Save changes</button>
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
           </div>
@@ -98,7 +98,7 @@
         <div class="searchbar">
           <div class="searchbar-collection">
             <select id="cats" class="searchbar__select">
-              <option class="searchbar__options" v-for="cat in cats" :key="cat" :value="cat">{{cat}}</option>
+              <option class="searchbar__options" v-for="(cat, idx) in cats" :key="idx" :value="cat">{{cat}}</option>
             </select>
             <input type="text" class="searchbar__input" name="q" placeholder="Search Items" autocomplete="off" >
             <button type="submit" class="searchbar__button">
@@ -108,7 +108,7 @@
         </div>
       </form>
     </div>
-    <div v-show ="tabelStyle" class="content-wrapper">
+    <div  class="content-wrapper">
       <div class="table-wrapper">
         <table class="table sticky">
           <thead>
@@ -128,7 +128,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="product in products" :key="product">
+            <tr v-for="(product, idx) in products" :key="idx">
               <th data-label="Select"><input type="checkbox" value="" ></th>
               <td data-label="Id">1</td>
               <td data-label="Image">{{product.img}}</td>
@@ -139,7 +139,7 @@
               <td data-label="Shipping Cost">{{product.ShippingCost}}</td>
               <td data-label="In-Stock Quatity">{{product.qty}}</td>
               <th data-label=""><button class="btn btn-warning"><fa-icon :icon="['fa', 'eye']"/></button></th>
-              <th data-label="Modify"><button @click="modalAddProduct" class="btn btn-primary"><fa-icon :icon="['fa', 'edit']"/></button></th>
+              <th data-label="Modify"><button  class="btn btn-primary"><fa-icon :icon="['fa', 'edit']"/></button></th>
               
               
             </tr>
@@ -153,50 +153,18 @@
 </template>
 
 <script>
+import {db} from '../firebase';
+
 export default {
-  name: "Products",
+  
   props: {
     
   },
   data() {
     return {
-      
+      cats: ['All', 'Dry', 'Frozen', 'Chips', 'Pop'],
       editProduct: false,
-      products: [
-        {
-          img: 'pepsi.jpg',
-          name: 'Pepsi',
-          description: '24 Cans',
-          price: '19.99',
-          weight: '20 Lbs',
-          ShippingCost: '8.00',
-          size: '30',
-          qty: '23',
-          InStock: 'In Stock!'
-        },
-        {
-          img: 'pepsi.jpg',
-          name: 'Orange Crush',
-          description: '12 Cans',
-          price: '9.99',
-          weight: '10 Lbs',
-          ShippingCost: '4.00',
-          size: '20',
-          qty: '0',
-          InStock: 'Out Of Stock!'
-        },
-        {
-          img: 'pepsi.jpg',
-          name: 'Coke',
-          description: '32 Cans',
-          price: '15.99',
-          weight: '30 Lbs',
-          ShippingCost: '12.00',
-          size: '30',
-          qty: '33',
-          InStock: 'In Stock!'
-        },
-        {
+      products: [{
           img: 'pepsi.jpg',
           name: 'Grape Crush',
           description: '12 Cans',
@@ -206,91 +174,19 @@ export default {
           size: '20',
           qty: '16',
           InStock: 'In Stock!'
-        },
-        {
-          img: 'pepsi.jpg',
-          name: 'Grape Crush',
-          description: '12 Cans',
-          price: '8.99',
-          weight: '10 Lbs',
-          ShippingCost: '8.00',
-          size: '20',
-          qty: '16',
-          InStock: 'In Stock!'
-        },
-        {
-          img: 'pepsi.jpg',
-          name: 'Grape Crush',
-          description: '12 Cans',
-          price: '8.99',
-          weight: '10 Lbs',
-          ShippingCost: '8.00',
-          size: '20',
-          qty: '16',
-          InStock: 'In Stock!'
-        },
-        {
-          img: 'pepsi.jpg',
-          name: 'Orange Crush',
-          description: '12 Cans',
-          price: '9.99',
-          weight: '10 Lbs',
-          ShippingCost: '4.00',
-          size: '20',
-          qty: '0',
-          InStock: 'Out Of Stock!'
-        },
-        {
-          img: 'pepsi.jpg',
-          name: 'Coke',
-          description: '32 Cans',
-          price: '15.99',
-          weight: '30 Lbs',
-          ShippingCost: '12.00',
-          size: '30',
-          qty: '33',
-          InStock: 'In Stock!'
-        },
-        {
-          img: 'pepsi.jpg',
-          name: 'Grape Crush',
-          description: '12 Cans',
-          price: '8.99',
-          weight: '10 Lbs',
-          ShippingCost: '8.00',
-          size: '20',
-          qty: '16',
-          InStock: 'In Stock!'
-        },
-        {
-          img: 'pepsi.jpg',
-          name: 'Grape Crush',
-          description: '12 Cans',
-          price: '8.99',
-          weight: '10 Lbs',
-          ShippingCost: '8.00',
-          size: '20',
-          qty: '16',
-          InStock: 'In Stock!'
-        },
-        {
-          img: 'pepsi.jpg',
-          name: 'Grape Crush',
-          description: '12 Cans',
-          price: '8.99',
-          weight: '10 Lbs',
-          ShippingCost: '8.00',
-          size: '20',
-          qty: '16',
-          InStock: 'In Stock!'
-        }
-
- 
-
+        }],
+      product: {
+        name:null,
+        categorie:null,
+        description:null,
+        price:null,
+        weight:null,
+        shippingcost:null,
+        size:null,
+        qty:null,
         
-
-      ],
-      cats:['All', 'Pops', 'Chips', 'Supplies', 'Frozen'],
+      },
+      
       pageEmpty: false,
       ImgSource: 'public/admin_img/products.svg',
       AdminPage: 'Products',
@@ -298,13 +194,38 @@ export default {
                          elit. Laudantium dolorum sint nobis ex illo inventore autem consectetur 
                          aspernatur possimus exercitationem.`
     }
-  },
-  methods:{
-    modalAddProduct(){
-      this.$modal.show('modal-addProduct');
+    },
+    methods:{
+      modalAddProduct(){
+        this.$modal.show('modal-addProduct');
+      },
+      addProduct(){
+      // Add a new document in collection "cities"
+        db.collection("Products").doc("LA").set({
+            name: "Los Angeles",
+            state: "CA",
+            country: "USA"
+        })
+        .then(function() {
+            console.log("Document successfully written!");
+        })
+        .catch(function(error) {
+            console.error("Error writing document: ", error);
+        });
+      },
+      saveData(){
+        db.collection("products").add(this.product)
+        .then(function(docRef) {
+          console.log("document written with ID: ", docRef.id);
+        })
+        .catch(function(error) {
+          console.error("Error adding document: ", error);
+          
+        })
+      },
     }
   }
-};
+
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -313,7 +234,11 @@ export default {
   font-size: 1.1rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
-
+// MODAL ADD PRODUCTS START <-----
+.modal-header h5{
+  font-size: 2.5rem;
+}
+// MODAL ADD PRODUCTS END<-----
 // SWITCH STYLE START <----
 .switch {
   position: relative;
@@ -381,9 +306,10 @@ input:checked + .slider:before {
   display: grid;
   width: 100%;
   padding: 5px 20px 0 60px;
-  height: 60px;
+  height: 55px;
   justify-content: space-between;
-  
+  background-color: var(--lightwhite1);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
   grid-template-columns: repeat(2, auto);
   align-items: center;
 }

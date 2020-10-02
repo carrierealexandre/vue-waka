@@ -6,8 +6,10 @@ import jQuery from'jquery';
 import './icon.js';
 import VModal from 'vue-js-modal';
 import {fb} from './firebase';
+// import VueFirestore from 'vue-firestore'
 
-Vue.use(VModal)
+Vue.use(VModal);
+// Vue.use(VueFirestore);
 
 window.$ = window.jQuery = jQuery;
 

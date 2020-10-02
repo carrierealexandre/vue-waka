@@ -243,7 +243,7 @@ export default {
 .navbar{
   width: 100%;
   height: 60px;
-  background-color: var(--blue);
+  background-color: var(--dark);
   display: grid;
   grid-template-columns: auto auto 1fr 350px;
 }
