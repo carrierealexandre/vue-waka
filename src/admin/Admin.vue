@@ -293,6 +293,7 @@
 // @ is an alias to /src
 import Admin from "@/components/Admin.vue";
 import {fb} from "../firebase";
+import $ from 'jquery'
 
 export default {
   name: "Admin",
@@ -344,7 +345,9 @@ export default {
 
 <style lang="scss">
 // General Styling
-
+.somestuff {
+    z-index: 99;
+}
 .somestuff i {
   position: absolute;
   top: 10px;

@@ -7,7 +7,15 @@
       :AdminPage='AdminPage'
       :AdminPageContent='AdminPageContent'
       ></whenempty>
+
+      
+
     <div class="header-wrapper">
+      <div v-show="productSuccessAlert" id="success-alert" class="center-screen alert alert-success" role="alert">
+      
+        {{product.name}} Added successfully! Id: {{docRefId}}
+
+      </div>
       <div class="btn-group-wrapper">
         <div class="">
           <h3>Products Admin</h3>
@@ -20,18 +28,19 @@
             </label> -->
           </div>
           <div class="btnadd-top-admin">
-            <button class="btn " data-toggle="modal" data-target=".bd-example-modal-lg" ><fa-icon :icon="['fa', 'plus']"/><span>Add</span></button>
+            <button class="btn " data-toggle="modal" data-target="#addProductModal" ><fa-icon :icon="['fa', 'plus']"/><span>Add</span></button>
           </div>
           <div class="btndel-top-admin"> 
             <button class="btn " @click="modalAddProduct"><fa-icon :icon="['fa', 'trash-alt']"/> <span>Delete</span> </button>
           </div>
         </div>
       </div>
+
       
       
-      <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div  class="modal fade" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
-          <div class="modal-content">
+          <div id="#myModal" class="modal-content">
             <div class="modal-header container">
               <h5 class="modal-title">Add Product</h5>
               <h5 v-show="editProduct" class="modal-title">Edit Product</h5>
@@ -86,7 +95,7 @@
               
             </form>
             <div class="modal-footer">
-              <button @click="saveData()" type="button" class="btn btn-primary">Save changes</button>
+              <button @click="saveData()" type="button" class="btn btn-primary " data-dismiss="modal" aria-label="Close">Save changes</button>
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
           </div>
@@ -136,7 +145,7 @@
               <td data-label="Description">{{product.description}}</td>
               <td data-label="Price">{{product.price}}</td>
               <td data-label="Weight">{{product.weight}}</td>
-              <td data-label="Shipping Cost">{{product.ShippingCost}}</td>
+              <td data-label="Shipping Cost">{{product.shippingcost}}</td>
               <td data-label="In-Stock Quatity">{{product.qty}}</td>
               <th data-label=""><button class="btn btn-warning"><fa-icon :icon="['fa', 'eye']"/></button></th>
               <th data-label="Modify"><button  class="btn btn-primary"><fa-icon :icon="['fa', 'edit']"/></button></th>
@@ -154,7 +163,7 @@
 
 <script>
 import {db} from '../firebase';
-
+import $ from 'jquery'
 export default {
   
   props: {
@@ -162,19 +171,11 @@ export default {
   },
   data() {
     return {
+      docRefId:'',
+      productSuccessAlert: false,
       cats: ['All', 'Dry', 'Frozen', 'Chips', 'Pop'],
       editProduct: false,
-      products: [{
-          img: 'pepsi.jpg',
-          name: 'Grape Crush',
-          description: '12 Cans',
-          price: '8.99',
-          weight: '10 Lbs',
-          ShippingCost: '8.00',
-          size: '20',
-          qty: '16',
-          InStock: 'In Stock!'
-        }],
+      products: [],
       product: {
         name:null,
         categorie:null,
@@ -195,7 +196,24 @@ export default {
                          aspernatur possimus exercitationem.`
     }
     },
+    
+  created(){
+    this.readData();
+  },
+    
     methods:{
+      readData(){
+        db.collection("products").get().then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            // doc.data() is never undefined for query doc snapshots
+            
+            this.products.push(doc.data());
+          });
+        });
+      },
+      toggleModal() {
+        this.modalShown = !this.modalShown;
+      },
       modalAddProduct(){
         this.$modal.show('modal-addProduct');
       },
@@ -215,14 +233,33 @@ export default {
       },
       saveData(){
         db.collection("products").add(this.product)
-        .then(function(docRef) {
+        .then((docRef) => {
           console.log("document written with ID: ", docRef.id);
+          $('#addProductModal').modal('hide');
+
+          // Alerting client that product as been added successfully
+          this.docRefId = docRef.id
+          this.productSuccessAlert = true
+          // reseting the form
+          
+
+          $(".alert").delay(2000).slideUp(200, () => {
+              this.productSuccessAlert = false
+              this.reset();
+              this.readData();            
+          });
+
         })
         .catch(function(error) {
           console.error("Error adding document: ", error);
           
         })
+        
       },
+      
+      reset(){
+        Object.assign(this.$data, this.$options.data.apply(this));
+      }
     }
   }
 
@@ -234,11 +271,26 @@ export default {
   font-size: 1.1rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
+.products{
+  z-index: 1;
+}
 // MODAL ADD PRODUCTS START <-----
 .modal-header h5{
   font-size: 2.5rem;
 }
 // MODAL ADD PRODUCTS END<-----
+
+
+.center-screen{
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 50%;
+  z-index: 9999;
+
+}
+// ALERT PRODUCTS END<-----
+
 // SWITCH STYLE START <----
 .switch {
   position: relative;
@@ -306,7 +358,7 @@ input:checked + .slider:before {
   display: grid;
   width: 100%;
   padding: 5px 20px 0 60px;
-  height: 55px;
+  height: 50px;
   justify-content: space-between;
   background-color: var(--lightwhite1);
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
