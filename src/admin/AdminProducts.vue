@@ -17,28 +17,16 @@
 
       </div>
       <div class="btn-group-wrapper">
-        <div class="">
+
+        <div>
           <h3>Products Admin</h3>
         </div>
-        <div class="btn-top__wrapper">
-          <div>
-            <!-- <label class="switch">
-              <input v-model="tabelStyle" type="checkbox">
-              <span class="slider round"></span>
-            </label> -->
-          </div>
-          <div class="btnadd-top-admin">
-            <button class="btn " data-toggle="modal" data-target="#addProductModal" ><fa-icon :icon="['fa', 'plus']"/><span>Add</span></button>
-          </div>
-          <div class="btndel-top-admin"> 
-            <button class="btn " @click="modalAddProduct"><fa-icon :icon="['fa', 'trash-alt']"/> <span>Delete</span> </button>
-          </div>
-        </div>
+        
       </div>
 
       
       
-      <div  class="modal fade" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div  class="modal fade bd-example-modal-lg" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
           <div id="#myModal" class="modal-content">
             <div class="modal-header container">
@@ -106,9 +94,7 @@
       <form>
         <div class="searchbar">
           <div class="searchbar-collection">
-            <select id="cats" class="searchbar__select">
-              <option class="searchbar__options" v-for="(cat, idx) in cats" :key="idx" :value="cat">{{cat}}</option>
-            </select>
+            
             <input type="text" class="searchbar__input" name="q" placeholder="Search Items" autocomplete="off" >
             <button type="submit" class="searchbar__button">
               <fa-icon class="material-icons" :icon="['fa', 'search']" />
@@ -117,19 +103,99 @@
         </div>
       </form>
     </div>
+    <div class="workbar">
+      <div class="workerbar-sizer">
+        <div class="workbar-left">
+
+          <div class="work-select" role="button">
+            <input class="work-checkbox" type="checkbox" value="" >
+          </div>
+          
+          <div class="work-refresh" role="button">
+            <fa-icon class="work-icon" :icon="['fa', 'redo-alt']"/>
+          </div>
+
+          <div class="work-add" data-toggle="modal" data-target=".bd-example-modal-lg" role="button">
+            <fa-icon class="work-icon" :icon="['fa', 'plus-square']"/>
+          </div>
+
+          <div class="work-delete" role="button">
+            <fa-icon class="work-icon" :icon="['fa', 'trash-alt']"/>
+          </div>
+
+          <div class="work-more" role="button">
+            <fa-icon class="work-icon" :icon="['fa', 'ellipsis-v']"/>
+          </div>
+          
+        </div>
+        <div class="workbar-right">
+          <div class="work-numberofpages-wrapper">
+            <div class="start">
+              <span>1</span>
+            </div>
+            <span>-</span>
+            <div class="end">
+              10
+            </div>
+            <span>of</span>
+            <div class="total">
+              10
+            </div>
+          </div>
+          <div class="changepage">
+            <div class="left-arrow" role="button">
+              <fa-icon class="work-icon" :icon="['fa', 'chevron-left']"/>
+            </div>
+            <div class="right-arrow" role="button">
+              <fa-icon class="work-icon" :icon="['fa', 'chevron-right']"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cats-filter-wrapper">
+      <div class="block-container">
+        <div class="all">
+          <span>All</span>
+        </div>
+      </div>
+      <div class="block-container">
+        <div class="frozen">
+          <span>Frozen</span>
+        </div>
+      </div>
+      <div class="block-container">
+        <div class="beverages">
+          <span>Beverages</span>
+        </div>
+      </div>
+      <div class="block-container">
+        <div class="chips">
+          <span>chips</span>
+        </div>
+      </div>
+      <div class="block-container">
+        <div class="utilities">
+          <span>Utilities</span>
+        </div>
+      </div>
+        
+       
+
+    </div>
     <div  class="content-wrapper">
       <div class="table-wrapper">
         <table class="table sticky">
           <thead>
             <tr>
-              <th scope="col"></th>
+              <th class="row-select" scope="col"></th>
               <th scope="col">Id</th>
               <th scope="col">Img</th>
               <th scope="col">Name</th>
               <th scope="col">Description</th>
               <th scope="col">Price</th>
               <th scope="col">Weight</th>
-              <th scope="col">Shipping cost</th>
+              <th scope="col">Shipping</th>
               <th scope="col">Qty</th>
               <th scope="col"></th>
               <th scope="col"></th>
@@ -147,8 +213,8 @@
               <td data-label="Weight">{{product.weight}}</td>
               <td data-label="Shipping Cost">{{product.shippingcost}}</td>
               <td data-label="In-Stock Quatity">{{product.qty}}</td>
-              <th data-label=""><button class="btn btn-warning"><fa-icon :icon="['fa', 'eye']"/></button></th>
-              <th data-label="Modify"><button  class="btn btn-primary"><fa-icon :icon="['fa', 'edit']"/></button></th>
+              <th data-label=""><button class="product-view"><fa-icon :icon="['fa', 'eye']"/></button></th>
+              <th data-label="Modify"><button  class="product-edit"><fa-icon :icon="['fa', 'edit']"/></button></th>
               
               
             </tr>
@@ -355,56 +421,30 @@ input:checked + .slider:before {
 
 // HEADER STYLE START <----
 .btn-group-wrapper{
-  display: grid;
+  
   width: 100%;
-  padding: 5px 20px 0 60px;
-  height: 50px;
-  justify-content: space-between;
+  display: flex;
+  
+  justify-content: center;
   background-color: var(--lightwhite1);
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-  grid-template-columns: repeat(2, auto);
+  
   align-items: center;
-}
-.btn-top__wrapper{
-  display: flex;
-  justify-content: flex-end;
 }
 .btn-group-wrapper h3 {
   font-size: 2.5rem;
   color: var(--blue);
   padding-right: 30px;
 }
-.btn-group-wrapper button{
-  margin-right: 30px;;
-  padding: 0 20px 0 20px;
-}
-.btnadd-top-admin button{
-  background-color: var(--lightBlue);
-  color: var(--lightwhite1);
-  border: none;
-  outline: none;
-}
-.btndel-top-admin button{
-  background-color: var(--lightBlue);
-  border: none;
-  outline: none;
-  color: var(--lightwhite1);
-}
-.btndel-top-admin button span,
-.btnadd-top-admin button span{
-  padding-left: 5px;
-}
-.btndel-top-admin button:hover,
-.btnadd-top-admin button:hover{
-  color: var(--primary);
-}
+
 
 
 // HEADER STYLE FINISH <----
 
 .modal-content{
   padding:30px;
-  height: 600px;
+  
+  height: 90vh;
   overflow-y: scroll ;
 }
 // SEARCHBAR STYLE START <----
@@ -414,7 +454,10 @@ input:checked + .slider:before {
 }
 .searchbar-collection{
   width: 100%;
-  display: inline-flex;
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--primary);
+  border-radius: 5px;
 }
 .searchbar{
   width: 100%;
@@ -428,7 +471,8 @@ input:checked + .slider:before {
   padding: 10px;
   outline: none;
   border: none;
-  background: var(--lightwhite1);
+  border-radius: 5px;
+  background: var(--primary);
   transition: background 0.25s, box-shadow 0.25s;
 }
 .searchbar__input{
@@ -447,11 +491,11 @@ input:checked + .slider:before {
     display: block;
     width: 0;
     height: 2px;
-    background:var(--grenner);
+    background:var(--lightBlue);
     transition: width .3s;
 }
 .searchbar:focus-within::after {
-    width: 100%;
+    width: 99.7%;
     //transition: width .3s;
 }
 .searchbar:focus{
@@ -461,15 +505,15 @@ input:checked + .slider:before {
 .searchbar__select option,
 .searchbar__select,
 .searchbar__input::placeholder {
-    color: var(--grenner);
+    color: var(--lightBlue);
     font-size: 1.1rem;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 .searchbar__button {
     width: 10%;
-    background: var(--lightwhite1);
+    background: var(--primary);
     color: #ffffff;
-    background: #F4FAF9;
+    
     display: flex;
     align-items: center;
     justify-content: center;
@@ -481,7 +525,7 @@ input:checked + .slider:before {
 }
 .material-icons{
   font-size: 1.5rem;
-  color: var(--grenner);
+  color: var(--lightBlue);
 }
 @keyframes search {
   0% { border-width: 0%;}
@@ -490,54 +534,202 @@ input:checked + .slider:before {
 }
 // SEARCHBAR STYLE FINISH <----
 
+// WORKBAR STYLE START <----
+.workerbar-sizer,.workbar-left,.workbar-right,.work-numberofpages-wrapper,.changepage{
+  display: flex;
+}
+.work-icon{
+  font-size: 1.0rem;
+  color: var(--gray);
+}
+.work-select{
+  border-radius: 5px !important;
+}
+
+.work-checkbox{
+  height: 15px;
+  width: 15px;
+  
+}
+.workerbar-sizer{
+  
+  border-bottom: 1px solid var(--primary);
+  padding-right: 10px;
+  justify-content: space-between;
+  align-items: center;
+  
+}
+.workbar-left{
+
+}
+.workbar-left > div{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 10px;
+  margin: 5px 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50px;
+  
+}
+.workbar-left > div:hover{
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+}
+.work-select,.work-refresh,.work-add,.work-delete,.work-more{
+  position: relative;
+}
+.work-select:hover::after{
+  content: "Select";
+  position: absolute;
+  bottom: -30px;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
+
+.work-refresh:hover::after{
+  content: "Refresh";
+  position: absolute;
+  bottom: -30px;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
+
+.work-add:hover::after{
+  content: "Add new";
+  position: absolute;
+  bottom: -30px;
+  width: 75px;
+  text-align: center;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
+.work-delete:hover::after{
+  content: "Delete";
+  position: absolute;
+  bottom: -30px;
+  text-align: center;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
+
+.work-more:hover::after{
+  content: "More";
+  transition-delay:1s;
+  position: absolute;
+  bottom: -30px;
+  text-align: center;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
+//WORKBAR STYLE FINISH <----
+
+// CATHEGORY FILTER STYLE START <----
+.cats-filter-wrapper{
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  grid-template-columns: repeat(5, 1fr);
+}
+.block-container{
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.block-container:hover{
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+}
+// CATHEGORY FILTER STYLE FINISH <----
+
 // TABLE STYLE START <----
 .table th,.table td{
   vertical-align: inherit;
+  padding: 0rem;
+  
 }
 
-
-.table td{
-  margin-top: 60px;
-  color: var(--grenner);
+.row-select{
+  height: 20px;
+  width: 50px;;
 }
-tr:hover{
+.product-edit, .product-view{
+  width: 30px;
+  height: 30px;
+  border: none;
+  
+  background: none;
+  outline: none;
+}
+.product-edit{
+  color: var(--lightBlue);
+}
+.product-view{
+  color: var(--lighterBlue);
+}
+thead{
   background-color: var(--primary);
 }
-.table.sticky th{
-  position: sticky;
-  top: 0;
+tbody tr{
+  background-color: var(--primaryT);
 }
-.table.sticky thead th::after{
-  content: '';
-  width: 100%;
-  height: 2px;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  background-color: var(--dark);
+tr:hover{
+  
+  
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+  
 }
+// .table.sticky th{
+//   position: sticky;
+//   top: 0;
+// }
+// .table.sticky thead th::after{
+//   content: '';
+//   width: 100%;
+//   height: 2px;
+//   position: absolute;
+//   bottom: 0;
+//   left: 0;
+//   background-color: var(--dark);
+// }
 .table{
   border-radius: 5px;
-  border-top: 1px solid var(--primary);
+  
+  
   overflow: scroll;
+  text-align: center;
+}
+.table thead th{
+  border-bottom: 0;
 }
 thead tr th{
-  background-color: var(--grenner);
-  
+  // background-color: var(--blue1);
+  color: var(--lightBlue);
+  letter-spacing: 1px;
+  font-weight: 600;
+  height: 40px;
   z-index: 999;
 }
 .table-wrapper{
-  box-shadow: var(--shadow1);
-  width: 95%;
-  border: 1px solid var(--primary);
-  overflow-y: scroll;
+  width: 100%;
 }
-.content-wrapper{
-  margin-top: 30px;
-  display: flex;
-  height: 580px;
-  justify-content: center;
-}
+
 // TABLE STYLE FINISH <----
 
 // Scrool bar styling start <----
@@ -588,7 +780,7 @@ only screen and (max-width: 1236px),
     text-align: center;
     width: 100vw;
   }
-  
+ 
   .table td{
     text-align: right;
     padding-left:50%;
