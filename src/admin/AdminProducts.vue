@@ -8,226 +8,311 @@
       :AdminPageContent='AdminPageContent'
       ></whenempty>
 
+    
       
+        
+        <div class="popup-wrapper">
 
-    <div class="header-wrapper">
-      <div v-show="productSuccessAlert" id="success-alert" class="center-screen alert alert-success" role="alert">
-      
-        {{product.name}} Added successfully! Id: {{docRefId}}
+          
+          
+          <div v-show="confirmDelete"  class="confirm-delete-pop-up dflex centercenter" role="alert">
+          
+            <div class="alert-wrapper ">
+              <div class="alert-title">
+                <span> Confirm Delete</span>
+              </div>
+              <div>
+                <fa-icon class="alert-icon" :icon="['fa', 'exclamation-triangle']" />
+              </div>
+              <div class="alert-message ">
+                <span class="dflex centercenter">Are you sure that you want to permannently DELETE the ({{checkedNumbers}}{{single}}) SELECTED product{{s}}</span>
+              </div>
+              <div class="delete-action">
+                <div class="action-cancel" @click="closewindow" role="button">Cancel</div>
+                <div @click="deleteProduct" class="action-confirmed" role="button">Delete</div>
+              </div>
 
-      </div>
-      <div class="btn-group-wrapper">
+            </div>
 
-        <div>
-          <h3>Products Admin</h3>
+          </div>
+        </div>
+      <div class="header-wrapper">
+        
+        <div v-show="noProductSelected"  class="center-screen alert alert-warning" role="alert">
+        
+          0 Product selected, please select the product(s) you wish to trash!
+
         </div>
         
-      </div>
+        <div v-show="productDeletedAlert"  class="center-screen alert alert-danger" role="alert">
+        
+          {{product.name}} Product{{s}} {{deletemsg}} Deleted! Id:{{realId}} {{docRefId}}
 
-      
-      
-      <div  class="modal fade bd-example-modal-lg" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-          <div id="#myModal" class="modal-content">
-            <div class="modal-header container">
-              <h5 class="modal-title">Add Product</h5>
-              <h5 v-show="editProduct" class="modal-title">Edit Product</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
+        </div>
+        
+        
+        <div class="btn-group-wrapper">
+
+          <div>
+            <h3>Products Admin</h3>
+          </div>
+          
+        </div>
+
+        
+        
+        <div  class="modal fade bd-example-modal-lg" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div id="#myModal" class="modal-content">
+              <div class="modal-header container">
+                <h5 class="modal-title">Add Product</h5>
+                <h5 v-show="editProduct" class="modal-title">Edit Product</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <form>
+                <div class="form-group">
+                  <label for="exampleFormControlFile1">Image</label>
+                  <input type="file" class="form-control-file" id="exampleFormControlFile1">
+                </div>
+                <div class="form-group">
+                  <label for="exampleFormControlInput1">Product ID</label>
+                  <input v-model="product.productId" type="text" class="form-control"  placeholder="Product ID">
+                </div>
+                <div class="form-group">
+                  <label for="exampleFormControlInput1">Product name</label>
+                  <input v-model="product.name" type="text" class="form-control"  placeholder="Product Name">
+                </div>
+                
+                <div class="form-group">
+                  <label for="exampleFormControlSelect1">Categorie</label>
+                  <select v-model="product.categorie" class="form-control" id="exampleFormControlSelect1">
+                    <option v-for="(cat, idx) in cats" :key="idx" >{{cat}}</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="exampleFormControlTextarea1">description Maxiumum 30 </label>
+                  <textarea v-model="product.description" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                </div>
+
+
+                <div class="form-group">
+                  <label for="exampleFormControlInput1">Price example: if $10.00 then enter 1000 </label>
+                  <input v-model="product.price"  type="text" class="form-control"  placeholder="Price $CAD">
+                </div>
+                <div class="form-group">
+                  <label for="exampleFormControlInput1">weight</label>
+                  <input v-model="product.weight"  type="text" class="form-control"  placeholder="Weight">
+                </div>
+                <div class="form-group">
+                  <label for="exampleFormControlInput1">Size</label>
+                  <input v-model="product.size"  type="text" class="form-control"  placeholder="Size">
+                </div>
+                <div class="form-group">
+                  <label for="exampleFormControlInput1">Product Shipping Cost</label>
+                  <input v-model="product.shippingcost"  type="text" class="form-control"  placeholder="Shipping Cost">
+                </div>
+                <div class="form-group">
+                  <label for="exampleFormControlInput1">Quatity in Stock</label>
+                  <input v-model="product.qty"  type="text" class="form-control"  placeholder="Qty">
+                </div>
+
+                
+                
+              </form>
+              <div class="modal-footer">
+                <button @click="saveData()" type="button" class="btn btn-primary " data-dismiss="modal" aria-label="Close">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-wrapper">
+        <form>
+          <div class="searchbar">
+            <div class="searchbar-collection">
+              
+              <input type="text" class="searchbar__input" name="q" placeholder="Search Items" autocomplete="off" >
+              <button type="submit" class="searchbar__button">
+                <fa-icon class="material-icons" :icon="['fa', 'search']" />
               </button>
             </div>
-            <form>
-              <div class="form-group">
-                <label for="exampleFormControlFile1">Image</label>
-                <input type="file" class="form-control-file" id="exampleFormControlFile1">
-              </div>
-              <div class="form-group">
-                <label for="exampleFormControlInput1">Product name</label>
-                <input v-model="product.name" type="text" class="form-control"  placeholder="Product Name">
-              </div>
-              
-              <div class="form-group">
-                <label for="exampleFormControlSelect1">Categorie</label>
-                <select v-model="product.categorie" class="form-control" id="exampleFormControlSelect1">
-                  <option v-for="(cat, idx) in cats" :key="idx" >{{cat}}</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="exampleFormControlTextarea1">description Maxiumum 30 </label>
-                <textarea v-model="product.description" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-              </div>
-
-
-              <div class="form-group">
-                <label for="exampleFormControlInput1">Price example: if $10.00 then enter 1000 </label>
-                <input v-model="product.price"  type="text" class="form-control"  placeholder="Price $CAD">
-              </div>
-              <div class="form-group">
-                <label for="exampleFormControlInput1">weight</label>
-                <input v-model="product.weight"  type="text" class="form-control"  placeholder="Weight">
-              </div>
-              <div class="form-group">
-                <label for="exampleFormControlInput1">Size</label>
-                <input v-model="product.size"  type="text" class="form-control"  placeholder="Size">
-              </div>
-              <div class="form-group">
-                <label for="exampleFormControlInput1">Product Shipping Cost</label>
-                <input v-model="product.shippingcost"  type="text" class="form-control"  placeholder="Shipping Cost">
-              </div>
-              <div class="form-group">
-                <label for="exampleFormControlInput1">Quatity in Stock</label>
-                <input v-model="product.qty"  type="text" class="form-control"  placeholder="Qty">
-              </div>
-
-              
-              
-            </form>
-            <div class="modal-footer">
-              <button @click="saveData()" type="button" class="btn btn-primary " data-dismiss="modal" aria-label="Close">Save changes</button>
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
           </div>
-        </div>
+        </form>
       </div>
-    </div>
-    <div class="form-wrapper">
-      <form>
-        <div class="searchbar">
-          <div class="searchbar-collection">
+      <div class="workbar">
+        <div class="workerbar-sizer">
+          <div class="workbar-left">
+
+            <div @click="selectorAll" class="work-select" role="button">
+              <input  class="work-checkbox selectall"  type="checkbox" name="sample" >
+            </div>
             
-            <input type="text" class="searchbar__input" name="q" placeholder="Search Items" autocomplete="off" >
-            <button type="submit" class="searchbar__button">
-              <fa-icon class="material-icons" :icon="['fa', 'search']" />
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
-    <div class="workbar">
-      <div class="workerbar-sizer">
-        <div class="workbar-left">
+            <div class="work-refresh" role="button">
+              <fa-icon class="work-icon" :icon="['fa', 'redo-alt']"/>
+            </div>
 
-          <div class="work-select" role="button">
-            <input class="work-checkbox" type="checkbox" value="" >
-          </div>
-          
-          <div class="work-refresh" role="button">
-            <fa-icon class="work-icon" :icon="['fa', 'redo-alt']"/>
-          </div>
+            <div class="work-add" data-toggle="modal" data-target=".bd-example-modal-lg" role="button">
+              <fa-icon class="work-icon" :icon="['fa', 'plus-square']"/>
+            </div>
 
-          <div class="work-add" data-toggle="modal" data-target=".bd-example-modal-lg" role="button">
-            <fa-icon class="work-icon" :icon="['fa', 'plus-square']"/>
-          </div>
+            <div class="work-delete" @click="confirmdeletewindow" role="button">
+              <fa-icon class="work-icon" :icon="['fa', 'trash-alt']"/>
+            </div>
 
-          <div class="work-delete" role="button">
-            <fa-icon class="work-icon" :icon="['fa', 'trash-alt']"/>
+            <div class="work-more" role="button">
+              <fa-icon class="work-icon" :icon="['fa', 'ellipsis-v']"/>
+            </div>
+            
           </div>
-
-          <div class="work-more" role="button">
-            <fa-icon class="work-icon" :icon="['fa', 'ellipsis-v']"/>
-          </div>
-          
-        </div>
-        <div class="workbar-right">
-          <div class="work-numberofpages-wrapper">
-            <div class="start">
-              <span>1</span>
+          <div class="workbar-right">
+            <div class="work-numberofpages-wrapper">
+              <div class="start">
+                <span>1</span>
+              </div>
+              <span>-</span>
+              <div class="end">
+                10
+              </div>
+              <span>of</span>
+              <div class="total">
+                10
+              </div>
             </div>
-            <span>-</span>
-            <div class="end">
-              10
-            </div>
-            <span>of</span>
-            <div class="total">
-              10
-            </div>
-          </div>
-          <div class="changepage">
-            <div class="left-arrow" role="button">
-              <fa-icon class="work-icon" :icon="['fa', 'chevron-left']"/>
-            </div>
-            <div class="right-arrow" role="button">
-              <fa-icon class="work-icon" :icon="['fa', 'chevron-right']"/>
+            <div class="changepage">
+              <div class="left-arrow" role="button">
+                <fa-icon class="work-icon" :icon="['fa', 'chevron-left']"/>
+              </div>
+              <div class="right-arrow" role="button">
+                <fa-icon class="work-icon" :icon="['fa', 'chevron-right']"/>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="cats-filter-wrapper">
-      <div class="block-container">
-        <div class="all">
-          <span>All</span>
-        </div>
-      </div>
-      <div class="block-container">
-        <div class="frozen">
-          <span>Frozen</span>
-        </div>
-      </div>
-      <div class="block-container">
-        <div class="beverages">
-          <span>Beverages</span>
-        </div>
-      </div>
-      <div class="block-container">
-        <div class="chips">
-          <span>chips</span>
-        </div>
-      </div>
-      <div class="block-container">
-        <div class="utilities">
-          <span>Utilities</span>
-        </div>
-      </div>
+      <div class="overflow">
         
-       
-
-    </div>
-    <div  class="content-wrapper">
-      <div class="table-wrapper">
-        <table class="table sticky">
-          <thead>
-            <tr>
-              <th class="row-select" scope="col"></th>
-              <th scope="col">Id</th>
-              <th scope="col">Img</th>
-              <th scope="col">Name</th>
-              <th scope="col">Description</th>
-              <th scope="col">Price</th>
-              <th scope="col">Weight</th>
-              <th scope="col">Shipping</th>
-              <th scope="col">Qty</th>
-              <th scope="col"></th>
-              <th scope="col"></th>
-              
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(product, idx) in products" :key="idx">
-              <th data-label="Select"><input type="checkbox" value="" ></th>
-              <td data-label="Id">1</td>
-              <td data-label="Image">{{product.img}}</td>
-              <td data-label="Product Name">{{product.name}}</td>
-              <td data-label="Description">{{product.description}}</td>
-              <td data-label="Price">{{product.price}}</td>
-              <td data-label="Weight">{{product.weight}}</td>
-              <td data-label="Shipping Cost">{{product.shippingcost}}</td>
-              <td data-label="In-Stock Quatity">{{product.qty}}</td>
-              <th data-label=""><button class="product-view"><fa-icon :icon="['fa', 'eye']"/></button></th>
-              <th data-label="Modify"><button  class="product-edit"><fa-icon :icon="['fa', 'edit']"/></button></th>
-              
-              
-            </tr>
+        
+        <div class="cats-filter-wrapper">
+          <div class="block-all">
+            <div class="all">
+              <span>All</span>
+            </div>
+          </div>
+          <div class="block-frozen">
+            <div class="frozen">
+              <span>Frozen</span>
+            </div>
+          </div>
+          <div class="block-beverages">
+            <div class="beverages">
+              <span>Beverages</span>
+            </div>
+          </div>
+          <div class="block-chips">
+            <div class="chips">
+              <span>chips</span>
+            </div>
+          </div>
+          <div class="block-utilities">
+            <div class="utilities">
+              <span>Utilities</span>
+            </div>
+          </div>
             
-          </tbody>
-        </table>
+          
 
+        </div>
+        <div  class="content-wrapper">
+          <div class="table-wrapper">
+            <table class="table sticky">
+              <thead>
+                <tr>
+                  <th class="row-select" scope="col"></th>
+                  <th scope="col">Id</th>
+                  
+                  <th scope="col">Name</th>
+                  <th scope="col">Description</th>
+                  <th scope="col">Price</th>
+                  <th scope="col">Weight</th>
+                  <th scope="col">Shipping</th>
+                  <th scope="col">Qty</th>
+                  <th scope="col endrow"></th>
+                  
+                  
+                </tr>
+              </thead>
+              <tbody id="productRow">
+                <tr class="data-row" v-for="(product, idx) in products" :key="idx">
+                  <th class="selecttablerow" data-label="Select"><input value="1" class="myCheck" @click.stop="checkedMe" type="checkbox" name="sample[]" ></th>
+                  <td data-label="Id">{{product.data().productId}}</td>
+                  <td data-label="Product Name">{{product.data().name}}</td>
+                  <td data-label="Description">{{product.data().description}}</td>
+                  <td data-label="Price">{{product.data().price}}</td>
+                  <td data-label="Weight">{{product.data().weight}}</td>
+                  <td data-label="Shipping Cost">{{product.data().shippingcost}}</td>
+                  <td data-label="In-Stock Quatity">{{product.data().qty}}</td>
+                  <td data-label="" class="show-more-tools" >
+                    <div class="work-wrapper">
+                      <div class="work">
+                        <div class="moretoit">
+                          <span>...</span>
+                        </div>
+                        <div class="td-work-wrapper">
+                          <div class="">
+                            <button class="product-view"><fa-icon :icon="['fa', 'eye']"/></button>
+                          </div>
+                          <div class="">
+                            <button  class="product-edit"><fa-icon :icon="['fa', 'edit']"/></button>
+                          </div> 
+                          <div class="">
+                            <button  class="product-chart"><fa-icon :icon="['fa', 'chart-line']"/></button>
+                          </div> 
+                          <div class="">
+                            <button @click="singleConfirmdeletewindow(product.id)"  class="product-trash"><fa-icon :icon="['fa', 'trash-alt']"/></button>
+                          </div>
+                        </div>
+                        
+                      </div>
+                      
+                    </div>
+                    
+                    
+                  </td>
+                  
+                  
+                  
+                </tr>
+                
+              </tbody>
+            </table>
+
+          </div>
+        </div>
       </div>
-    </div>
+    
   </div>
 </template>
 
 <script>
+
+function getNextSibling(elem, selector) {
+
+    // Get the next sibling element
+    var sibling = elem.nextElementSibling;
+
+    // If there's no selector, return the first sibling
+    if (!selector) return sibling;
+
+    // If the sibling matches our selector, use it
+    // If not, jump to the next sibling and continue the loop
+    while (sibling) {
+      if (sibling.matches(selector)) return sibling;
+      sibling = sibling.nextElementSibling
+    }
+}
 import {db} from '../firebase';
 import $ from 'jquery'
 export default {
@@ -238,11 +323,22 @@ export default {
   data() {
     return {
       docRefId:'',
+      s: '',
+      
+      // in productselected: [], we'll have to update the function ifmoreProducts() to falsify the 's' or not.
+      checkedNumbers: 0 ,
+      single: null,
+      realId: null,
+      deletemsg: '',
+      noProductSelected: false,
       productSuccessAlert: false,
-      cats: ['All', 'Dry', 'Frozen', 'Chips', 'Pop'],
+      productDeletedAlert: false,
+      confirmDelete: false,
+      cats: ['Dry', 'Frozen', 'Chips', 'Pop','Utilities'],
       editProduct: false,
       products: [],
       product: {
+        productId:null,
         name:null,
         categorie:null,
         description:null,
@@ -260,22 +356,145 @@ export default {
       AdminPageContent: `Lorem ipsum dolor, sit amet consectetur adipisicing 
                          elit. Laudantium dolorum sint nobis ex illo inventore autem consectetur 
                          aspernatur possimus exercitationem.`
-    }
+      }
     },
     
+    mounted(){
+    
+    // $('.selectall').click(function() {
+      
+    //     if ($(this).is(':checked')) {
+    //         $('div input').prop('checked', true);
+    //         $('#productRow tr').css("background-color","#c2dbff");
+    //         $('.work').css("background-color","#c2dbff");
+    //         var upNum = $('.data-row th').children().length;
+    //         console.log(upNum);
+    //         this.checkedNumbers = this.checkedNumbers + upNum;
+
+    //     } else {
+    //         $('div input').prop('checked', false);
+    //         $('#productRow tr').css("background-color","var(--light)");
+    //         $('.work').css("background-color","var(--light");
+            
+    //     }
+    // });
+    },
+
   created(){
     this.readData();
   },
     
     methods:{
+      deleteProduct(){
+        this.productDeletedAlert = true
+          // reseting the form
+          this.checkedNumbers = 0
+          $('.popup-wrapper').css("display","none");
+          this.single = ''
+          db.collection("products").doc(this.realId).delete().then(() => {
+            this.deletemsg = 'Successfully'
+            $(".alert").delay(2000).slideUp(200, () => {
+              this.productDeletedAlert = false
+              
+              
+                       
+            });
+          }).catch(function(error) {
+            this.deletemsg = 'Unable to'
+            $(".alert").delay(2000).slideUp(200, () => {
+              this.productDeletedAlert = false
+            console.error("error removing document: ", error);
+          });
+          });
+          
+      },
+      selectorAll: function(event){
+        const checkBox = event.target
+        if (checkBox.checked) {
+            $('div input').prop('checked', true);
+            $('#productRow tr').css("background-color","#c2dbff");
+            $('.work').css("background-color","#c2dbff");
+            var upNum = $('.data-row th').children().length;
+            this.checkedNumbers = 0;
+            this.checkedNumbers = this.checkedNumbers + upNum;
+
+        } else {
+            $('div input').prop('checked', false);
+            $('#productRow tr').css("background-color","var(--light)");
+            $('.work').css("background-color","var(--light");
+            
+            this.checkedNumbers = 0 ;
+            
+        }
+      },
+      singleConfirmdeletewindow(doc){
+
+        this.realId = doc
+        this.checkedNumbers =  '';
+        this.confirmDelete = true
+        $('.popup-wrapper').css("display","inherit");
+        
+        this.single = '1';
+      },
+      confirmdeletewindow: function(){
+        if(this.checkedNumbers > 0){
+          this.confirmDelete = true
+          $('.popup-wrapper').css("display","inherit");
+          if(this.checkedNumbers > 1){
+            this.s = 's'
+          }
+        }else{
+          this.noProductSelected = true
+          // reseting the form
+          
+
+          $(".alert").delay(2000).slideUp(200, () => {
+              this.noProductSelected = false
+                       
+          });
+          
+        }
+        
+      },
+      closewindow: function(){
+        $('.popup-wrapper').css("display","none");
+        this.single = ''
+      },
+      
+      // elem = event.target , selector = '.classname','#id'
+
       readData(){
         db.collection("products").get().then((querySnapshot) => {
           querySnapshot.forEach((doc) => {
             // doc.data() is never undefined for query doc snapshots
             
-            this.products.push(doc.data());
+            this.products.push(doc);
           });
         });
+      },
+      checkedMe: function(event){
+
+        const checkBox = event.target
+        let element = event.target.parentElement;
+        
+        const toolBox = getNextSibling(element, '.show-more-tools');
+
+         if(checkBox.checked){
+          $(element.parentElement).css("background-color","#c2dbff");
+          $(toolBox.firstChild.firstChild).css("background-color","#c2dbff")
+          this.checkedNumbers = this.checkedNumbers + 1;
+
+          // $(toolBox.firstChild.firstChild).css("color","#EDF5E1")
+          
+          // $(toolBox.firstChild.firstChild.firstChild.nextElementSibling).css("color","#EDF5E1")
+         } 
+         if(checkBox.checked == false){
+           $(element.parentElement).css("background-color","var(--light"); 
+           $(toolBox).css("background-color","var(--light") 
+           $(toolBox.firstChild.firstChild).css("background-color","var(--light)")
+           this.checkedNumbers = this.checkedNumbers - 1;
+         }
+          
       },
       toggleModal() {
         this.modalShown = !this.modalShown;
@@ -297,6 +516,9 @@ export default {
             console.error("Error writing document: ", error);
         });
       },
+
+      
+
       saveData(){
         db.collection("products").add(this.product)
         .then((docRef) => {
@@ -339,7 +561,9 @@ export default {
 }
 .products{
   z-index: 1;
+  
 }
+
 // MODAL ADD PRODUCTS START <-----
 .modal-header h5{
   font-size: 2.5rem;
@@ -348,14 +572,106 @@ export default {
 
 
 .center-screen{
-  position: absolute;
+  position: fixed;
   bottom: 0;
-  right: 0;
-  width: 50%;
-  z-index: 9999;
+  right: 20px;
+  width: 75%;
+  z-index: 9;
 
 }
 // ALERT PRODUCTS END<-----
+
+// CONFIRM DELETE POP-UP START <----
+.dflex{
+  display: flex;
+}
+.dcolum{
+  flex-direction: column;
+}
+.centercenter{
+  justify-content: center;
+  align-items: center;
+}
+.justcontaround{
+  justify-content: space-around;
+}
+.alingcontaround{
+  align-content: space-around;
+}
+.popup-wrapper{
+  display: none;
+  position: relative;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0,0,0,.8);
+  z-index: 20;
+}
+.confirm-delete-pop-up{
+  margin: auto;
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  width: 380px;
+  height: 300px;
+  background-color:var(--lightwhite1);
+  display: flex;
+  justify-content: space-around;
+  align-content: space-around;
+  z-index: 30;
+  border: 1px solid var(--primaryT);
+  box-shadow: var(--shadow);
+  border-radius: 10px;
+  
+}
+.alert-wrapper{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+.alert-message{
+  text-align: center;
+}
+.delete-action{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  height: 100px;
+  width: 200px;
+  
+  
+}
+.delete-action > div{
+  display: flex;
+  height: 40px;
+  width: 100%;
+  border-radius: 30px;
+  outline: none;
+  justify-content: center;
+  align-items: center;
+}
+.alert-icon{
+  font-size: 2.5rem;
+  color: var(--warning);
+}
+.action-confirmed{
+  background-color: var(--danger);
+}
+.action-confirmed:hover{
+  background-color: var(--red);
+}
+.action-cancel{
+  background-color: var(--primary);
+  
+}
+.action-cancel:hover{
+  background-color: var(--blueGoogle);
+}
+// CONFIRM DELETE POP-UP END <----
 
 // SWITCH STYLE START <----
 .switch {
@@ -424,7 +740,6 @@ input:checked + .slider:before {
   
   width: 100%;
   display: flex;
-  
   justify-content: center;
   background-color: var(--lightwhite1);
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
@@ -434,7 +749,8 @@ input:checked + .slider:before {
 .btn-group-wrapper h3 {
   font-size: 2.5rem;
   color: var(--blue);
-  padding-right: 30px;
+  
+  margin-bottom: 0;
 }
 
 
@@ -545,7 +861,48 @@ input:checked + .slider:before {
 .work-select{
   border-radius: 5px !important;
 }
+.work-numberofpages-wrapper{
+  width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
 
+.left-arrow,.right-arrow{
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 10px;
+  margin: 5px 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50px;
+  
+}
+.left-arrow:hover,.right-arrow:hover{
+   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+}
+.left-arrow:hover::after{
+  content: "Previous";
+  position: absolute;
+  bottom: -30px;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
+.right-arrow:hover::after{
+  content: "Next";
+  position: absolute;
+  bottom: -30px;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
 .work-checkbox{
   height: 15px;
   width: 15px;
@@ -559,6 +916,7 @@ input:checked + .slider:before {
   align-items: center;
   
 }
+
 .workbar-left{
 
 }
@@ -575,6 +933,7 @@ input:checked + .slider:before {
 }
 .workbar-left > div:hover{
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+  color: pink;
 }
 .work-select,.work-refresh,.work-add,.work-delete,.work-more{
   position: relative;
@@ -646,16 +1005,95 @@ input:checked + .slider:before {
   align-items: center;
   grid-template-columns: repeat(5, 1fr);
 }
-.block-container{
+.cats-filter-wrapper > div > div > span{
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+.block-all,.block-frozen,.block-beverages,.block-chips,.block-utilities{
+  position: relative;
   height: 50px;
   display: flex;
   justify-content: center;
   align-items: center;
+  
 }
-.block-container:hover{
+.block-all:hover{
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+  background-color: var(--primaryT);
+  color: var(--lightBlue);
 }
+
+.block-all:hover::after{
+  content: "";
+  position: absolute;
+  bottom: 0;
+  height: 5px;
+  width: 100%;
+  border-radius: 5px 5px 0 0 ;
+  background-color: var(--lightBlue);
+  
+}
+.block-frozen:hover{
+  cursor: pointer;
+  background-color: var(--primaryT);
+  color: var(--brown);
+}
+.block-frozen:hover::after{
+  content: "";
+  position: absolute;
+  bottom: 0;
+  height: 5px;
+  width: 100%;
+  border-radius: 5px 5px 0 0 ;
+  background-color: var(--brown);
+  
+}
+.block-beverages:hover{
+  cursor: pointer;
+  background-color: var(--primaryT);
+  color: var(--red);
+}
+.block-beverages:hover::after{
+  content: "";
+  position: absolute;
+  bottom: 0;
+  height: 5px;
+  width: 100%;
+  border-radius: 5px 5px 0 0 ;
+  background-color: var(--red);
+  
+}
+.block-chips:hover{
+  cursor: pointer;
+  background-color: var(--primaryT);
+  color: var(--green);
+}
+.block-chips:hover::after{
+  content: "";
+  position: absolute;
+  bottom: 0;
+  height: 5px;
+  width: 100%;
+  border-radius: 5px 5px 0 0 ;
+  background-color: var(--green);
+  
+}
+.block-utilities:hover{
+  cursor: pointer;
+  background-color: var(--primaryT);
+  color: var(--lighterBlue);
+}
+.block-utilities:hover::after{
+  content: "";
+  position: absolute;
+  bottom: 0;
+  height: 5px;
+  width: 100%;
+  border-radius: 5px 5px 0 0 ;
+  background-color: var(--lighterBlue);
+  
+}
+
 // CATHEGORY FILTER STYLE FINISH <----
 
 // TABLE STYLE START <----
@@ -669,51 +1107,117 @@ input:checked + .slider:before {
   height: 20px;
   width: 50px;;
 }
-.product-edit, .product-view{
+.product-edit, .product-view, .product-chart, .product-trash{
+  position: relative;
+  color: var(--darkT);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 30px;
   height: 30px;
+  border-radius: 40px;
   border: none;
-  
   background: none;
   outline: none;
 }
-.product-edit{
+.td-work-wrapper{
   color: var(--lightBlue);
 }
-.product-view{
-  color: var(--lighterBlue);
+
+.product-view:hover,.product-edit:hover,.product-chart:hover,.product-trash:hover{
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+  
 }
+
+.product-edit:hover::after{
+  content: "Edit";
+  z-index: 2;
+  transition-delay:1s;
+  position: absolute;
+  bottom: -30px;
+  text-align: center;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
+.product-view:hover::after{
+  content: "view";
+  transition-delay:1s;
+  z-index: 2;
+  position: absolute;
+  bottom: -30px;
+  text-align: center;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
+.product-chart:hover::after{
+  content: "Performances";
+  transition-delay:1s;
+  z-index: 2;
+  position: absolute;
+  bottom: -30px;
+  text-align: center;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
+.product-trash:hover::after{
+  content: "Delete";
+  transition-delay:1s;
+  z-index: 2;
+  position: absolute;
+  bottom: -30px;
+  text-align: center;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
+
+
+
 thead{
   background-color: var(--primary);
+  
 }
 tbody tr{
-  background-color: var(--primaryT);
+  background-color: var(--light);
+  height: 35px;
 }
 tr:hover{
-  
-  
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+  box-shadow: var(--shadowTable);
+  .work-wrapper{
+    display: flex;
+  }
   
 }
 // .table.sticky th{
 //   position: sticky;
 //   top: 0;
 // }
-// .table.sticky thead th::after{
-//   content: '';
-//   width: 100%;
-//   height: 2px;
-//   position: absolute;
-//   bottom: 0;
-//   left: 0;
-//   background-color: var(--dark);
-// }
+.table.sticky thead th::after{
+  content: '';
+  width: 100%;
+  height: 2px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background-color: var(--primary);
+}
+
 .table{
   border-radius: 5px;
-  
-  
   overflow: scroll;
   text-align: center;
+  margin-bottom: 0;
 }
 .table thead th{
   border-bottom: 0;
@@ -724,12 +1228,33 @@ thead tr th{
   letter-spacing: 1px;
   font-weight: 600;
   height: 40px;
-  z-index: 999;
+  z-index: 10;
 }
 .table-wrapper{
   width: 100%;
 }
-
+// controling the overflow
+.overflow{
+  
+}
+.work-wrapper{
+  position: relative;
+  display: none;
+  
+}
+.work{
+  position: absolute;
+  display: flex;
+  left: -300px;
+  top: -15px;
+  width: 300px;
+  background-color: var(--light);
+}
+.td-work-wrapper{
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+}
 // TABLE STYLE FINISH <----
 
 // Scrool bar styling start <----
@@ -762,8 +1287,8 @@ This query will take effect for any screen smaller than 760px
 and also iPads specifically.
 */
 @media 
-only screen and (max-width: 1236px),
-(min-device-width: 768px) and (max-device-width: 1024px)  {
+only screen and (max-width: 500px),
+(min-device-width: 768px) and (max-device-width: 700px)  {
 
 	/* Force table to not be like tables anymore */
 	.table thead{
@@ -772,25 +1297,55 @@ only screen and (max-width: 1236px),
 	.table, .table tbody, .table tr, .table td{
     display: block;
     width: 100%;
+    
   }
   .table tr{
     margin-bottom: 15px;
+    height: auto;
   }
   .table th{
     text-align: center;
     width: 100vw;
   }
- 
+  tr:hover{
+  box-shadow: var(--shadowTable);
+    .work-wrapper{
+      display: flex;
+      height: 100%;
+      align-items: center;
+      width: 100vw;
+    }
+    .work{
+      top:5px;
+      left: 0;
+      height: 100%;
+      width: 100%;
+
+    }
+  }
+  
   .table td{
     text-align: right;
-    padding-left:50%;
     position: relative;
+    
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
     font-size: 1.2rem;
-    margin-top: 10px;
+    
+    
+    height: 50px;
+  }
+  .moretoit{
+    display: none;
+  }
+  .selecttablerow{
+    height: 50px;
   }
   .table td::before{
     content: attr(data-label);
     position: absolute;
+    top: 5px;
     left: 0;
     width: 50%;
     padding-left: 15px;
@@ -798,48 +1353,16 @@ only screen and (max-width: 1236px),
     font-weight: bold;
     text-align: left;
   }
-  
+  .endrow{
+    height: 50px;
+  }
 	/*
 	Label the data
 	*/
 
 } 
 @media (max-width: 950px){
-   .btn-group-wrapper{
-      display: grid;
-      width: 100%;
-      padding: 0;
-      height: 60px;
-      justify-content: center;
-      margin-bottom: 60px;
-      grid-template-columns: 1fr;
-      align-items: center;
-    }
-    .btn-group-wrapper h3{
-      padding-right: 0;
-      
-    }
-    .btnadd-top-admin button,
-    .btndel-top-admin button{
-      width: 100px;
-      padding: 10px 0 10px 0;
-      
-      
-      margin-right:30px;
-    }
-    .btn-group-wrapper h3,
-    .btnadd-top-admin,
-    .btndel-top-admin,
-    .btnadd-top-admin button,
-    .btndel-top-admin button{
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .btn-group-wrapper h3{
-      justify-content: flex-start;
-      margin-left: 60px;
-    }
+   
 }
 // MEDIA STYLE fINISH <----
 </style>

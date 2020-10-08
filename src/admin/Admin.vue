@@ -350,18 +350,17 @@ export default {
 }
 .somestuff i {
   position: absolute;
-  top: 10px;
+  top: 5px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   height: 40px;
-  
   font-size: 1.8rem;
   border-radius: 0 10px 10px 0;
   padding-right: 10px;
   width: 50px;
-  color: var(--green);
-  background-color: var(--darkT);
+  color: var(--darkBlue);
+  
 }
 .somestuff i:hover{
   color: var(--grenner);
