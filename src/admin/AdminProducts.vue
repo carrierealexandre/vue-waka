@@ -25,7 +25,7 @@
                 <fa-icon class="alert-icon" :icon="['fa', 'exclamation-triangle']" />
               </div>
               <div class="alert-message ">
-                <span class="dflex centercenter">Are you sure that you want to permannently DELETE the ({{checkedNumbers}}{{single}}) SELECTED product{{s}}</span>
+                <span class="dflex centercenter">Are you sure that you want to permannently DELETE the {{checkedNumbers}} SELECTED product{{s}}</span>
               </div>
               <div class="delete-action">
                 <div class="action-cancel" @click="closewindow" role="button">Cancel</div>
@@ -36,6 +36,7 @@
 
           </div>
         </div>
+        
       <div class="header-wrapper">
         
         <div v-show="noProductSelected"  class="center-screen alert alert-warning" role="alert">
@@ -44,9 +45,10 @@
 
         </div>
         
-        <div v-show="productDeletedAlert"  class="center-screen alert alert-danger" role="alert">
-        
-          {{product.name}} Product{{s}} {{deletemsg}} Deleted! Id:{{realId}} {{docRefId}}
+        <div v-show="productDeletedAlert"  class="center-screen alert alert-success" role="alert">
+          <div><fa-icon class="alert-success-icon" :icon="['fa', 'check-circle']" /></div>
+          <div><span class="span-success-popup">Success!</span></div>
+          <div class=""><span>Product{{s}} Deleted</span></div>
 
         </div>
         
@@ -61,14 +63,17 @@
 
         
         
-        <div  class="modal fade bd-example-modal-lg" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-lg">
-            <div id="#myModal" class="modal-content">
-              <div class="modal-header container">
-                <h5 class="modal-title">Add Product</h5>
-                <h5 v-show="editProduct" class="modal-title">Edit Product</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
+        
+      </div>
+      <div class="product-Modal-wrapper">
+        <div v-show="productModal" class="product-Modal" >
+          <div class="modal-container">
+            <div class="modal-wrapper">
+              <div class="modal-header">
+                <h5 v-show="addProductTitle " class="modal-title">Add New Product</h5>
+                <h5 v-show="editProductTitle" class="modal-title">Edit Product</h5>
+                <button @click="closeproductModal()" class="close">
+                  <span >&times;</span>
                 </button>
               </div>
               <form>
@@ -122,14 +127,35 @@
                 
               </form>
               <div class="modal-footer">
-                <button @click="saveData()" type="button" class="btn btn-primary " data-dismiss="modal" aria-label="Close">Save changes</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button v-show="editProductTitle" @click="updateData()"  class="btn btn-primary ">Save changes</button>
+                <button v-show="addProductTitle" @click="saveData()"  class="btn btn-primary ">Create</button>
+                <button @click="closeproductModal()" class="btn btn-secondary">Close</button>
               </div>
             </div>
           </div>
         </div>
       </div>
       <div class="form-wrapper">
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         <form>
           <div class="searchbar">
             <div class="searchbar-collection">
@@ -154,7 +180,7 @@
               <fa-icon class="work-icon" :icon="['fa', 'redo-alt']"/>
             </div>
 
-            <div class="work-add" data-toggle="modal" data-target=".bd-example-modal-lg" role="button">
+            <div @click=" modalAddProduct()" class="work-add"  role="button">
               <fa-icon class="work-icon" :icon="['fa', 'plus-square']"/>
             </div>
 
@@ -265,13 +291,13 @@
                             <button class="product-view"><fa-icon :icon="['fa', 'eye']"/></button>
                           </div>
                           <div class="">
-                            <button  class="product-edit"><fa-icon :icon="['fa', 'edit']"/></button>
+                            <button @click="editProduct(product)" class="product-edit"><fa-icon :icon="['fa', 'edit']"/></button>
                           </div> 
                           <div class="">
                             <button  class="product-chart"><fa-icon :icon="['fa', 'chart-line']"/></button>
                           </div> 
                           <div class="">
-                            <button @click="singleConfirmdeletewindow(product.id)"  class="product-trash"><fa-icon :icon="['fa', 'trash-alt']"/></button>
+                            <button @click="singleConfirmdeletewindow(product.id,product.data().name)"  class="product-trash"><fa-icon :icon="['fa', 'trash-alt']"/></button>
                           </div>
                         </div>
                         
@@ -285,6 +311,7 @@
                   
                   
                 </tr>
+                <tr class="table-footer"></tr>
                 
               </tbody>
             </table>
@@ -329,13 +356,17 @@ export default {
       checkedNumbers: 0 ,
       single: null,
       realId: null,
-      deletemsg: '',
-      noProductSelected: false,
+      activeItem: null,
+      realProduct: null,
+      editProductTitle: null,
+      addProductTitle: null,
+      noProductSelected: null,
       productSuccessAlert: false,
       productDeletedAlert: false,
       confirmDelete: false,
+      productModal: false,
       cats: ['Dry', 'Frozen', 'Chips', 'Pop','Utilities'],
-      editProduct: false,
+      
       products: [],
       product: {
         productId:null,
@@ -385,6 +416,12 @@ export default {
   },
     
     methods:{
+      editProduct(product){
+        this.editProductTitle = true;
+        this.productModal = true;
+        this.product = product.data()
+        this.activeItem = product.id
+      },
       deleteProduct(){
         this.productDeletedAlert = true
           // reseting the form
@@ -392,7 +429,8 @@ export default {
           $('.popup-wrapper').css("display","none");
           this.single = ''
           db.collection("products").doc(this.realId).delete().then(() => {
-            this.deletemsg = 'Successfully'
+            
+            
             $(".alert").delay(2000).slideUp(200, () => {
               this.productDeletedAlert = false
               
@@ -400,7 +438,8 @@ export default {
                        
             });
           }).catch(function(error) {
-            this.deletemsg = 'Unable to'
+            
+            
             $(".alert").delay(2000).slideUp(200, () => {
               this.productDeletedAlert = false
             console.error("error removing document: ", error);
@@ -427,9 +466,10 @@ export default {
             
         }
       },
-      singleConfirmdeletewindow(doc){
+      singleConfirmdeletewindow(doc,realProduct){
 
         this.realId = doc
+        this.realProduct = realProduct
         this.checkedNumbers =  '';
         this.confirmDelete = true
         $('.popup-wrapper').css("display","inherit");
@@ -440,8 +480,11 @@ export default {
         if(this.checkedNumbers > 0){
           this.confirmDelete = true
           $('.popup-wrapper').css("display","inherit");
+          
           if(this.checkedNumbers > 1){
-            this.s = 's'
+            this.s = 's';
+          }else{
+            this.s = '';
           }
         }else{
           this.noProductSelected = true
@@ -459,6 +502,8 @@ export default {
       closewindow: function(){
         $('.popup-wrapper').css("display","none");
         this.single = ''
+        this.addProductTitle = null;
+        this.editProductTitle = null;
       },
       
       // elem = event.target , selector = '.classname','#id'
@@ -500,21 +545,17 @@ export default {
         this.modalShown = !this.modalShown;
       },
       modalAddProduct(){
-        this.$modal.show('modal-addProduct');
+        this.productModal = true;
+        this.addProductTitle = true;
       },
-      addProduct(){
-      // Add a new document in collection "cities"
-        db.collection("Products").doc("LA").set({
-            name: "Los Angeles",
-            state: "CA",
-            country: "USA"
-        })
-        .then(function() {
-            console.log("Document successfully written!");
-        })
-        .catch(function(error) {
-            console.error("Error writing document: ", error);
-        });
+      closeproductModal(){
+        this.productModal = false
+        this.addProductTitle = null;
+        this.editProductTitle = null;
+        this.reset();
+        this.readData(); 
+        
+        
       },
 
       
@@ -523,10 +564,10 @@ export default {
         db.collection("products").add(this.product)
         .then((docRef) => {
           console.log("document written with ID: ", docRef.id);
-          $('#addProductModal').modal('hide');
+          this.productModal = false
 
           // Alerting client that product as been added successfully
-          this.docRefId = docRef.id
+          // this.docRefId = docRef.id
           this.productSuccessAlert = true
           // reseting the form
           
@@ -547,7 +588,23 @@ export default {
       
       reset(){
         Object.assign(this.$data, this.$options.data.apply(this));
-      }
+      },
+      updateData(){
+        console.log(this.activeItem);
+        db.collection("products").doc(this.activeItem).update(this.product)
+        
+        .then(() => {
+            console.log("Document successfully updated!");
+            console.log(this);
+            this.productModal = false;
+            this.reset();
+            this.readData();
+        })
+        .catch(function(error) {
+            // The document probably doesn't exist.
+            console.error("Error updating document: ", error);
+        });
+      },
     }
   }
 
@@ -561,7 +618,8 @@ export default {
 }
 .products{
   z-index: 1;
-  
+  min-height: 99vh;
+  // find a way to delete thats shit!
 }
 
 // MODAL ADD PRODUCTS START <-----
@@ -569,16 +627,46 @@ export default {
   font-size: 2.5rem;
 }
 // MODAL ADD PRODUCTS END<-----
-
+// 
+// POPUP STYLE START <----
 
 .center-screen{
+  margin: auto;
   position: fixed;
-  bottom: 0;
-  right: 20px;
-  width: 75%;
-  z-index: 9;
+  top: 0; left: 0; bottom: 0; right: 0;
+  width: 380px;
+  height: 300px;
+  background-color: var(--lightwhite1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  z-index: 30;
+  border: 1px solid var(--primaryT);
+  box-shadow: var(--shadow);
+  border-radius: 10px;
 
 }
+.center-screen > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.alert-success-icon{
+  font-size: 3rem;
+  color: var(--success);
+}
+.alert-error-icon{
+  font-size: 3rem;
+  color: var(--danger);
+}
+.span-success-popup{
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--success);
+}
+// POPUP STYLE END <----
 // ALERT PRODUCTS END<-----
 
 // CONFIRM DELETE POP-UP START <----
@@ -624,6 +712,33 @@ export default {
   box-shadow: var(--shadow);
   border-radius: 10px;
   
+}
+.product-Modal{
+  position: absolute;
+  
+  top: 0;
+
+  width: 75%;
+  height: 80vh;
+  background-color:var(--lightwhite1);
+  display: flex;
+  flex-direction: column;
+  overflow-x: unset;
+  align-content: center;
+  z-index: 30;
+  border: 1px solid var(--primaryT);
+  box-shadow: var(--shadow);
+  border-radius: 10px;
+  overflow: scroll;
+
+}
+.product-Modal-wrapper{
+  position: relative;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 .alert-wrapper{
   height: 100%;
@@ -756,15 +871,24 @@ input:checked + .slider:before {
 
 
 // HEADER STYLE FINISH <----
-
-.modal-content{
-  padding:30px;
-  
-  height: 90vh;
-  overflow-y: scroll ;
-}
+// .modal-container{
+//   position: relative;
+// }
+// .modal-wrapper{
+//   margin: auto;
+//   z-index: 30;
+//   border: 1px solid var(--primaryT);
+//   box-shadow: var(--shadow);
+//   border-radius: 10px;
+//   position: absolute;
+//   top: 0; left: 0; bottom: 0; right: 0;
+//   width: 75%;
+//   height: 75%;
+//   overflow: scroll;
+// }
 // SEARCHBAR STYLE START <----
 .form-wrapper {
+  position: relative;
   padding: 10px 30px 0 30px;
   
 }
@@ -1215,7 +1339,7 @@ tr:hover{
 
 .table{
   border-radius: 5px;
-  overflow: scroll;
+  // overflow: visible;
   text-align: center;
   margin-bottom: 0;
 }
@@ -1261,6 +1385,7 @@ thead tr th{
 /* Let's get this party started */
 ::-webkit-scrollbar {
     width: 6px;
+    height: 100%;
 }
  
 /* Track */
