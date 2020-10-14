@@ -291,14 +291,14 @@
 
 <script>
 // @ is an alias to /src
-import Admin from "@/components/Admin.vue";
+// import Admin from "@/components/Admin.vue";
 import {fb} from "../firebase";
 import $ from 'jquery'
 
 export default {
   name: "Admin",
   components: {
-    Admin
+    // Admin
   },
   methods:{
     DropDown:function(){

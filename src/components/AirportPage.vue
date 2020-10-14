@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import AirportPage from "@/components/AirportPage.vue";
+// import AirportPage from "@/components/AirportPage.vue";
 
 export default {
   name: "AirportPage",
@@ -83,7 +83,7 @@ export default {
     Paragraphs: Array
   },
   components: {
-    AirportPage
+    // AirportPage
   },
   data() {
     return {

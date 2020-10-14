@@ -66,9 +66,9 @@ export default {
     }
   },
 mounted() {
-    if (localStorage.path) {
+    // if (localStorage.path) {
       
-    }
+    // }
    
     if (localStorage.current) {
       this.Current = localStorage.current;
@@ -90,13 +90,16 @@ mounted() {
     }
   },
 watch: {
-    Path(newName) {
+  // Path(newName) As param
+    Path() {
     localStorage.path = this.Path;
     },
-    Current(newName) {
+    // Path(newName) As param
+    Current() {
     localStorage.current = this.Current;
     },
-    Currentwx(newName) {
+    // Path(newName) As param
+    Currentwx() {
     localStorage.wx = this.Currentwx;
     }
   },

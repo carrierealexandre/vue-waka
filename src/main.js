@@ -5,11 +5,12 @@ import 'bootstrap';
 import jQuery from'jquery';
 import './icon.js';
 import VModal from 'vue-js-modal';
+
+import VueFirestore from 'vue-firestore'
 import {fb} from './firebase';
-// import VueFirestore from 'vue-firestore'
 
 Vue.use(VModal);
-// Vue.use(VueFirestore);
+Vue.use(VueFirestore);
 
 window.$ = window.jQuery = jQuery;
 
@@ -37,7 +38,7 @@ Vue.config.productionTip = false;
 let app = '';
 
 
-fb.auth().onAuthStateChanged(function(user) {
+fb.auth().onAuthStateChanged(function() {
   if(!app){
     new Vue({
       router,

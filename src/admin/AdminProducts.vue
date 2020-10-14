@@ -29,7 +29,7 @@
               </div>
               <div class="delete-action">
                 <div class="action-cancel" @click="closewindow" role="button">Cancel</div>
-                <div @click="deleteProduct" class="action-confirmed" role="button">Delete</div>
+                <div @click="deleteProduct(product)" class="action-confirmed" role="button">Delete</div>
               </div>
 
             </div>
@@ -184,12 +184,15 @@
               <fa-icon class="work-icon" :icon="['fa', 'plus-square']"/>
             </div>
 
-            <div class="work-delete" @click="confirmdeletewindow" role="button">
+            <div class="work-delete" @click="confirmdeletewindow()" role="button">
               <fa-icon class="work-icon" :icon="['fa', 'trash-alt']"/>
             </div>
 
-            <div class="work-more" role="button">
-              <fa-icon class="work-icon" :icon="['fa', 'ellipsis-v']"/>
+            <div class="work-more" >
+              <router-link  to="/admin/addproduct">
+                <fa-icon class="work-icon" :icon="['fa', 'ellipsis-v']"/>                      
+              </router-link> 
+              
             </div>
             
           </div>
@@ -273,13 +276,13 @@
               <tbody id="productRow">
                 <tr class="data-row" v-for="(product, idx) in products" :key="idx">
                   <th class="selecttablerow" data-label="Select"><input value="1" class="myCheck" @click.stop="checkedMe" type="checkbox" name="sample[]" ></th>
-                  <td data-label="Id">{{product.data().productId}}</td>
-                  <td data-label="Product Name">{{product.data().name}}</td>
-                  <td data-label="Description">{{product.data().description}}</td>
-                  <td data-label="Price">{{product.data().price}}</td>
-                  <td data-label="Weight">{{product.data().weight}}</td>
-                  <td data-label="Shipping Cost">{{product.data().shippingcost}}</td>
-                  <td data-label="In-Stock Quatity">{{product.data().qty}}</td>
+                  <td data-label="Id">{{product.productId}}</td>
+                  <td data-label="Product Name">{{product.name}}</td>
+                  <td data-label="Description">{{product.description}}</td>
+                  <td data-label="Price">{{product.price}}</td>
+                  <td data-label="Weight">{{product.weight}}</td>
+                  <td data-label="Shipping Cost">{{product.shippingcost}}</td>
+                  <td data-label="In-Stock Quatity">{{product.qty}}</td>
                   <td data-label="" class="show-more-tools" >
                     <div class="work-wrapper">
                       <div class="work">
@@ -297,7 +300,7 @@
                             <button  class="product-chart"><fa-icon :icon="['fa', 'chart-line']"/></button>
                           </div> 
                           <div class="">
-                            <button @click="singleConfirmdeletewindow(product.id,product.data().name)"  class="product-trash"><fa-icon :icon="['fa', 'trash-alt']"/></button>
+                            <button @click="singleConfirmdeletewindow(product)"  class="product-trash"><fa-icon :icon="['fa', 'trash-alt']"/></button>
                           </div>
                         </div>
                         
@@ -340,7 +343,8 @@ function getNextSibling(elem, selector) {
       sibling = sibling.nextElementSibling
     }
 }
-import {db} from '../firebase';
+// fb, below here to use firebase
+import { db} from '../firebase';
 import $ from 'jquery'
 export default {
   
@@ -351,13 +355,13 @@ export default {
     return {
       docRefId:'',
       s: '',
-      
+      selectefDoc: null,
       // in productselected: [], we'll have to update the function ifmoreProducts() to falsify the 's' or not.
       checkedNumbers: 0 ,
       single: null,
-      realId: null,
+      selectedId: null,
       activeItem: null,
-      realProduct: null,
+      // realProduct: null,
       editProductTitle: null,
       addProductTitle: null,
       noProductSelected: null,
@@ -409,42 +413,64 @@ export default {
             
     //     }
     // });
-    },
+   },
 
-  created(){
-    this.readData();
+    created(){
+      // this.readData();
+
   },
-    
+  firestore(){
+    return {
+      products: db.collection('products'),
+    }
+  },
+
     methods:{
-      editProduct(product){
-        this.editProductTitle = true;
-        this.productModal = true;
-        this.product = product.data()
-        this.activeItem = product.id
+      watcher(){
+        // db.collection("products").onSnapshot((querySnapshot) => {
+        //   this.products = [];
+        //   querySnapshot.forEach((doc) => {
+        //     this.products.push(doc);
+        //   })
+
+        // })
+      },
+
+
+      // product as param here in the formula.. deleted because of a fucking error re add when needed!!!
+      editProduct(){
+        // this.editProductTitle = true;
+        // this.productModal = true;
+        // this.product = product.data()
+        // this.activeItem = product.id
       },
       deleteProduct(){
+        
+        console.log(this.selectedId);
         this.productDeletedAlert = true
-          // reseting the form
-          this.checkedNumbers = 0
-          $('.popup-wrapper').css("display","none");
-          this.single = ''
-          db.collection("products").doc(this.realId).delete().then(() => {
+        // reseting the form
+        this.checkedNumbers = 0
+        $('.popup-wrapper').css("display","none");
+        this.single = ''
+        this.$firestore.products.doc(this.selectedId).delete();
+        this.closewindow();
+        //   db.collection("products").doc(this.realId).delete().then(() => {
+            
+        //     this.watcher();
+        $(".alert").delay(1000).slideUp(200, () => {
+          this.productDeletedAlert = false
+          
+          
+                    
+        });
+        //   }).catch(function(error) {
             
             
-            $(".alert").delay(2000).slideUp(200, () => {
-              this.productDeletedAlert = false
-              
-              
-                       
-            });
-          }).catch(function(error) {
-            
-            
-            $(".alert").delay(2000).slideUp(200, () => {
-              this.productDeletedAlert = false
-            console.error("error removing document: ", error);
-          });
-          });
+        //     $(".alert").delay(2000).slideUp(200, () => {
+        //       this.productDeletedAlert = false
+        //     console.error("error removing document: ", error);
+        //   });
+        //   });
           
       },
       selectorAll: function(event){
@@ -466,13 +492,15 @@ export default {
             
         }
       },
-      singleConfirmdeletewindow(doc,realProduct){
+      singleConfirmdeletewindow(doc){
 
-        this.realId = doc
-        this.realProduct = realProduct
+        // this.realId = doc
+        // this.realProduct = realProduct
         this.checkedNumbers =  '';
         this.confirmDelete = true
         $('.popup-wrapper').css("display","inherit");
+        console.log(doc['.key']);
+        this.selectedId = doc['.key'];
         
         this.single = '1';
       },
@@ -504,18 +532,19 @@ export default {
         this.single = ''
         this.addProductTitle = null;
         this.editProductTitle = null;
+        this.watcher();
       },
       
       // elem = event.target , selector = '.classname','#id'
 
       readData(){
-        db.collection("products").get().then((querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            // doc.data() is never undefined for query doc snapshots
+        // db.collection("products").get().then((querySnapshot) => {
+        //   querySnapshot.forEach((doc) => {
+        //     // doc.data() is never undefined for query doc snapshots
             
-            this.products.push(doc);
-          });
-        });
+        //     this.products.push(doc);
+        //   });
+        // });
       },
       checkedMe: function(event){
 
@@ -549,11 +578,13 @@ export default {
         this.addProductTitle = true;
       },
       closeproductModal(){
+        this.reset();
+        this.watcher();
         this.productModal = false
         this.addProductTitle = null;
         this.editProductTitle = null;
-        this.reset();
-        this.readData(); 
+        
+        
         
         
       },
@@ -561,49 +592,54 @@ export default {
       
 
       saveData(){
-        db.collection("products").add(this.product)
-        .then((docRef) => {
-          console.log("document written with ID: ", docRef.id);
-          this.productModal = false
+        this.$firestore.products.add(this.product);
+        this.closeproductModal();
+        
+        // db.collection("products").add(this.product)
+        // .then((docRef) => {
+        // //   console.log("document written with ID: ", docRef.id);
+        // //   this.productModal = false
+        //       this.productModal = false;
+        //       this.watcher();
+        //       this.productSuccessAlert = true;
+        // //   // Alerting client that product as been added successfully
+        //   this.docRefId = docRef.id
+        // //   this.productSuccessAlert = true
+        // //   // reseting the form
+        // //   this.reset();
+        // //   this.watcher();
 
-          // Alerting client that product as been added successfully
-          // this.docRefId = docRef.id
-          this.productSuccessAlert = true
-          // reseting the form
+        //   $(".alert").delay(2000).slideUp(200, () => {
+        //       this.productSuccessAlert = false
+              
+                         
+        //   });
+
+        // })
+        // .catch(function(error) {
+        //   console.error("Error adding document: ", error);
           
-
-          $(".alert").delay(2000).slideUp(200, () => {
-              this.productSuccessAlert = false
-              this.reset();
-              this.readData();            
-          });
-
-        })
-        .catch(function(error) {
-          console.error("Error adding document: ", error);
-          
-        })
+        // })
         
       },
       
       reset(){
-        Object.assign(this.$data, this.$options.data.apply(this));
+        // Object.assign(this.$data, this.$options.data.apply(this));
       },
       updateData(){
-        console.log(this.activeItem);
-        db.collection("products").doc(this.activeItem).update(this.product)
+        // console.log(this.activeItem);
+        // db.collection("products").doc(this.activeItem).update(this.product)
         
-        .then(() => {
-            console.log("Document successfully updated!");
-            console.log(this);
-            this.productModal = false;
-            this.reset();
-            this.readData();
-        })
-        .catch(function(error) {
-            // The document probably doesn't exist.
-            console.error("Error updating document: ", error);
-        });
+      //   .then(() => {
+      //       console.log("Document successfully updated!");
+      //       console.log(this);
+      //       this.productModal = false;
+      //       this.watcher();
+      //   })
+      //   .catch(function(error) {
+      //       // The document probably doesn't exist.
+      //       console.error("Error updating document: ", error);
+      //   });
       },
     }
   }

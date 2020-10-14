@@ -16,6 +16,7 @@ import Icons from "../admin/AdminIcons.vue";
 import Orders from "../admin/AdminOrders.vue";
 import Products from "../admin/AdminProducts.vue";
 import Tracking from "../admin/AdminTracking.vue";
+import addproduct from "../admin/AdminAddProduct.vue";
 import {fb} from "../firebase";
 
 
@@ -106,6 +107,12 @@ const router = new VueRouter ({
         path: "products",
         name: "products",
         component: Products,
+        meta: {hideNavigation: true,requiresAuth: true}
+      },
+      {
+        path: "addproduct",
+        name: "addproduct",
+        component: addproduct,
         meta: {hideNavigation: true,requiresAuth: true}
       },
       {

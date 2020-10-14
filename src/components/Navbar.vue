@@ -161,7 +161,7 @@
 </template>
 
 <script>
-import ModalLogin from './ModalLogin.vue';
+// import ModalLogin from './ModalLogin.vue';
 import {fb} from '../firebase'
 // import logout from '../admin/Admin'
 
@@ -170,7 +170,7 @@ export default {
   
   name: "Navbar",
   components:{
-    ModalLogin
+    // ModalLogin
   },
   data() {
      
@@ -198,7 +198,7 @@ export default {
               this.$router.replace('/airports');
           })
           .catch((err) =>{
-              // console.log(err);
+              console.log(err);
           });
       }
 
