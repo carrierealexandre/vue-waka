@@ -15,6 +15,35 @@
 
           
           
+          <div   class="confirm-delete-pop-up dflex centercenter" role="alert">
+          
+            <div class="alert-wrapper ">
+              <div class="alert-title">
+                <span> Confirm Delete</span>
+              </div>
+              <div>
+                <fa-icon class="alert-icon" :icon="['fa', 'exclamation-triangle']" />
+              </div>
+              <div class="alert-message ">
+                <span class="dflex centercenter">Are you sure that you want to permannently DELETE the {{checkedNumbers}} SELECTED product{{s}}</span>
+              </div>
+              <div class="delete-action">
+                <div class="action-cancel" @click="closewindow" role="button">Cancel</div>
+                <div @click="deleteProduct(product)" class="action-confirmed" role="button">Delete</div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+    
+      
+        
+        <div class="popup-wrapper">
+
+          
+          
           <div v-show="confirmDelete"  class="confirm-delete-pop-up dflex centercenter" role="alert">
           
             <div class="alert-wrapper ">
@@ -65,97 +94,7 @@
         
         
       </div>
-      <div class="product-Modal-wrapper">
-        <div v-show="productModal" class="product-Modal" >
-          <div class="modal-container">
-            <div class="modal-wrapper">
-              <div class="modal-header">
-                <h5 v-show="addProductTitle " class="modal-title">Add New Product</h5>
-                <h5 v-show="editProductTitle" class="modal-title">Edit Product</h5>
-                <button @click="closeproductModal()" class="close">
-                  <span >&times;</span>
-                </button>
-              </div>
-              <form>
-                <div class="form-group">
-                  <label for="exampleFormControlFile1">Image</label>
-                  <input type="file" class="form-control-file" id="exampleFormControlFile1">
-                </div>
-                <div class="form-group">
-                  <label for="exampleFormControlInput1">Product ID</label>
-                  <input v-model="product.productId" type="text" class="form-control"  placeholder="Product ID">
-                </div>
-                <div class="form-group">
-                  <label for="exampleFormControlInput1">Product name</label>
-                  <input v-model="product.name" type="text" class="form-control"  placeholder="Product Name">
-                </div>
-                
-                <div class="form-group">
-                  <label for="exampleFormControlSelect1">Categorie</label>
-                  <select v-model="product.categorie" class="form-control" id="exampleFormControlSelect1">
-                    <option v-for="(cat, idx) in cats" :key="idx" >{{cat}}</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="exampleFormControlTextarea1">description Maxiumum 30 </label>
-                  <textarea v-model="product.description" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-                </div>
-
-
-                <div class="form-group">
-                  <label for="exampleFormControlInput1">Price example: if $10.00 then enter 1000 </label>
-                  <input v-model="product.price"  type="text" class="form-control"  placeholder="Price $CAD">
-                </div>
-                <div class="form-group">
-                  <label for="exampleFormControlInput1">weight</label>
-                  <input v-model="product.weight"  type="text" class="form-control"  placeholder="Weight">
-                </div>
-                <div class="form-group">
-                  <label for="exampleFormControlInput1">Size</label>
-                  <input v-model="product.size"  type="text" class="form-control"  placeholder="Size">
-                </div>
-                <div class="form-group">
-                  <label for="exampleFormControlInput1">Product Shipping Cost</label>
-                  <input v-model="product.shippingcost"  type="text" class="form-control"  placeholder="Shipping Cost">
-                </div>
-                <div class="form-group">
-                  <label for="exampleFormControlInput1">Quatity in Stock</label>
-                  <input v-model="product.qty"  type="text" class="form-control"  placeholder="Qty">
-                </div>
-
-                
-                
-              </form>
-              <div class="modal-footer">
-                <button v-show="editProductTitle" @click="updateData()"  class="btn btn-primary ">Save changes</button>
-                <button v-show="addProductTitle" @click="saveData()"  class="btn btn-primary ">Create</button>
-                <button @click="closeproductModal()" class="btn btn-secondary">Close</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
       <div class="form-wrapper">
-        
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         <form>
           <div class="searchbar">
             <div class="searchbar-collection">
@@ -179,9 +118,11 @@
             <div class="work-refresh" role="button">
               <fa-icon class="work-icon" :icon="['fa', 'redo-alt']"/>
             </div>
-
-            <div @click=" modalAddProduct()" class="work-add"  role="button">
+            
+            <div class="work-add"  role="button">
+              <router-link to="/admin/addproduct">
               <fa-icon class="work-icon" :icon="['fa', 'plus-square']"/>
+              </router-link>
             </div>
 
             <div class="work-delete" @click="confirmdeletewindow()" role="button">
@@ -344,12 +285,41 @@ function getNextSibling(elem, selector) {
     }
 }
 // fb, below here to use firebase
+
 import { db} from '../firebase';
 import $ from 'jquery'
+
 export default {
-  
-  props: {
+  components: {
     
+  },
+  props: {
+    product: {
+        images:Array,
+        productId:null,
+        name:null,
+        tags:Array,
+        categorie:null,
+        description:null,
+        price:null,
+        weight:null,
+        shippingcost:null,
+        size:null,
+        qty:null,
+      }
+    // product: {
+    //     images:[],
+    //     productId:null,
+    //     name:null,
+    //     tags:[],
+    //     categorie:null,
+    //     description:null,
+    //     price:null,
+    //     weight:null,
+    //     shippingcost:null,
+    //     size:null,
+    //     qty:null,
+    //   }
   },
   data() {
     return {
@@ -362,90 +332,31 @@ export default {
       selectedId: null,
       activeItem: null,
       // realProduct: null,
-      editProductTitle: null,
-      addProductTitle: null,
       noProductSelected: null,
       productSuccessAlert: false,
       productDeletedAlert: false,
       confirmDelete: false,
-      productModal: false,
-      cats: ['Dry', 'Frozen', 'Chips', 'Pop','Utilities'],
-      
       products: [],
-      product: {
-        productId:null,
-        name:null,
-        categorie:null,
-        description:null,
-        price:null,
-        weight:null,
-        shippingcost:null,
-        size:null,
-        qty:null,
-        
-      },
       
+      tag: null,
       pageEmpty: false,
       ImgSource: 'public/admin_img/products.svg',
       AdminPage: 'Products',
       AdminPageContent: `Lorem ipsum dolor, sit amet consectetur adipisicing 
                          elit. Laudantium dolorum sint nobis ex illo inventore autem consectetur 
                          aspernatur possimus exercitationem.`
-      }
-    },
-    
-    mounted(){
-    
-    // $('.selectall').click(function() {
-      
-    //     if ($(this).is(':checked')) {
-    //         $('div input').prop('checked', true);
-    //         $('#productRow tr').css("background-color","#c2dbff");
-    //         $('.work').css("background-color","#c2dbff");
-    //         var upNum = $('.data-row th').children().length;
-    //         console.log(upNum);
-    //         this.checkedNumbers = this.checkedNumbers + upNum;
-
-    //     } else {
-    //         $('div input').prop('checked', false);
-    //         $('#productRow tr').css("background-color","var(--light)");
-    //         $('.work').css("background-color","var(--light");
-            
-    //     }
-    // });
-   },
-
-    created(){
-      // this.readData();
-
-  },
-  firestore(){
-    return {
-      products: db.collection('products'),
     }
   },
 
+    firestore(){
+      return {
+        products: db.collection('products'),
+      }
+    },
+
     methods:{
-      watcher(){
-        // db.collection("products").onSnapshot((querySnapshot) => {
-        //   this.products = [];
-        //   querySnapshot.forEach((doc) => {
-        //     this.products.push(doc);
-        //   })
 
-        // })
-      },
-
-
-      // product as param here in the formula.. deleted because of a fucking error re add when needed!!!
-      editProduct(){
-        // this.editProductTitle = true;
-        // this.productModal = true;
-        // this.product = product.data()
-        // this.activeItem = product.id
-      },
       deleteProduct(){
-        
         console.log(this.selectedId);
         this.productDeletedAlert = true
         // reseting the form
@@ -455,24 +366,19 @@ export default {
         this.$firestore.products.doc(this.selectedId).delete();
         this.closewindow();
         //   db.collection("products").doc(this.realId).delete().then(() => {
-            
         //     this.watcher();
         $(".alert").delay(1000).slideUp(200, () => {
           this.productDeletedAlert = false
-          
-          
-                    
         });
-        //   }).catch(function(error) {
-            
-            
-        //     $(".alert").delay(2000).slideUp(200, () => {
-        //       this.productDeletedAlert = false
-        //     console.error("error removing document: ", error);
-        //   });
-        //   });
+          // }).catch(function(error) {
+          //   $(".alert").delay(2000).slideUp(200, () => {
+          //     this.productDeletedAlert = false
+          //   console.error("error removing document: ", error);
+          // });
+          // });
           
       },
+
       selectorAll: function(event){
         const checkBox = event.target
         if (checkBox.checked) {
@@ -487,28 +393,25 @@ export default {
             $('div input').prop('checked', false);
             $('#productRow tr').css("background-color","var(--light)");
             $('.work').css("background-color","var(--light");
-            
             this.checkedNumbers = 0 ;
-            
         }
       },
-      singleConfirmdeletewindow(doc){
 
+      singleConfirmdeletewindow(doc){
         // this.realId = doc
         // this.realProduct = realProduct
         this.checkedNumbers =  '';
         this.confirmDelete = true
         $('.popup-wrapper').css("display","inherit");
-        console.log(doc['.key']);
-        this.selectedId = doc['.key'];
-        
+        console.log(doc.id);
+        this.selectedId = doc.id;
         this.single = '1';
       },
+
       confirmdeletewindow: function(){
         if(this.checkedNumbers > 0){
           this.confirmDelete = true
           $('.popup-wrapper').css("display","inherit");
-          
           if(this.checkedNumbers > 1){
             this.s = 's';
           }else{
@@ -517,50 +420,27 @@ export default {
         }else{
           this.noProductSelected = true
           // reseting the form
-          
-
           $(".alert").delay(2000).slideUp(200, () => {
               this.noProductSelected = false
-                       
           });
-          
         }
-        
       },
+
       closewindow: function(){
         $('.popup-wrapper').css("display","none");
         this.single = ''
-        this.addProductTitle = null;
-        this.editProductTitle = null;
-        this.watcher();
+        
       },
-      
-      // elem = event.target , selector = '.classname','#id'
 
-      readData(){
-        // db.collection("products").get().then((querySnapshot) => {
-        //   querySnapshot.forEach((doc) => {
-        //     // doc.data() is never undefined for query doc snapshots
-            
-        //     this.products.push(doc);
-        //   });
-        // });
-      },
       checkedMe: function(event){
-
         const checkBox = event.target
         let element = event.target.parentElement;
-        
         const toolBox = getNextSibling(element, '.show-more-tools');
 
          if(checkBox.checked){
           $(element.parentElement).css("background-color","#c2dbff");
           $(toolBox.firstChild.firstChild).css("background-color","#c2dbff")
           this.checkedNumbers = this.checkedNumbers + 1;
-
-          // $(toolBox.firstChild.firstChild).css("color","#EDF5E1")
-          
-          // $(toolBox.firstChild.firstChild.firstChild.nextElementSibling).css("color","#EDF5E1")
          } 
          if(checkBox.checked == false){
            $(element.parentElement).css("background-color","var(--light"); 
@@ -568,78 +448,6 @@ export default {
            $(toolBox.firstChild.firstChild).css("background-color","var(--light)")
            this.checkedNumbers = this.checkedNumbers - 1;
          }
-          
-      },
-      toggleModal() {
-        this.modalShown = !this.modalShown;
-      },
-      modalAddProduct(){
-        this.productModal = true;
-        this.addProductTitle = true;
-      },
-      closeproductModal(){
-        this.reset();
-        this.watcher();
-        this.productModal = false
-        this.addProductTitle = null;
-        this.editProductTitle = null;
-        
-        
-        
-        
-      },
-
-      
-
-      saveData(){
-        this.$firestore.products.add(this.product);
-        this.closeproductModal();
-        
-        // db.collection("products").add(this.product)
-        // .then((docRef) => {
-        // //   console.log("document written with ID: ", docRef.id);
-        // //   this.productModal = false
-        //       this.productModal = false;
-        //       this.watcher();
-        //       this.productSuccessAlert = true;
-        // //   // Alerting client that product as been added successfully
-        //   this.docRefId = docRef.id
-        // //   this.productSuccessAlert = true
-        // //   // reseting the form
-        // //   this.reset();
-        // //   this.watcher();
-
-        //   $(".alert").delay(2000).slideUp(200, () => {
-        //       this.productSuccessAlert = false
-              
-                         
-        //   });
-
-        // })
-        // .catch(function(error) {
-        //   console.error("Error adding document: ", error);
-          
-        // })
-        
-      },
-      
-      reset(){
-        // Object.assign(this.$data, this.$options.data.apply(this));
-      },
-      updateData(){
-        // console.log(this.activeItem);
-        // db.collection("products").doc(this.activeItem).update(this.product)
-        
-      //   .then(() => {
-      //       console.log("Document successfully updated!");
-      //       console.log(this);
-      //       this.productModal = false;
-      //       this.watcher();
-      //   })
-      //   .catch(function(error) {
-      //       // The document probably doesn't exist.
-      //       console.error("Error updating document: ", error);
-      //   });
       },
     }
   }
@@ -658,11 +466,7 @@ export default {
   // find a way to delete thats shit!
 }
 
-// MODAL ADD PRODUCTS START <-----
-.modal-header h5{
-  font-size: 2.5rem;
-}
-// MODAL ADD PRODUCTS END<-----
+
 // 
 // POPUP STYLE START <----
 
@@ -730,7 +534,7 @@ export default {
   right: 0;
   bottom: 0;
   left: 0;
-  background: rgba(0,0,0,.8);
+  background: rgba(0,0,0,.2);
   z-index: 20;
 }
 .confirm-delete-pop-up{
@@ -748,33 +552,6 @@ export default {
   box-shadow: var(--shadow);
   border-radius: 10px;
   
-}
-.product-Modal{
-  position: absolute;
-  
-  top: 0;
-
-  width: 75%;
-  height: 80vh;
-  background-color:var(--lightwhite1);
-  display: flex;
-  flex-direction: column;
-  overflow-x: unset;
-  align-content: center;
-  z-index: 30;
-  border: 1px solid var(--primaryT);
-  box-shadow: var(--shadow);
-  border-radius: 10px;
-  overflow: scroll;
-
-}
-.product-Modal-wrapper{
-  position: relative;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 .alert-wrapper{
   height: 100%;
@@ -900,28 +677,13 @@ input:checked + .slider:before {
 .btn-group-wrapper h3 {
   font-size: 2.5rem;
   color: var(--blue);
-  
   margin-bottom: 0;
 }
 
 
 
 // HEADER STYLE FINISH <----
-// .modal-container{
-//   position: relative;
-// }
-// .modal-wrapper{
-//   margin: auto;
-//   z-index: 30;
-//   border: 1px solid var(--primaryT);
-//   box-shadow: var(--shadow);
-//   border-radius: 10px;
-//   position: absolute;
-//   top: 0; left: 0; bottom: 0; right: 0;
-//   width: 75%;
-//   height: 75%;
-//   overflow: scroll;
-// }
+
 // SEARCHBAR STYLE START <----
 .form-wrapper {
   position: relative;
@@ -1077,9 +839,9 @@ input:checked + .slider:before {
   
 }
 
-.workbar-left{
+// .workbar-left{
 
-}
+// }
 .workbar-left > div{
   display: flex;
   justify-content: center;
@@ -1394,9 +1156,9 @@ thead tr th{
   width: 100%;
 }
 // controling the overflow
-.overflow{
+// .overflow{
   
-}
+// }
 .work-wrapper{
   position: relative;
   display: none;

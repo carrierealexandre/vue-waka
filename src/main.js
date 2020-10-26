@@ -5,12 +5,16 @@ import 'bootstrap';
 import jQuery from'jquery';
 import './icon.js';
 import VModal from 'vue-js-modal';
-
+import { longClickDirective } from 'vue-long-click'
 import VueFirestore from 'vue-firestore'
 import {fb} from './firebase';
 
 Vue.use(VModal);
-Vue.use(VueFirestore);
+Vue.directive('longclick', longClickInstance)
+Vue.use(VueFirestore, {
+  key:'id',
+  enumerable: true
+});
 
 window.$ = window.jQuery = jQuery;
 
@@ -18,6 +22,8 @@ import 'popper.js';
 import './assets/app.scss'
 
 Vue.component('navbar', require('./components/Navbar.vue').default)
+Vue.component('numberInput', require('./components/numberInput.vue').default)
+Vue.component('decimalInput', require('./components/decimalInput.vue').default)
 Vue.component('homemenu', require('./components/HomeMenu.vue').default)
 Vue.component('popular', require('./components/Popular.vue').default)
 Vue.component('wakafooter', require('./components/Wakafooter.vue').default)
@@ -37,6 +43,7 @@ Vue.config.productionTip = false;
 
 let app = '';
 
+const longClickInstance = longClickDirective({delay: 400, interval: 50})
 
 fb.auth().onAuthStateChanged(function() {
   if(!app){

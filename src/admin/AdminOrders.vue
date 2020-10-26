@@ -3,17 +3,37 @@
   <div class="">
     <div class="orders">
     
-      <whenempty class="orders"
+      <!-- <whenempty class="orders"
       :ImgSource='ImgSource'
       :AdminPage='AdminPage'
       :AdminPageContent='AdminPageContent'
-      ></whenempty>
+      ></whenempty> -->
+      <numberInput :num="number" @numberChanged="number = $event"
+      
+      ></numberInput>
+      <numberInput :num="numberOne" @numberChanged="numberOne = $event"
+      
+      ></numberInput>
+      <numberInput :num="numberTwo" @numberChanged="numberTwo = $event"
+      
+      ></numberInput>
+      <decimalInput :dec="decimal" @numberChanged="decimal = $event"
+      
+      ></decimalInput>
+      
+
+
+      <!-- <decimalInput
+      :decimal='decimal'
+      ></decimalInput> -->
     </div>
     
   </div>
 </template>
 
 <script>
+import numberInput from '../components/numberInput'
+import decimalInput from '../components/decimalInput'
 export default {
   name: "Orders",
   props: {
@@ -21,6 +41,10 @@ export default {
   },
   data() {
     return {
+      decimal:"00",
+      number:0,
+      numberOne:0,
+      numberTwo:0,
       ImgSource: 'public/admin_img/orders.svg',
       AdminPage: 'Orders',
       AdminPageContent: `Lorem ipsum dolor, sit amet consectetur adipisicing 
@@ -28,6 +52,10 @@ export default {
                          aspernatur possimus exercitationem.`
     }
   },
+  components:{
+    'numberInput': numberInput,
+    'decimalInput': decimalInput
+  }
 };
 </script>
 

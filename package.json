@@ -24,10 +24,13 @@
     "popper-vue": "^0.1.8",
     "popper.js": "^1.16.1",
     "vue": "^2.6.11",
+    "vue-editor": "0.0.0",
     "vue-editor-js": "^2.0.1",
     "vue-firestore": "^0.3.30",
     "vue-js-modal": "^2.0.0-rc.6",
-    "vue-router": "^3.2.0"
+    "vue-long-click": "0.0.4",
+    "vue-router": "^3.2.0",
+    "vue2-editor": "^2.10.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",

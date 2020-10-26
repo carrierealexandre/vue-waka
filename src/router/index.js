@@ -17,7 +17,11 @@ import Orders from "../admin/AdminOrders.vue";
 import Products from "../admin/AdminProducts.vue";
 import Tracking from "../admin/AdminTracking.vue";
 import addproduct from "../admin/AdminAddProduct.vue";
+
 import {fb} from "../firebase";
+
+
+
 
 
 Vue.use(VueRouter);
