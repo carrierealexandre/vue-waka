@@ -204,6 +204,7 @@
                   <th scope="col">Id</th>
                   
                   <th scope="col">Name</th>
+                  <th scope="col">Category</th>
                   <th scope="col">Description</th>
                   <th scope="col">Price</th>
                   <th scope="col">Weight</th>
@@ -219,8 +220,9 @@
                   <th class="selecttablerow" data-label="Select"><input value="1" class="myCheck" @click.stop="checkedMe" type="checkbox" name="sample[]" ></th>
                   <td data-label="Id">{{product.productId}}</td>
                   <td data-label="Product Name">{{product.name}}</td>
+                  <td data-label="Product Categorie">{{product.categorie}}</td>
                   <td data-label="Description">{{product.description}}</td>
-                  <td data-label="Price">{{product.price}}</td>
+                  <td data-label="Price">{{product.price / 100 }}</td>
                   <td data-label="Weight">{{product.weight + product.Unit}}</td>
                   <td data-label="Shipping Cost">{{product.shippingcost}}</td>
                   <td data-label="In-Stock Quatity">{{product.qty}}</td>
@@ -368,6 +370,7 @@ export default {
         localStorage.docRefProduct = product.id;
         console.log(product.id);
         console.log(this.docRefProduct);
+        this.$router.push('addproduct')
       },
       deleteProduct(){
         console.log(this.selectedId);

@@ -8,7 +8,8 @@
         </div>
         <div class="header-btn">
           <button @click="goBack()" class="btn" >Discard</button>
-          <button  @click="saveData()"  class="btn btn-primary">Create</button>
+          <button v-if="!this.docRefProduct" @click="saveData()"  class="btn btn-primary">Create</button>
+          <button v-if="this.docRefProduct" @click="updateData()"  class="btn btn-primary">Update</button>
         </div>
       </div>                          <!--  HEADER END -->     
       <div class="add-work-wrapper">
