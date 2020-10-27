@@ -7,7 +7,7 @@
           <span>Unsaved Changes</span>
         </div>
         <div class="header-btn">
-          <button @click="discard()" class="btn" >Discard</button>
+          <button @click="goBack()" class="btn" >Discard</button>
           <button  @click="saveData()"  class="btn btn-primary">Create</button>
         </div>
       </div>                          <!--  HEADER END -->     
@@ -223,7 +223,7 @@
                   <div id="slashBetUnit223"><h6>/</h6></div>
                   <div class="input-label-wrapper">
                     <h6>Unit</h6>
-                    <select  v-model="weightUnitCost" class="custom-select" id="exampleFormControlSelect1">
+                    <select  v-model="product.Unit" class="custom-select" id="exampleFormControlSelect1">
                       <option selected>Lbs</option>
                       <option >Kg</option>
                     </select>   
@@ -246,11 +246,11 @@
               <div class="product-weight-wrapper form-group">
                 <div class="input-label-wrapper">
                   <h6>WEIGHT</h6>
-                  <input v-model="weightNum" type="text" name="" id="" class="form-control" placeholder="0" pattern="$[0-9].[0-9]">
+                  <input v-model="product.weight" type="text" name="" id="" class="form-control" placeholder="0" pattern="$[0-9].[0-9]">
                 </div>
                 <div class="input-label-wrapper">
                   <h6>Unit</h6>
-                  <select v-model="weightUnit" class="custom-select" id="exampleFormControlSelect1">
+                  <select v-model="product.Unit" class="custom-select" id="exampleFormControlSelect1">
                   <option selected>Lbs</option>
                   <option >Kg</option>
                 </select> 
@@ -350,8 +350,9 @@
       <div class="btn-group-wrapper-footer"> <!--  HEADER START -->
         
         <div class="header-btn">
-          <button @click="discard()" class="btn btn-primary " >Discard</button>
-          <button  @click="saveData()"  class="btn btn-primary">Create</button>
+          <button @click="goBack()" class="btn btn-primary " >Discard</button>
+          <button v-if="!this.docRefProduct" @click="saveData()"  class="btn btn-primary">Create</button>
+          <button v-if="this.docRefProduct" @click="updateData()"  class="btn btn-primary">Update</button>
         </div>
       </div> 
   </div>
@@ -364,11 +365,78 @@
 import {VueEditor} from "vue2-editor";
 import {fb, db} from '../firebase';
 
+
 // import $ from 'jquery'
 export default {
   
   name: "addproduct",
-  
+  async created () {
+    if(localStorage.docRefProduct){
+      this.docRefProduct = localStorage.docRefProduct;
+      console.log(this.docRefProduct);
+      
+      
+      var product = db.collection("products").doc(this.docRefProduct);
+
+      product.get().then((doc) => {
+          if (doc.exists) {
+              console.log("Document data:", doc.data());
+              const data = doc.data();
+              this.product =  data;
+              // convert the description
+              this.pDescription = this.product.description ;
+              // converte the price into two dollar and Cents for (product.price & product.comparePrice & product.costPrice)
+              // product.price delivered to productDollar and productCent
+              let price = this.product.price;
+              let strPrice = price.toString()
+              let length = strPrice.length
+              this.productCent = strPrice.slice(-2,length);
+              this.productDolar = parseInt(strPrice.slice(0,-2));
+              console.log(strPrice.slice(-2,length));
+              console.log(strPrice.slice(0,-2));  
+              // product.price delivered to productCompareDollar and productCompareCent 
+              price = this.product.comparePrice;
+              strPrice = price.toString()
+              length = strPrice.length
+              this.productCompareCent = strPrice.slice(-2,length);
+              this.productCompareDolar = parseInt(strPrice.slice(0,-2));
+              console.log(strPrice.slice(-2,length));
+              console.log(strPrice.slice(0,-2));  
+              // product.price delivered to productCostDollar and productCostCent     
+              price = this.product.costPrice;
+              strPrice = price.toString()
+              length = strPrice.length
+              this.productCostCent = strPrice.slice(-2,length);
+              this.productCostDolar = parseInt(strPrice.slice(0,-2));
+              console.log(strPrice.slice(-2,length));
+              console.log(strPrice.slice(0,-2));      
+              //pruduct shippingcost to shippingCent and shippingDolar
+              price = this.product.shippingcost;
+              console.log(price + "that is the raw shiiping price from google");
+              price = price / this.product.weight;
+              price = price.toFixed(2);
+              console.log(price + "you suposed 2 digit num");
+              strPrice = price.toString();
+              length = strPrice.length;
+              this.shippingCent = strPrice.slice(-2,length);
+              this.shippingDolar = parseInt(strPrice.slice(0,-2));
+              console.log(strPrice.slice(-2,length));
+              console.log(strPrice.slice(0,-2));   
+              // product Weight 
+
+              
+          } else {
+              // doc.data() will be undefined in this case
+              console.log("No such document!");
+          }
+      }).catch(function(error) {
+          console.log("Error getting document:", error);
+      }); 
+    }else{
+      console.log('no product to edit');
+    }
+    
+  },
   components: {
     VueEditor
   },
@@ -377,11 +445,10 @@ export default {
   },
   data() {
     return {
-      
+      docRefProduct:null,
       pDescription:null,
-      weightUnit:null,
-      weightNum: 0,
-      weightUnitCost:null,
+      
+      
       vendorNumber:null,
       categoryNumber:null,
       weightNumber:null,
@@ -426,6 +493,7 @@ export default {
         weight:null,
         shippingcost:null,
         size:null,
+        Unit:null,
         qty:0,
         taxes:false,
         trackQty:false,
@@ -434,33 +502,37 @@ export default {
 
     }
   },
-  computed:{
-    editProduct: function(product){
-      if(product){
-        return console.log(product);
-      }else{
-        return console.log('No Propduct');
-      }
-    }
-  },
+  
+  // editProduct(docRefProduct){
+  //   if(docRefProduct){
+  //     return console.log(docRefProduct);
+  //   }else{
+  //     return console.log('No Propduct');
+  //   }
+  // },
+  
   firestore(){
     return {
       products: db.collection('products'),
     }
   },
   methods:{
+    goBack() {
+      window.history.length > 1 ? this.$router.go(-1) : this.$router.push('/');
+      window.localStorage.removeItem('docRefProduct');
+    },
     trimDescriptionTags(){
       let str = this.pDescription;
       this.product.description = str.replace("<p>","").replace("</p>","");
     },
-    weight(){
-      this.product.weight = this.weightNum + this.weightUnit
-      
-    },
     shippingcost(){
-      const shippingCost = parseFloat(this.shippingDolar + "." + this.shippingCent) * this.weightNum;
-
+      console.log(this.shippingDolar + "dollar");
+      console.log(this.shippingCent + "Cent" );
+      console.log(this.product.weight + "Weight"  );
+      const shippingCost = parseFloat(this.shippingDolar.toString() + "." + this.shippingCent.toString()) * this.product.weight;
+      console.log(shippingCost);
       this.product.shippingcost = shippingCost.toFixed(2);
+      console.log(this.product.shippingcost + " is your NaN");
     },
     createId(){
         
@@ -575,15 +647,19 @@ export default {
       this.comparePrice();
       this.price();
       this.CostPrice();
-      this.weight();
       this.shippingcost();
       this.trimDescriptionTags();
       this.$firestore.products.add(this.product);
       this.$router.push('products');
     },
     updateData(){
-      this.$firestore.products.doc(this.product.id).update(this.product);
-      
+      this.comparePrice();
+      this.price();
+      this.CostPrice();
+      this.shippingcost();
+      this.trimDescriptionTags();
+      this.$firestore.products.doc(this.docRefProduct).update(this.product);
+      this.goBack()
     },  
   }
   

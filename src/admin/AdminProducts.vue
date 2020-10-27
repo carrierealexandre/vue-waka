@@ -221,7 +221,7 @@
                   <td data-label="Product Name">{{product.name}}</td>
                   <td data-label="Description">{{product.description}}</td>
                   <td data-label="Price">{{product.price}}</td>
-                  <td data-label="Weight">{{product.weight}}</td>
+                  <td data-label="Weight">{{product.weight + product.Unit}}</td>
                   <td data-label="Shipping Cost">{{product.shippingcost}}</td>
                   <td data-label="In-Stock Quatity">{{product.qty}}</td>
                   <td data-label="" class="show-more-tools" >
@@ -294,19 +294,7 @@ export default {
     
   },
   props: {
-    product: {
-        images:Array,
-        productId:null,
-        name:null,
-        tags:Array,
-        categorie:null,
-        description:null,
-        price:null,
-        weight:null,
-        shippingcost:null,
-        size:null,
-        qty:null,
-      }
+    
     // product: {
     //     images:[],
     //     productId:null,
@@ -323,6 +311,7 @@ export default {
   },
   data() {
     return {
+      docRefProduct:null,
       docRefId:'',
       s: '',
       selectefDoc: null,
@@ -337,7 +326,25 @@ export default {
       productDeletedAlert: false,
       confirmDelete: false,
       products: [],
-      
+      product: {
+        images:[],
+        productId:null,
+        name:null,
+        tags:[],
+        categorie:null,
+        vendor:null,
+        description:null,
+        costPrice:null,
+        comparePrice:null,
+        price: null,
+        weight:null,
+        shippingcost:null,
+        size:null,
+        qty:0,
+        taxes:false,
+        trackQty:false,
+        sellWhenOut:false
+      },
       tag: null,
       pageEmpty: false,
       ImgSource: 'public/admin_img/products.svg',
@@ -350,12 +357,18 @@ export default {
 
     firestore(){
       return {
+        
         products: db.collection('products'),
       }
     },
 
     methods:{
-
+      editProduct(product){
+        this.docRefProduct = product.id;
+        localStorage.docRefProduct = product.id;
+        console.log(product.id);
+        console.log(this.docRefProduct);
+      },
       deleteProduct(){
         console.log(this.selectedId);
         this.productDeletedAlert = true
