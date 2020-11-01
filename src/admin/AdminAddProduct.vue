@@ -318,7 +318,7 @@
               
               <select  v-model="product.categorie" class="custom-select" id="exampleFormControlSelect1">
                 <option value="" disabled selected="selected">Select Product Type</option>
-                <option v-for="(cat, idx) in cats" :key="idx" >{{cat.cat}}</option>
+                <option v-for="(cat, idx) in  productsCategories" :key="idx" >{{cat}}</option>
               </select> 
               
               
@@ -362,9 +362,10 @@
 <script>
 
 
-
+// import productsCategories from "./AdminProducts"
 import {VueEditor} from "vue2-editor";
 import {fb, db} from '../firebase';
+import {productsCategories} from "../admin/AdminProducts"
 
 
 // import $ from 'jquery'
@@ -372,6 +373,7 @@ export default {
   
   name: "addproduct",
   async created () {
+    console.log(productsCategories);
     if(localStorage.docRefProduct){
       this.docRefProduct = localStorage.docRefProduct;
       console.log(this.docRefProduct);
@@ -446,6 +448,7 @@ export default {
   },
   data() {
     return {
+      productsCategories: productsCategories,
       docRefProduct:null,
       pDescription:null,
       
@@ -476,7 +479,7 @@ export default {
                          elit. Laudantium dolorum sint nobis ex illo inventore autem consectetur 
                          aspernatur possimus exercitationem.`,
       isLoad: true,
-      cats: [{cat:'Dry', id:'01'},{cat:'Frozen', id:'02'},{cat:'Chips', id:'03'},{cat:'Pop', id:'04'},{cat:'Utilities', id:'05'} ],
+      // cats: [{cat:'Dry', id:'01'},{cat:'Frozen', id:'02'},{cat:'Chips', id:'03'},{cat:'Pop', id:'04'},{cat:'Utilities', id:'05'} ],
       tag: null,
       vendors: ['Superior Airways','IGA','Red Apple','Red Lake Marine'],
       products: [],

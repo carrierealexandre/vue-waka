@@ -25,7 +25,7 @@
                 <fa-icon class="alert-icon" :icon="['fa', 'exclamation-triangle']" />
               </div>
               <div class="alert-message ">
-                <span class="dflex centercenter">Are you sure that you want to permannently DELETE the {{checkedNumbers}} SELECTED product{{s}}</span>
+                <span class="dflex centercenter">Are 123 you sure that you want to permannently DELETE the {{checkedNumbers}} SELECTED product{{s}}</span>
               </div>
               <div class="delete-action">
                 <div class="action-cancel" @click="closewindow" role="button">Cancel</div>
@@ -54,7 +54,7 @@
                 <fa-icon class="alert-icon" :icon="['fa', 'exclamation-triangle']" />
               </div>
               <div class="alert-message ">
-                <span class="dflex centercenter">Are you sure that you want to permannently DELETE the {{checkedNumbers}} SELECTED product{{s}}</span>
+                <span class="dflex centercenter">Are 456 you sure that you want to permannently DELETE the {{checkedNumbers}} SELECTED product{{s}}</span>
               </div>
               <div class="delete-action">
                 <div class="action-cancel" @click="closewindow" role="button">Cancel</div>
@@ -115,7 +115,7 @@
               <input  class="work-checkbox selectall"  type="checkbox" name="sample" >
             </div>
             
-            <div class="work-refresh" role="button">
+            <div @click="refreshWindow" class="work-refresh" role="button">
               <fa-icon class="work-icon" :icon="['fa', 'redo-alt']"/>
             </div>
             
@@ -152,10 +152,10 @@
               </div>
             </div>
             <div class="changepage">
-              <div class="left-arrow" role="button">
+              <div @click="prevPage" class="left-arrow" role="button">
                 <fa-icon class="work-icon" :icon="['fa', 'chevron-left']"/>
               </div>
-              <div class="right-arrow" role="button">
+              <div @click="nextPage" class="right-arrow" role="button">
                 <fa-icon class="work-icon" :icon="['fa', 'chevron-right']"/>
               </div>
             </div>
@@ -217,7 +217,7 @@
               </thead>
               <tbody id="productRow">
                 <tr class="data-row" v-for="(product, idx) in products" :key="idx">
-                  <th class="selecttablerow" data-label="Select"><input value="1" class="myCheck" @click.stop="checkedMe" type="checkbox" name="sample[]" ></th>
+                  <th class="selecttablerow" data-label="Select"><input value="1" class="myCheck" @click.stop="checkedMe($event, product)" type="checkbox" name="sample[]" ></th>
                   <td data-label="Id">{{product.productId}}</td>
                   <td data-label="Product Name">{{product.name}}</td>
                   <td data-label="Product Categorie">{{product.categorie}}</td>
@@ -238,10 +238,7 @@
                           </div>
                           <div class="">
                             <button @click="editProduct(product)" class="product-edit"><fa-icon :icon="['fa', 'edit']"/></button>
-                          </div> 
-                          <div class="">
-                            <button  class="product-chart"><fa-icon :icon="['fa', 'chart-line']"/></button>
-                          </div> 
+                          </div>
                           <div class="">
                             <button @click="singleConfirmdeletewindow(product)"  class="product-trash"><fa-icon :icon="['fa', 'trash-alt']"/></button>
                           </div>
@@ -290,6 +287,7 @@ function getNextSibling(elem, selector) {
 
 import { db} from '../firebase';
 import $ from 'jquery'
+export const productsCategories = ["Beverages","Essentials","Chips","Utilities","Frozen"]
 
 export default {
   components: {
@@ -297,22 +295,14 @@ export default {
   },
   props: {
     
-    // product: {
-    //     images:[],
-    //     productId:null,
-    //     name:null,
-    //     tags:[],
-    //     categorie:null,
-    //     description:null,
-    //     price:null,
-    //     weight:null,
-    //     shippingcost:null,
-    //     size:null,
-    //     qty:null,
-    //   }
+    
   },
   data() {
     return {
+      // productsCategories:["Beverages","Essentials","Chips","Utilities","Frozen"],
+      // categories:[Beverages,Essentials,Chips,Utilities,Frozen],
+      lastVisible:0,
+      checkedProductArray:[],
       docRefProduct:null,
       docRefId:'',
       s: '',
@@ -329,6 +319,7 @@ export default {
       confirmDelete: false,
       products: [],
       product: {
+        id:null,
         images:[],
         productId:null,
         name:null,
@@ -357,41 +348,115 @@ export default {
     }
   },
 
-    firestore(){
-      return {
-        
-        products: db.collection('products'),
-      }
+    created(){
+      db.collection('products').limit(5),
+          db.collection("products").limit(10).get().then((querySnapshot) => {
+            this.lastVisible = querySnapshot.docs[querySnapshot.docs.length-1];
+            console.log("last", this.lastVisible);
+              querySnapshot.forEach((doc) => {
+                  // doc.data() is never undefined for query doc snapshots
+                  let product = doc.data()
+                  product.id = doc.id
+                  this.products.push(product);
+                  
+                  console.log(doc.id, " => ", doc.data());
+              });
+        })  
+      
+      
     },
+    
 
     methods:{
+      watcher(){
+        db.collection("products").limit(10).startAfter(this.lastVisible).get().then((querySnapshot) => {
+            this.products = [];
+            querySnapshot.forEach((doc) => {
+                  // doc.data() is never undefined for query doc snapshots
+                  let product = doc.data()
+                  product.id = doc.id
+                  this.products.push(product);
+                console.log(doc.id, " => ", doc.data());
+            });
+        });
+      },
+      nextPage(){
+        
+        db.collection("products").limit(10).startAfter(this.lastVisible).get().then((querySnapshot) => {
+            this.lastVisible = querySnapshot.docs[querySnapshot.docs.length-1];
+            console.log("last", this.lastVisible);
+            this.products = [];
+            querySnapshot.forEach((doc) => {
+                  // doc.data() is never undefined for query doc snapshots
+                  let product = doc.data()
+                  product.id = doc.id
+                  this.products.push(product);
+                console.log(doc.id, " => ", doc.data());
+            });
+        });
+      },
+      prevPage(){
+        db.collection("products").limit(10).endBefore(this.lastVisible).get().then((querySnapshot) => {
+            this.lastVisible = querySnapshot.docs[querySnapshot.docs.length-1];
+            console.log("last", this.lastVisible);
+            this.products = [];
+            querySnapshot.forEach((doc) => {
+                  // doc.data() is never undefined for query doc snapshots
+                  let product = doc.data()
+                  product.id = doc.id
+                  this.products.push(product);
+                console.log(doc.id, " => ", doc.data());
+            });
+        });
+
+        // this.lastVisible = documentSnapshots.docs[documentSnapshots.docs.length-1];
+        // products: db.collection.endBefore(first[field]).limitToLast(10)
+      },
+      refreshWindow(){
+        location.reload();
+      },
+      deleteProductItem(selectedId){
+        db.collection("products").doc(selectedId).delete();
+        this.watcher();
+        // this.$firestore.products.doc(selectedId).delete();
+      },
       editProduct(product){
-        this.docRefProduct = product.id;
+        this.docRefProduct = product;
+        console.log(this.docRefProduct);
         localStorage.docRefProduct = product.id;
         console.log(product.id);
         console.log(this.docRefProduct);
         this.$router.push('addproduct')
       },
       deleteProduct(){
-        console.log(this.selectedId);
-        this.productDeletedAlert = true
-        // reseting the form
-        this.checkedNumbers = 0
-        $('.popup-wrapper').css("display","none");
-        this.single = ''
-        this.$firestore.products.doc(this.selectedId).delete();
-        this.closewindow();
-        //   db.collection("products").doc(this.realId).delete().then(() => {
-        //     this.watcher();
-        $(".alert").delay(1000).slideUp(200, () => {
-          this.productDeletedAlert = false
-        });
-          // }).catch(function(error) {
-          //   $(".alert").delay(2000).slideUp(200, () => {
-          //     this.productDeletedAlert = false
-          //   console.error("error removing document: ", error);
-          // });
-          // });
+        if(this.selectedId){
+
+          this.productDeletedAlert = true
+          // reseting the form
+          this.checkedNumbers = 0
+          $('.popup-wrapper').css("display","none");
+          this.single = ''
+          this.deleteProductItem(this.selectedId);
+          db.collection("products").doc(this.selectedId).delete()
+          this.watcher();
+          // this.$firestore.products.doc(this.selectedId).delete();
+          this.closewindow();
+          $(".alert").delay(1000).slideUp(200, () => {
+            this.productDeletedAlert = false
+          });
+
+        }else{
+          
+          this.checkedProductArray.forEach( (item) => {
+            this.deleteProductItem(item);
+            this.closewindow();
+            $(".alert").delay(1000).slideUp(200, () => {
+              this.productDeletedAlert = false
+            });
+          })
+        }
+        
+        
           
       },
 
@@ -404,12 +469,20 @@ export default {
             var upNum = $('.data-row th').children().length;
             this.checkedNumbers = 0;
             this.checkedNumbers = this.checkedNumbers + upNum;
+            this.checkedProductArray  = [];
+            this.products.forEach((product) =>{
+              
+                this.checkedProductArray.push(product.id) 
+              
+              
+            })
 
         } else {
             $('div input').prop('checked', false);
             $('#productRow tr').css("background-color","var(--light)");
             $('.work').css("background-color","var(--light");
             this.checkedNumbers = 0 ;
+            this.checkedProductArray = []; 
         }
       },
 
@@ -417,6 +490,7 @@ export default {
         // this.realId = doc
         // this.realProduct = realProduct
         this.checkedNumbers =  '';
+        
         this.confirmDelete = true
         $('.popup-wrapper').css("display","inherit");
         console.log(doc.id);
@@ -445,24 +519,31 @@ export default {
       closewindow: function(){
         $('.popup-wrapper').css("display","none");
         this.single = ''
+        this.selectedId = null
         
       },
-
-      checkedMe: function(event){
+      // checkedProduct(product){
+      //   this.checkedProductArray.push(product.id);
+      // },
+      checkedMe: function(event, product){
         const checkBox = event.target
         let element = event.target.parentElement;
         const toolBox = getNextSibling(element, '.show-more-tools');
 
          if(checkBox.checked){
+           console.log(element);
+           console.log(product.id);
           $(element.parentElement).css("background-color","#c2dbff");
           $(toolBox.firstChild.firstChild).css("background-color","#c2dbff")
           this.checkedNumbers = this.checkedNumbers + 1;
+          this.checkedProductArray.push(product.id);
          } 
          if(checkBox.checked == false){
            $(element.parentElement).css("background-color","var(--light"); 
            $(toolBox).css("background-color","var(--light") 
            $(toolBox.firstChild.firstChild).css("background-color","var(--light)")
            this.checkedNumbers = this.checkedNumbers - 1;
+           this.checkedProductArray.splice(this.checkedProductArray.indexOf(product.id), 1);
          }
       },
     }
@@ -1141,15 +1222,16 @@ tr:hover{
 //   position: sticky;
 //   top: 0;
 // }
-.table.sticky thead th::after{
-  content: '';
-  width: 100%;
-  height: 2px;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  background-color: var(--primary);
-}
+
+// .table.sticky thead th::after{
+//   content: '';
+//   width: 100%;
+//   height: 2px;
+//   position: absolute;
+//   bottom: 0;
+//   left: 0;
+//   background-color: var(--primary);
+// }
 
 .table{
   border-radius: 5px;
