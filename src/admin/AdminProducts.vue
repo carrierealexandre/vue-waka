@@ -140,22 +140,25 @@
           <div class="workbar-right">
             <div class="work-numberofpages-wrapper">
               <div class="start">
-                <span>1</span>
+                <span>{{lastTotal}}</span>
               </div>
               <span>-</span>
               <div class="end">
-                10
+                {{totalVisable}}
               </div>
               <span>of</span>
               <div class="total">
-                10
+                {{totalProducts}}
               </div>
             </div>
             <div class="changepage">
-              <div @click="prevPage" class="left-arrow" role="button">
+              <div  @click="prevPage" class="left-arrow" role="button">
                 <fa-icon class="work-icon" :icon="['fa', 'chevron-left']"/>
               </div>
-              <div @click="nextPage" class="right-arrow" role="button">
+              <div v-if="totalVisable == totalProducts"  class="right-arrow" >
+                <fa-icon class="work-icon" :icon="['fa', 'chevron-right']"/>
+              </div>
+              <div v-if="totalVisable != totalProducts" @click="nextPage" class="right-arrow" role="button">
                 <fa-icon class="work-icon" :icon="['fa', 'chevron-right']"/>
               </div>
             </div>
@@ -299,9 +302,13 @@ export default {
   },
   data() {
     return {
+      totalProducts:0,
+      totalVisable:0,
+      lastTotal:1,
       // productsCategories:["Beverages","Essentials","Chips","Utilities","Frozen"],
       // categories:[Beverages,Essentials,Chips,Utilities,Frozen],
-      lastVisible:0,
+      lastVisible:null,
+      firstVisible:null,
       checkedProductArray:[],
       docRefProduct:null,
       docRefId:'',
@@ -349,18 +356,30 @@ export default {
   },
 
     created(){
-      db.collection('products').limit(5),
-          db.collection("products").limit(10).get().then((querySnapshot) => {
-            this.lastVisible = querySnapshot.docs[querySnapshot.docs.length-1];
-            console.log("last", this.lastVisible);
-              querySnapshot.forEach((doc) => {
-                  // doc.data() is never undefined for query doc snapshots
-                  let product = doc.data()
-                  product.id = doc.id
-                  this.products.push(product);
-                  
-                  console.log(doc.id, " => ", doc.data());
-              });
+
+        db.collection("products").limit(10).get().then((querySnapshot) => {
+          querySnapshot.forEach(() => {
+            this.totalProducts += 1;
+            this.MasterLastVisible = querySnapshot.docs[querySnapshot.docs.length-1];
+            
+          })
+        })
+        db.collection("products").orderBy('productId').limit(2).get().then((querySnapshot) => {
+          this.totalVisable = 2;
+          this.lastVisible = querySnapshot.docs[querySnapshot.docs.length-1];
+          this.firstVisible = querySnapshot.docs[0]
+          console.log("first", this.firstVisible);
+          console.log("last", this.lastVisible);
+            querySnapshot.forEach((doc) => {
+                // doc.data() is never undefined for query doc snapshots
+                
+                
+                let product = doc.data()
+                product.id = doc.id
+                this.products.push(product);
+                
+                console.log(doc.id, " => ", doc.data());
+            });
         })  
       
       
@@ -369,24 +388,35 @@ export default {
 
     methods:{
       watcher(){
-        db.collection("products").limit(10).startAfter(this.lastVisible).get().then((querySnapshot) => {
-            this.products = [];
+        db.collection("products").orderBy('productId').limit(2).get().then((querySnapshot) => {
+          this.lastVisible = querySnapshot.docs[querySnapshot.docs.length-1];
+          console.log("last", this.lastVisible);
+          this.firstVisible = querySnapshot.docs[0]
+          console.log("first", this.firstVisible);
+          this.products = [];
             querySnapshot.forEach((doc) => {
-                  // doc.data() is never undefined for query doc snapshots
-                  let product = doc.data()
-                  product.id = doc.id
-                  this.products.push(product);
+                // doc.data() is never undefined for query doc snapshots
+                let product = doc.data()
+                product.id = doc.id
+                this.products.push(product);
+                
                 console.log(doc.id, " => ", doc.data());
             });
-        });
+        }) 
       },
       nextPage(){
         
-        db.collection("products").limit(10).startAfter(this.lastVisible).get().then((querySnapshot) => {
+        db.collection("products").orderBy('productId').limit(2).startAfter(this.lastVisible).get().then((querySnapshot) => {
             this.lastVisible = querySnapshot.docs[querySnapshot.docs.length-1];
             console.log("last", this.lastVisible);
+            
+            this.firstVisible = querySnapshot.docs[0]
+            console.log("first", this.firstVisible);
             this.products = [];
+            this.lastTotal = this.totalVisable
             querySnapshot.forEach((doc) => {
+              
+              this.totalVisable += 1;
                   // doc.data() is never undefined for query doc snapshots
                   let product = doc.data()
                   product.id = doc.id
@@ -396,11 +426,18 @@ export default {
         });
       },
       prevPage(){
-        db.collection("products").limit(10).endBefore(this.lastVisible).get().then((querySnapshot) => {
+        db.collection("products").orderBy('productId').endBefore(this.firstVisible).limitToLast(2).get().then((querySnapshot) => {
+          console.log("clicked");
             this.lastVisible = querySnapshot.docs[querySnapshot.docs.length-1];
+            console.log(querySnapshot.docs.length);
+            this.totalVisable - querySnapshot.docs.length;
+            this.firstVisible = querySnapshot.docs[0]
             console.log("last", this.lastVisible);
+            console.log("first", this.firstVisible);
             this.products = [];
+            this.lastTotal = this.totalVisable
             querySnapshot.forEach((doc) => {
+              
                   // doc.data() is never undefined for query doc snapshots
                   let product = doc.data()
                   product.id = doc.id
@@ -416,8 +453,10 @@ export default {
         location.reload();
       },
       deleteProductItem(selectedId){
-        db.collection("products").doc(selectedId).delete();
-        this.watcher();
+        db.collection("products").doc(selectedId).delete().then(() => {
+          this.watcher();
+        });
+        
         // this.$firestore.products.doc(selectedId).delete();
       },
       editProduct(product){
@@ -438,11 +477,12 @@ export default {
           this.single = ''
           this.deleteProductItem(this.selectedId);
           db.collection("products").doc(this.selectedId).delete()
-          this.watcher();
+          
           // this.$firestore.products.doc(this.selectedId).delete();
           this.closewindow();
           $(".alert").delay(1000).slideUp(200, () => {
             this.productDeletedAlert = false
+            this.watcher()
           });
 
         }else{
@@ -872,6 +912,9 @@ input:checked + .slider:before {
 // WORKBAR STYLE START <----
 .workerbar-sizer,.workbar-left,.workbar-right,.work-numberofpages-wrapper,.changepage{
   display: flex;
+}
+.changepage{
+  width: 120px;
 }
 .work-icon{
   font-size: 1.0rem;
