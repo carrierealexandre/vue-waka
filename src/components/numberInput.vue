@@ -28,6 +28,10 @@ export default {
     num:{
       type:Number,
       default:0
+    },
+    height:{
+      type:String,
+      default:'40px'
     }
   }
   ,

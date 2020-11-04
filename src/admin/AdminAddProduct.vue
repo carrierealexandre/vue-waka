@@ -94,12 +94,12 @@
                   <div class="form-wrapper">
                     <div class="unit-container">
                       <h6>Dolar</h6>
-                      <numberInput :num="productDolar" @numberChanged="productDolar = $event"></numberInput>
+                      <numberInput :height="'40px'" :num="productDolar" @numberChanged="productDolar = $event"></numberInput>
                     </div>
                     <div class=""><h6>.</h6></div>
                     <div class="unit-container">
                       <h6>Cent</h6>
-                      <decimalInput :dec="productCent" @numberChanged="productCent = $event"></decimalInput>
+                      <decimalInput :height="'40px'" :dec="productCent" @numberChanged="productCent = $event"></decimalInput>
                     </div>
                   </div>
                 </div>
@@ -309,6 +309,48 @@
           
         </div>
         <div class="aside-grid">
+          
+
+          <div class="organization">
+
+            
+
+            <h6>Product Status</h6>
+            <div v-if="product.status == 'Archived'" class="status-container">
+              
+             
+              <div class="status-wrapper">
+                <div class="icon-stastus">
+                  <fa-icon :icon="['fa', 'folder-minus']"/>
+                </div>
+                <div class="status-details">
+                  <h6>Archived</h6>
+                  <p>Hidden from admin, except your product list</p>
+                </div>
+
+              </div>
+
+              <div class="unarchive-btn-wrapper">
+                <button class="unarchive-btn" @click="restoreProduct() ">Restore product</button>
+              </div>
+
+
+              
+              
+            </div>
+
+            <div v-if="product.status != 'Archived'" class="form-group">
+              
+             
+              
+              <select  v-model="product.status" class="custom-select" id="exampleFormControlSelect1">
+                <option value="" disabled selected="selected">Select Product Status</option>
+                <option v-for="(status, idx) in  productstatus" :key="idx" >{{status}}</option>
+              </select> 
+              
+              
+            </div>
+          </div>
           <div class="organization">
 
             <h6>Organization</h6>
@@ -378,14 +420,34 @@ export default {
       this.docRefProduct = localStorage.docRefProduct;
       console.log(this.docRefProduct);
       
-      
       var product = db.collection("products").doc(this.docRefProduct);
 
       product.get().then((doc) => {
           if (doc.exists) {
+              
               console.log("Document data:", doc.data());
               const data = doc.data();
               this.product =  data;
+              
+              // deleting
+              if(this.product.name){
+                var index = this.product.tags.indexOf(this.product.name);
+                this.product.tags.splice(index,1);
+              }
+              if(this.product.categorie){
+                index = this.product.tags.indexOf(this.product.categorie);
+                this.product.tags.splice(index,1);
+
+              }
+              if(this.product.vendor){
+                index = this.product.tags.indexOf(this.product.vendor);
+                this.product.tags.splice(index,1);
+
+              }
+              
+              
+              
+
               // convert the description
               this.pDescription = this.product.description ;
               // converte the price into two dollar and Cents for (product.price & product.comparePrice & product.costPrice)
@@ -466,8 +528,9 @@ export default {
       productCostDolar:0,
       productDolar: 0,
       productCent: "00",
+      productstatus: ["Active", "Pending"],
       customToolbar:[
-            
+         
             
             [{ 'align': ''},{ 'align': 'justify'}, { 'align': 'right' }],
             ['code-block']
@@ -484,6 +547,7 @@ export default {
       vendors: ['Superior Airways','IGA','Red Apple','Red Lake Marine'],
       products: [],
       product: {
+        status:null,
         images:[],
         productId:null,
         name:null,
@@ -521,6 +585,9 @@ export default {
     }
   },
   methods:{
+    restoreProduct(){
+      this.product.status = 'Pending'
+    },
     goBack() {
       window.history.length > 1 ? this.$router.go(-1) : this.$router.push('/');
       window.localStorage.removeItem('docRefProduct');
@@ -653,6 +720,15 @@ export default {
       this.CostPrice();
       this.shippingcost();
       this.trimDescriptionTags();
+      if(this.product.name){
+        this.product.tags.push(this.product.name);
+      }
+      if(this.product.categorie){
+        this.product.tags.push(this.product.categorie);
+      }
+      if(this.product.vendor){
+        this.product.tags.push(this.product.vendor);
+      }
       this.$firestore.products.add(this.product);
       this.$router.push('products');
     },
@@ -662,6 +738,18 @@ export default {
       this.CostPrice();
       this.shippingcost();
       this.trimDescriptionTags();
+      if(this.product.name){
+        this.product.tags.push(this.product.name);
+      }
+      if(this.product.categorie){
+        this.product.tags.push(this.product.categorie);
+      }
+      if(this.product.vendor){
+        this.product.tags.push(this.product.vendor);
+      }
+      
+      
+      
       this.$firestore.products.doc(this.docRefProduct).update(this.product);
       this.goBack()
     },  
@@ -680,6 +768,10 @@ export default {
   padding: 0;
   box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+// Boostrap fight start
+.form-control{
+  height: 40px;
 }
 // HEADER STYLE START <----
 .btn-group-wrapper{
@@ -766,7 +858,7 @@ grid-template-columns: 700px 300px;
 .main-grid > div{
 margin-bottom: 20px;
 padding: 20px;
-
+border-radius: 10px;
 width: 100%;
 background-color: var(--lightwhite1);
 }
@@ -1024,12 +1116,22 @@ background-color: var(--lightwhite1);
 
 // ASIDE START
 .custom-select {
+  height: 40px;
   font-size: 1rem;
   padding: 0.5em 1em;
   border: 1px solid lightgrey;
 }
 .aside-grid{
+  
+  display: grid;
+  grid-template-columns: 100%;
+  row-gap: 10px;
   height: fit-content;
+  
+  
+}
+.organization{
+  border-radius: 10px;
   padding: 20px;
   background-color: var(--lightwhite1);
 }
@@ -1038,6 +1140,37 @@ background-color: var(--lightwhite1);
 }
 .organization > div {
   padding-bottom: 20px;
+}
+.status-container{
+  padding: 10px;
+  background-color: var(--primary);
+}
+.status-wrapper{
+  display: flex;
+}
+.status-wrapper h6{
+  padding-bottom: 10px;
+}
+.status-details{
+  padding: 0 10px 10px 10px;
+}
+.unarchive-btn-wrapper{
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+.unarchive-btn-wrapper button{
+  width: 100%;
+  height: 40px;
+  outline: none;
+  border-radius: 5px;
+
+  background-color: var(--lightwhite1);
+  border:  1px solid var(--gray);
+}
+.unarchive-btn-wrapper button:hover{
+  background-color: var(--primary);
 }
 select:required:invalid {
   color: gray;

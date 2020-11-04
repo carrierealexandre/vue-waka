@@ -30,7 +30,7 @@
                     </div>
                 </div>
                 <!-- sidebar-search  -->
-                <div class="sidebar-item sidebar-search">
+                <!-- <div class="sidebar-item sidebar-search">
                     <div>
                         <div class="input-group">
                             <input type="text" class="form-control search-menu" placeholder="Search...">
@@ -41,7 +41,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
                 <!-- sidebar-menu  -->
                 <div class=" sidebar-item sidebar-menu">
                     <ul>
@@ -50,15 +50,22 @@
                         </li>
                         <li class="sidebar-dropdown" >
                             <router-link to="/admin/overview">
-                                <i class="fa fa-tachometer-alt"></i>
-                                <span class="menu-text">Overview</span>
+                                <i class="fas fa-home"></i>
+                                <span class="menu-text">Home</span>
+                                <!-- <span class="badge badge-pill badge-warning">New</span> -->
+                            </router-link>
+                        </li>
+                        <li class="sidebar-dropdown" >
+                            <router-link to="/admin/overview">
+                                <i class="fas fa-user-alt"></i>
+                                <span class="menu-text">Customers</span>
                                 <!-- <span class="badge badge-pill badge-warning">New</span> -->
                             </router-link>
                         </li>
                         <li @click="ToggleActive" id="accordion" class="sidebar-dropdown">
                           <a href="#" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                              <i class="fa fa-shopping-cart"></i>
-                              <span class="menu-text">Waka Connection</span>
+                              <i class="fas fa-tags"></i>
+                              <span class="menu-text">Products</span>
                               <!-- <span class="badge badge-pill badge-danger">3</span> -->
                           </a>
                           <div id="collapseOne" class="collapse " aria-labelledby="headingOne" data-parent="#accordion">
@@ -69,37 +76,31 @@
                                     
                                     <router-link class="submenu__sidebar" to="/admin/products">
                                       <fa-icon class="notch" :icon="['fa', 'circle-notch']" />
-                                      <span>Products</span>
+                                      <span>All Products</span>
                                     </router-link>
                                 </li>
                                 <li>
                                     <router-link class="submenu__sidebar" to="/admin/orders">
                                       <fa-icon class="notch" :icon="['fa', 'circle-notch']" />
-                                      <span>Orders</span>
+                                      <span>Inventory</span>
                                     </router-link>
                                 </li>
                                 <li>
                                     <router-link class="submenu__sidebar" to="/admin/flights">
                                       <fa-icon class="notch" :icon="['fa', 'circle-notch']" /> 
-                                      <span>Flights</span>
+                                      <span>Vendors</span>
                                     </router-link> 
                                     
                                 </li>
-                                <li>
-                                    <router-link class="submenu__sidebar" to="/admin/tracking">
-                                      <fa-icon class="notch" :icon="['fa', 'circle-notch']" /> 
-                                      <span>Tracking Numbers</span>
-                                    </router-link> 
-                                    
-                                </li>
+                                
                               </ul>
                             </div>
                           </div>
                         </li>
                         <li @click="ToggleActive" id="accordion" class="sidebar-dropdown">
                           <a href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                <i class="far fa-gem"></i>
-                                <span class="menu-text">Components</span>
+                                <i class="fas fa-plane"></i>
+                                <span class="menu-text">Flights</span>
                               <!-- <span class="badge badge-pill badge-danger">3</span> -->
                           </a>
                           <div id="collapseTwo" class="collapse " aria-labelledby="headingTwo" data-parent="#accordion">
@@ -109,26 +110,67 @@
                                   
                                     <router-link class="submenu__sidebar" to="/admin/general">
                                       <fa-icon class="notch" :icon="['fa', 'circle-notch']" />
-                                      <span>General</span>
+                                      <span>Confirmed</span>
+                                    </router-link> 
+                                </li>
+                                <li>
+                                  
+                                    <router-link class="submenu__sidebar" to="/admin/general">
+                                      <fa-icon class="notch" :icon="['fa', 'circle-notch']" />
+                                      <span>Ready</span>
                                     </router-link> 
                                 </li>
                                 <li>
                                     <router-link class="submenu__sidebar" to="/admin/airports">
                                       <fa-icon class="notch" :icon="['fa', 'circle-notch']" />
-                                      <span>Airports</span>
+                                      <span>Pending</span>
                                     </router-link> 
                                 </li>
                                 
                                 <li>
                                     <router-link class="submenu__sidebar" to="/admin/icons">
                                       <fa-icon class="notch" :icon="['fa', 'circle-notch']" /> 
-                                      <span>Icons</span>
+                                      <span>Cancled</span>
                                     </router-link>  
                                     
                                 </li>
                               </ul>
                             </div>
                           </div>
+                        </li>
+                        <li @click="ToggleActive" id="accordion" class="sidebar-dropdown">
+                          <a href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                <i class="fas fa-chart-line"></i>
+                                <span class="menu-text">Analytics</span>
+                              <!-- <span class="badge badge-pill badge-danger">3</span> -->
+                          </a>
+                          <div id="collapseTwo" class="collapse " aria-labelledby="headingTwo" data-parent="#accordion">
+                            <div class="card-body">
+                              <ul>
+                                <li>
+                                  
+                                    <router-link class="submenu__sidebar" to="/admin/general">
+                                      <fa-icon class="notch" :icon="['fa', 'circle-notch']" />
+                                      <span>Dashboard</span>
+                                    </router-link> 
+                                </li>
+                                <li>
+                                  
+                                    <router-link class="submenu__sidebar" to="/admin/general">
+                                      <fa-icon class="notch" :icon="['fa', 'circle-notch']" />
+                                      <span>Reports</span>
+                                    </router-link> 
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
+                        </li>
+                        <li class="sidebar-dropdown" >
+                            <router-link to="/admin/overview">
+                                <i class="fas fa-user-tag"></i>
+                                <span class="menu-text">Discounts</span>
+                                <!-- <span class="badge badge-pill badge-warning">New</span> -->
+                            </router-link>
                         </li>
                     </ul>
                 </div>

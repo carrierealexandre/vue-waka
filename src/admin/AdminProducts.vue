@@ -54,11 +54,12 @@
                 <fa-icon class="alert-icon" :icon="['fa', 'exclamation-triangle']" />
               </div>
               <div class="alert-message ">
-                <span class="dflex centercenter">Are 456 you sure that you want to permannently DELETE the {{checkedNumbers}} SELECTED product{{s}}</span>
+                <span class="dflex centercenter">Are you sure that you want to permannently {{deleteAction}} the {{checkedNumbers}} SELECTED product{{s}}</span>
               </div>
               <div class="delete-action">
                 <div class="action-cancel" @click="closewindow" role="button">Cancel</div>
-                <div @click="deleteProduct(product)" class="action-confirmed" role="button">Delete</div>
+                <div v-if="!deleteButton" @click="archiveProduct('Archived')" class="action-confirmed" role="button">Archive</div>
+                <div v-if="deleteButton" @click="deleteProduct(product)" class="action-confirmed" role="button">Delete</div>
               </div>
 
             </div>
@@ -99,10 +100,10 @@
           <div class="searchbar">
             <div class="searchbar-collection">
               
-              <input type="text" class="searchbar__input" name="q" placeholder="Search Items" autocomplete="off" >
-              <button type="submit" class="searchbar__button">
+              <input v-model="search" type="text" class="searchbar__input" name="q" placeholder="Search Items" autocomplete="off" >
+              <div class="searchbar__button">
                 <fa-icon class="material-icons" :icon="['fa', 'search']" />
-              </button>
+              </div>
             </div>
           </div>
         </form>
@@ -125,15 +126,16 @@
               </router-link>
             </div>
 
-            <div class="work-delete" @click="confirmdeletewindow()" role="button">
-              <fa-icon class="work-icon" :icon="['fa', 'trash-alt']"/>
+            <div @click="uncheckedMe" class="work-more" >
+                <fa-icon class="work-icon" :icon="['fa', 'ellipsis-v']"/>                      
             </div>
 
-            <div class="work-more" >
-              <router-link  to="/admin/addproduct">
-                <fa-icon class="work-icon" :icon="['fa', 'ellipsis-v']"/>                      
-              </router-link> 
-              
+            <div v-if="checkedNumbers > 0" class="work-archive" @click="confirmdeletewindow('archive')" role="button">
+              <fa-icon :icon="['fa', 'folder-minus']"/>
+            </div>
+
+            <div v-if="checkedNumbers > 0" class="work-delete" @click="confirmdeletewindow('delete')" role="button">
+              <fa-icon class="work-icon" :icon="['fa', 'trash-alt']"/>
             </div>
             
           </div>
@@ -152,11 +154,14 @@
               </div>
             </div>
             <div class="changepage">
-              <div  @click="prevPage" class="left-arrow" role="button">
+              <div v-if="lastTotal == 1"   class="left-arrow ">
+                <fa-icon class="work-icon disabled" :icon="['fa', 'chevron-left']"/>
+              </div>
+              <div v-if="lastTotal != 1" @click="prevPage" class="left-arrow" role="button">
                 <fa-icon class="work-icon" :icon="['fa', 'chevron-left']"/>
               </div>
               <div v-if="totalVisable == totalProducts"  class="right-arrow" >
-                <fa-icon class="work-icon" :icon="['fa', 'chevron-right']"/>
+                <fa-icon class="work-icon disabled" :icon="['fa', 'chevron-right']"/>
               </div>
               <div v-if="totalVisable != totalProducts" @click="nextPage" class="right-arrow" role="button">
                 <fa-icon class="work-icon" :icon="['fa', 'chevron-right']"/>
@@ -169,29 +174,24 @@
         
         
         <div class="cats-filter-wrapper">
-          <div class="block-all">
+          <div id="queryAll" @click="watcher()" class="block-all">
             <div class="all">
               <span>All</span>
             </div>
           </div>
-          <div class="block-frozen">
+          <div id="frozen-activation" @click="activeQuery()" class="block-frozen">
             <div class="frozen">
-              <span>Frozen</span>
+              <span>Active</span>
             </div>
           </div>
-          <div class="block-beverages">
+          <div id="beverages-activation" @click="pendingQuery()" class="block-beverages">
             <div class="beverages">
-              <span>Beverages</span>
+              <span>Pending</span>
             </div>
           </div>
-          <div class="block-chips">
+          <div id="chips-activation" @click="archivedQuery()" class="block-chips">
             <div class="chips">
-              <span>chips</span>
-            </div>
-          </div>
-          <div class="block-utilities">
-            <div class="utilities">
-              <span>Utilities</span>
+              <span>Archived</span>
             </div>
           </div>
             
@@ -204,46 +204,52 @@
               <thead>
                 <tr>
                   <th class="row-select" scope="col"></th>
-                  <th scope="col">Id</th>
-                  
-                  <th scope="col">Name</th>
-                  <th scope="col">Category</th>
-                  <th scope="col">Description</th>
+                  <th class="photo-holder-th" scope="col"></th>
+
+                  <th scope="col">Product</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Inventory</th>
                   <th scope="col">Price</th>
                   <th scope="col">Weight</th>
-                  <th scope="col">Shipping</th>
-                  <th scope="col">Qty</th>
-                  <th scope="col endrow"></th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Vendor</th>
+                  <th v-if="windowWidth()" scope="col endrow"></th>
                   
                   
                 </tr>
               </thead>
               <tbody id="productRow">
-                <tr class="data-row" v-for="(product, idx) in products" :key="idx">
+                <tr class="data-row" v-for="(product, idx) in filteredProducts" :key="idx">
                   <th class="selecttablerow" data-label="Select"><input value="1" class="myCheck" @click.stop="checkedMe($event, product)" type="checkbox" name="sample[]" ></th>
-                  <td data-label="Id">{{product.productId}}</td>
-                  <td data-label="Product Name">{{product.name}}</td>
-                  <td data-label="Product Categorie">{{product.categorie}}</td>
-                  <td data-label="Description">{{product.description}}</td>
+
+                  <td class="photo-holder-th" data-label="">
+                    <div v-for="(image,idx) in product.images" :key="idx" >
+                      <div class="image-box">
+                        <img width="60px" :src="image" alt="">
+                      </div>
+                      
+                    </div>
+                  </td>
+                  <td data-label="Product">{{product.name}}</td>
+                  <td data-label="Category">{{product.status}}</td>
+                  <td data-label="Price">{{product.qty}}</td>
                   <td data-label="Price">{{product.price / 100 }}</td>
                   <td data-label="Weight">{{product.weight + product.Unit}}</td>
-                  <td data-label="Shipping Cost">{{product.shippingcost}}</td>
-                  <td data-label="In-Stock Quatity">{{product.qty}}</td>
+                  <td data-label="In-Stock Quatity">{{product.categorie}}</td>
+                  <td data-label="In-Stock Quatity">{{product.vendor}}</td>
                   <td data-label="" class="show-more-tools" >
+
                     <div class="work-wrapper">
                       <div class="work">
-                        <div class="moretoit">
-                          <span>...</span>
-                        </div>
                         <div class="td-work-wrapper">
                           <div class="">
-                            <button class="product-view"><fa-icon :icon="['fa', 'eye']"/></button>
+                            <button v-if="product.status != 'Archived'" @click="singleConfirmdeletewindow('archive',product)" class="product-archive"><fa-icon :icon="['fa', 'folder-minus']"/></button>
                           </div>
                           <div class="">
                             <button @click="editProduct(product)" class="product-edit"><fa-icon :icon="['fa', 'edit']"/></button>
                           </div>
                           <div class="">
-                            <button @click="singleConfirmdeletewindow(product)"  class="product-trash"><fa-icon :icon="['fa', 'trash-alt']"/></button>
+                            <button @click="singleConfirmdeletewindow('delete',product)"  class="product-trash"><fa-icon :icon="['fa', 'trash-alt']"/></button>
                           </div>
                         </div>
                         
@@ -257,7 +263,7 @@
                   
                   
                 </tr>
-                <tr class="table-footer"></tr>
+                <tr v-if="windowWidth()" class="table-footer"></tr>
                 
               </tbody>
             </table>
@@ -288,9 +294,11 @@ function getNextSibling(elem, selector) {
 }
 // fb, below here to use firebase
 
-import { db} from '../firebase';
+import {db} from '../firebase';
 import $ from 'jquery'
-export const productsCategories = ["Beverages","Essentials","Chips","Utilities","Frozen"]
+
+export const productsCategories = ["Beverages", "Chips","Utilities","Frozen"];
+
 
 export default {
   components: {
@@ -302,8 +310,14 @@ export default {
   },
   data() {
     return {
+      deleteAction:'',
+      deleteButton: null,
+      pageLoaded:false,
+      search:'',
+      lastLength:null,
       totalProducts:0,
       totalVisable:0,
+      limitVisible:30,
       lastTotal:1,
       // productsCategories:["Beverages","Essentials","Chips","Utilities","Frozen"],
       // categories:[Beverages,Essentials,Chips,Utilities,Frozen],
@@ -331,6 +345,7 @@ export default {
         productId:null,
         name:null,
         tags:[],
+        tagsInString:'',
         categorie:null,
         vendor:null,
         description:null,
@@ -354,41 +369,108 @@ export default {
                          aspernatur possimus exercitationem.`
     }
   },
-
-    created(){
-
-        db.collection("products").limit(10).get().then((querySnapshot) => {
-          querySnapshot.forEach(() => {
-            this.totalProducts += 1;
-            this.MasterLastVisible = querySnapshot.docs[querySnapshot.docs.length-1];
+  mounted(){
+    this.pageLoaded = true
+  },
+  created(){
+  
+    
+    db.collection("products").get().then((querySnapshot) => {
+      $("#queryAll").addClass("all-active");
+      querySnapshot.forEach(() => {
+        
+        this.totalProducts += 1;
+        
+        
+      })
+      if(this.totalProducts < this.limitVisible){
+        this.totalVisable = this.totalProducts
+      }else{
+        this.totalVisable = this.limitVisible;
+      }
+    })
+    db.collection("products").orderBy('productId').limit(this.limitVisible).get().then((querySnapshot) => {
+      
+      
+      this.lastVisible = querySnapshot.docs[querySnapshot.docs.length-1];
+      this.firstVisible = querySnapshot.docs[0]
+      console.log("first", this.firstVisible);
+      console.log("last", this.lastVisible);
+        querySnapshot.forEach((doc) => {
+            // doc.data() is never undefined for query doc snapshots
             
-          })
-        })
-        db.collection("products").orderBy('productId').limit(2).get().then((querySnapshot) => {
-          this.totalVisable = 2;
-          this.lastVisible = querySnapshot.docs[querySnapshot.docs.length-1];
-          this.firstVisible = querySnapshot.docs[0]
-          console.log("first", this.firstVisible);
-          console.log("last", this.lastVisible);
-            querySnapshot.forEach((doc) => {
-                // doc.data() is never undefined for query doc snapshots
-                
-                
-                let product = doc.data()
-                product.id = doc.id
-                this.products.push(product);
-                
-                console.log(doc.id, " => ", doc.data());
-            });
-        })  
+            
+            let product = doc.data()
+            product.id = doc.id
+            var str = product.tags.join(' ');
+            product.tagsInString = str.toLowerCase()
+            this.products.push(product);
+            
+            console.log(doc.id, " => ", doc.data());
+        });
+      
+    })  
+    
       
       
     },
     
-
+    computed:{
+      filteredProducts: function(){
+          return this.products.filter((product) => {
+            return product.tagsInString.match(this.search.toLowerCase())
+          })
+        
+      }
+    },
     methods:{
-      watcher(){
-        db.collection("products").orderBy('productId').limit(2).get().then((querySnapshot) => {
+      windowWidth(){
+        if ($(window).width() < 960) {
+          console.log('true');
+          return true
+        }else {
+          console.log('false');
+          return false
+ }
+
+      },
+      // filtering queries for categories
+
+      archivedQuery(){
+        
+        
+        // reseting page counter
+        this.lastTotal = 1
+
+        db.collection("products").where("status", "==", "Archived").get().then((querySnapshot) => {
+
+          // removing active
+          
+          $("#beverages-activation").removeClass("pending-active");
+          $("#queryAll").removeClass("all-active");
+          $("#frozen-activation").removeClass("active-active");
+          
+          $('thead tr th').css("border-top","1px solid var(--red)");
+
+          // Adding Active
+          $("#chips-activation").addClass("archived-active");
+
+          this.totalProducts = 0;
+          querySnapshot.forEach((doc) => {
+            console.log(doc);
+            this.totalProducts += 1;
+            
+            
+          })
+          if(this.totalProducts < this.limitVisible){
+            this.totalVisable = this.totalProducts
+          }else{
+            this.totalVisable = this.limitVisible;
+          }
+        })
+        db.collection("products").where("status", "==", "Archived").orderBy('productId').limit(this.limitVisible).get().then((querySnapshot) => {
+          // reset page counter if modification was done
+          
           this.lastVisible = querySnapshot.docs[querySnapshot.docs.length-1];
           console.log("last", this.lastVisible);
           this.firstVisible = querySnapshot.docs[0]
@@ -396,9 +478,168 @@ export default {
           this.products = [];
             querySnapshot.forEach((doc) => {
                 // doc.data() is never undefined for query doc snapshots
-                let product = doc.data()
-                product.id = doc.id
-                this.products.push(product);
+            
+            
+            let product = doc.data()
+            product.id = doc.id
+            var str = product.tags.join(' ');
+            product.tagsInString = str.toLowerCase()
+            this.products.push(product);
+                
+                console.log(doc.id, " => ", doc.data());
+            });
+        }) 
+
+         
+      },
+      activeQuery(){
+        
+        // reseting page counter
+        this.lastTotal = 1
+
+        db.collection("products").where("status", "==", "Active").get().then((querySnapshot) => {
+
+          // removing active
+          
+          $("#queryAll").removeClass("all-active");
+          $("#chips-activation").removeClass("archived-active");
+          $("#beverages-activation").removeClass("pending-active");
+
+          $('thead tr th').css("border-top","1px solid var(--green)");
+          
+
+          // Adding Active
+          $("#frozen-activation").addClass("active-active");
+
+          this.totalProducts = 0;
+          querySnapshot.forEach((doc) => {
+            console.log(doc);
+            this.totalProducts += 1;
+            
+            
+          })
+          if(this.totalProducts < this.limitVisible){
+            this.totalVisable = this.totalProducts
+          }else{
+            this.totalVisable = this.limitVisible;
+          }
+        })
+        db.collection("products").where("status", "==", "Active").orderBy('productId').limit(this.limitVisible).get().then((querySnapshot) => {
+          // reset page counter if modification was done
+          
+          this.lastVisible = querySnapshot.docs[querySnapshot.docs.length-1];
+          console.log("last", this.lastVisible);
+          this.firstVisible = querySnapshot.docs[0]
+          console.log("first", this.firstVisible);
+          this.products = [];
+            querySnapshot.forEach((doc) => {
+                // doc.data() is never undefined for query doc snapshots
+            
+            
+            let product = doc.data()
+            product.id = doc.id
+            var str = product.tags.join(' ');
+            product.tagsInString = str.toLowerCase()
+            this.products.push(product);
+                
+                console.log(doc.id, " => ", doc.data());
+            });
+        }) 
+
+         
+      },
+      pendingQuery(){
+        
+        // reseting page counter
+        this.lastTotal = 1
+
+        db.collection("products").where("status", "==", "Pending").get().then((querySnapshot) => {
+
+          $("#queryAll").removeClass("all-active");
+          
+          $("#frozen-activation").removeClass("active-active");
+          $("#chips-activation").removeClass("archived-active");
+          $('thead tr th').css("border-top","1px solid var(--brown)");
+
+          $("#beverages-activation").addClass("pending-active");
+          this.totalProducts = 0;
+          querySnapshot.forEach((doc) => {
+            console.log(doc);
+            this.totalProducts += 1;
+            
+            
+          })
+          if(this.totalProducts < this.limitVisible){
+            this.totalVisable = this.totalProducts
+          }else{
+            this.totalVisable = this.limitVisible;
+          }
+        })
+        db.collection("products").where("status", "==", "Pending").orderBy('productId').limit(this.limitVisible).get().then((querySnapshot) => {
+          // reset page counter if modification was done
+          
+          this.lastVisible = querySnapshot.docs[querySnapshot.docs.length-1];
+          console.log("last", this.lastVisible);
+          this.firstVisible = querySnapshot.docs[0]
+          console.log("first", this.firstVisible);
+          this.products = [];
+            querySnapshot.forEach((doc) => {
+                // doc.data() is never undefined for query doc snapshots
+            
+            
+            let product = doc.data()
+            product.id = doc.id
+            var str = product.tags.join(' ');
+            product.tagsInString = str.toLowerCase()
+            this.products.push(product);
+                
+                console.log(doc.id, " => ", doc.data());
+            });
+        }) 
+
+         
+      },
+      watcher(){
+        // reseting page counter
+        this.lastTotal = 1
+
+        
+        $("#beverages-activation").removeClass("pending-active");
+        $("#frozen-activation").removeClass("active-active");
+        $("#chips-activation").removeClass("archived-active");
+         $('thead tr th').css("border-top","1px solid var(--dark)");
+        db.collection("products").get().then((querySnapshot) => {
+          $("#queryAll").addClass("all-active");
+          this.totalProducts = 0;
+          querySnapshot.forEach(() => {
+            
+            this.totalProducts += 1;
+            
+            
+          })
+          if(this.totalProducts < this.limitVisible){
+            this.totalVisable = this.totalProducts
+          }else{
+            this.totalVisable = this.limitVisible;
+          }
+        })
+        db.collection("products").orderBy('productId').limit(this.limitVisible).get().then((querySnapshot) => {
+          // reset page counter if modification was done
+          
+          this.lastVisible = querySnapshot.docs[querySnapshot.docs.length-1];
+          console.log("last", this.lastVisible);
+          this.firstVisible = querySnapshot.docs[0]
+          console.log("first", this.firstVisible);
+          this.products = [];
+            querySnapshot.forEach((doc) => {
+                // doc.data() is never undefined for query doc snapshots
+            
+            
+            let product = doc.data()
+            product.id = doc.id
+            var str = product.tags.join(' ');
+            product.tagsInString = str.toLowerCase()
+            this.products.push(product);
                 
                 console.log(doc.id, " => ", doc.data());
             });
@@ -406,42 +647,54 @@ export default {
       },
       nextPage(){
         
-        db.collection("products").orderBy('productId').limit(2).startAfter(this.lastVisible).get().then((querySnapshot) => {
+        db.collection("products").orderBy('productId').limit(this.limitVisible).startAfter(this.lastVisible).get().then((querySnapshot) => {
             this.lastVisible = querySnapshot.docs[querySnapshot.docs.length-1];
             console.log("last", this.lastVisible);
-            
+            this.lastLength = querySnapshot.docs.length;
+            this.totalVisable += this.lastLength
             this.firstVisible = querySnapshot.docs[0]
             console.log("first", this.firstVisible);
             this.products = [];
-            this.lastTotal = this.totalVisable
+            this.lastTotal += this.limitVisible;
             querySnapshot.forEach((doc) => {
               
-              this.totalVisable += 1;
-                  // doc.data() is never undefined for query doc snapshots
-                  let product = doc.data()
-                  product.id = doc.id
-                  this.products.push(product);
-                console.log(doc.id, " => ", doc.data());
+              
+              // doc.data() is never undefined for query doc snapshots
+            
+            
+            let product = doc.data()
+            product.id = doc.id
+            var str = product.tags.join(' ');
+            product.tagsInString = str.toLowerCase()
+            this.products.push(product);
+              console.log(doc.id, " => ", doc.data());
             });
         });
       },
       prevPage(){
-        db.collection("products").orderBy('productId').endBefore(this.firstVisible).limitToLast(2).get().then((querySnapshot) => {
+        db.collection("products").orderBy('productId').endBefore(this.firstVisible).limitToLast(this.limitVisible).get().then((querySnapshot) => {
           console.log("clicked");
             this.lastVisible = querySnapshot.docs[querySnapshot.docs.length-1];
             console.log(querySnapshot.docs.length);
-            this.totalVisable - querySnapshot.docs.length;
+
+            this.totalVisable -= this.lastLength
+            
             this.firstVisible = querySnapshot.docs[0]
             console.log("last", this.lastVisible);
             console.log("first", this.firstVisible);
             this.products = [];
-            this.lastTotal = this.totalVisable
+            this.lastTotal -= this.limitVisible;
+            this.lastLength = querySnapshot.docs.length;
             querySnapshot.forEach((doc) => {
               
                   // doc.data() is never undefined for query doc snapshots
-                  let product = doc.data()
-                  product.id = doc.id
-                  this.products.push(product);
+            
+            
+            let product = doc.data()
+            product.id = doc.id
+            var str = product.tags.join(' ');
+            product.tagsInString = str.toLowerCase()
+            this.products.push(product);
                 console.log(doc.id, " => ", doc.data());
             });
         });
@@ -455,17 +708,61 @@ export default {
       deleteProductItem(selectedId){
         db.collection("products").doc(selectedId).delete().then(() => {
           this.watcher();
+          this.uncheckedMe();
         });
         
         // this.$firestore.products.doc(selectedId).delete();
       },
       editProduct(product){
+        
         this.docRefProduct = product;
         console.log(this.docRefProduct);
         localStorage.docRefProduct = product.id;
         console.log(product.id);
         console.log(this.docRefProduct);
         this.$router.push('addproduct')
+      },
+      archiveProduct(updateStatus){
+        if(this.selectedId){
+
+          this.productDeletedAlert = true
+          // reseting the form
+          this.checkedNumbers = 0
+          $('.popup-wrapper').css("display","none");
+          this.single = ''
+          const currentProduct = this.products.find((product) => {
+            if(product.id == this.selectedId){
+              db.collection("products").doc(this.selectedId).update({
+                status: updateStatus
+              });
+            }
+            
+
+            })
+          console.log(currentProduct);
+          // this.$firestore.products.add(this.selectedId);
+          
+          // this.$firestore.products.doc(this.selectedId).delete();
+          this.closewindow();
+          $(".alert").delay(1000).slideUp(200, () => {
+            this.productDeletedAlert = false
+            this.watcher();
+            this.uncheckedMe();
+          });
+
+        }else{
+          
+          this.checkedProductArray.forEach( () => {
+            // this.$firestore.products.add(item)
+            this.closewindow();
+            $(".alert").delay(1000).slideUp(200, () => {
+              this.productDeletedAlert = false
+            });
+          })
+        }
+        
+        
+          
       },
       deleteProduct(){
         if(this.selectedId){
@@ -482,7 +779,8 @@ export default {
           this.closewindow();
           $(".alert").delay(1000).slideUp(200, () => {
             this.productDeletedAlert = false
-            this.watcher()
+            this.watcher();
+            this.uncheckedMe();
           });
 
         }else{
@@ -519,14 +817,22 @@ export default {
 
         } else {
             $('div input').prop('checked', false);
-            $('#productRow tr').css("background-color","var(--light)");
+            $('#productRow tr').css("background-color","rgba(242, 245, 245, 0.8)");
             $('.work').css("background-color","var(--light");
             this.checkedNumbers = 0 ;
             this.checkedProductArray = []; 
         }
       },
 
-      singleConfirmdeletewindow(doc){
+      singleConfirmdeletewindow(string, doc){
+        this.deleteAction = string
+        if(string == 'archive'){
+            this.deleteButton = false
+            
+            
+          }else{
+            this.deleteButton = true
+          }
         // this.realId = doc
         // this.realProduct = realProduct
         this.checkedNumbers =  '';
@@ -538,8 +844,16 @@ export default {
         this.single = '1';
       },
 
-      confirmdeletewindow: function(){
+      confirmdeletewindow: function(string){
+        this.deleteAction = string
+        if(string == 'archive'){
+            this.deleteButton = false
+          }else{
+            this.deleteButton = true
+          }
         if(this.checkedNumbers > 0){
+          
+
           this.confirmDelete = true
           $('.popup-wrapper').css("display","inherit");
           if(this.checkedNumbers > 1){
@@ -565,7 +879,17 @@ export default {
       // checkedProduct(product){
       //   this.checkedProductArray.push(product.id);
       // },
+      uncheckedMe: function(){
+        
+        $('div input').prop('checked', false);
+        $('#productRow tr').css("background-color","rgba(242,245,245,0.8)");
+        $('.work').css("background-color","rgba(242,245,245,0.8)");
+        this.checkedNumbers = 0 ;
+        this.checkedProductArray = []; 
+
+      },
       checkedMe: function(event, product){
+
         const checkBox = event.target
         let element = event.target.parentElement;
         const toolBox = getNextSibling(element, '.show-more-tools');
@@ -579,12 +903,13 @@ export default {
           this.checkedProductArray.push(product.id);
          } 
          if(checkBox.checked == false){
-           $(element.parentElement).css("background-color","var(--light"); 
-           $(toolBox).css("background-color","var(--light") 
-           $(toolBox.firstChild.firstChild).css("background-color","var(--light)")
+           $(element.parentElement).css("background-color","rgba(242,245,245,0.8)"); 
+           $(toolBox).css("background-color","rgba(242,245,245,0.8)") 
+           $(toolBox.firstChild.firstChild).css("background-color","rgba(242,245,245,0.8)")
            this.checkedNumbers = this.checkedNumbers - 1;
            this.checkedProductArray.splice(this.checkedProductArray.indexOf(product.id), 1);
          }
+
       },
     }
   }
@@ -920,6 +1245,9 @@ input:checked + .slider:before {
   font-size: 1.0rem;
   color: var(--gray);
 }
+.disabled{
+  color: var(--primary) !important;
+}
 .work-select{
   border-radius: 5px !important;
 }
@@ -997,11 +1325,12 @@ input:checked + .slider:before {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
   color: pink;
 }
-.work-select,.work-refresh,.work-add,.work-delete,.work-more{
+.work-select,.work-refresh,.work-add,.work-delete, .work-archive ,.work-more{
   position: relative;
 }
 .work-select:hover::after{
   content: "Select";
+  z-index: 1;
   position: absolute;
   bottom: -30px;
   padding: 0.5px 5px;
@@ -1013,6 +1342,7 @@ input:checked + .slider:before {
 
 .work-refresh:hover::after{
   content: "Refresh";
+  z-index: 1;
   position: absolute;
   bottom: -30px;
   padding: 0.5px 5px;
@@ -1024,6 +1354,7 @@ input:checked + .slider:before {
 
 .work-add:hover::after{
   content: "Add new";
+  z-index: 1;
   position: absolute;
   bottom: -30px;
   width: 75px;
@@ -1034,8 +1365,21 @@ input:checked + .slider:before {
   color: var(--lightwhite);
   font-size:1.0rem ;
 }
+.work-archive:hover::after{
+  content: "Archive";
+  z-index: 1;
+  position: absolute;
+  bottom: -30px;
+  text-align: center;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
 .work-delete:hover::after{
   content: "Delete";
+  z-index: 1;
   position: absolute;
   bottom: -30px;
   text-align: center;
@@ -1048,6 +1392,7 @@ input:checked + .slider:before {
 
 .work-more:hover::after{
   content: "More";
+  z-index: 1;
   transition-delay:1s;
   position: absolute;
   bottom: -30px;
@@ -1063,17 +1408,19 @@ input:checked + .slider:before {
 // CATHEGORY FILTER STYLE START <----
 .cats-filter-wrapper{
   display: grid;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 117.5px);
+  grid-gap: 5px;
 }
 .cats-filter-wrapper > div > div > span{
   font-size: 1.2rem;
   font-weight: 500;
 }
-.block-all,.block-frozen,.block-beverages,.block-chips,.block-utilities{
+.block-all,.block-frozen,.block-beverages,.block-chips{
   position: relative;
-  height: 50px;
+  border-radius: 5px 5px 0 0 ;
+  height: 40px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1095,42 +1442,29 @@ input:checked + .slider:before {
   background-color: var(--lightBlue);
   
 }
-.block-frozen:hover{
+.all-active{
   cursor: pointer;
   background-color: var(--primaryT);
-  color: var(--brown);
+  color: var(--lightBlue);
 }
-.block-frozen:hover::after{
+
+.all-active::after{
   content: "";
   position: absolute;
   bottom: 0;
   height: 5px;
   width: 100%;
   border-radius: 5px 5px 0 0 ;
-  background-color: var(--brown);
+  background-color: var(--lightBlue);
   
 }
-.block-beverages:hover{
-  cursor: pointer;
-  background-color: var(--primaryT);
-  color: var(--red);
-}
-.block-beverages:hover::after{
-  content: "";
-  position: absolute;
-  bottom: 0;
-  height: 5px;
-  width: 100%;
-  border-radius: 5px 5px 0 0 ;
-  background-color: var(--red);
-  
-}
-.block-chips:hover{
+
+.block-frozen:hover, .active-active{
   cursor: pointer;
   background-color: var(--primaryT);
   color: var(--green);
 }
-.block-chips:hover::after{
+.block-frozen:hover::after, .active-active::after{
   content: "";
   position: absolute;
   bottom: 0;
@@ -1140,12 +1474,42 @@ input:checked + .slider:before {
   background-color: var(--green);
   
 }
-.block-utilities:hover{
+.block-beverages:hover, .pending-active{
+
+  cursor: pointer;
+  background-color: var(--primaryT);
+  color: var(--brown);
+}
+.block-beverages:hover::after, .pending-active::after{
+  content: "";
+  position: absolute;
+  bottom: 0;
+  height: 5px;
+  width: 100%;
+  border-radius: 5px 5px 0 0 ;
+  background-color: var(--brown);
+}
+.block-chips:hover, .archived-active{
+  cursor: pointer;
+  background-color: var(--primaryT);
+  color: var(--red);
+}
+.block-chips:hover::after, .archived-active::after{
+  content: "";
+  position: absolute;
+  bottom: 0;
+  height: 5px;
+  width: 100%;
+  border-radius: 5px 5px 0 0 ;
+  background-color: var(--red);
+  
+}
+.block-utilities:hover, .utilities-active{
   cursor: pointer;
   background-color: var(--primaryT);
   color: var(--lighterBlue);
 }
-.block-utilities:hover::after{
+.block-utilities:hover::after, .utilities-active::after{
   content: "";
   position: absolute;
   bottom: 0;
@@ -1164,12 +1528,16 @@ input:checked + .slider:before {
   padding: 0rem;
   
 }
+.image-box{
+  border-radius: 5px;
+  border: 1px  solid var(--primary);
+}
 
 .row-select{
   height: 20px;
   width: 50px;;
 }
-.product-edit, .product-view, .product-chart, .product-trash{
+ .product-edit, .product-chart, .product-trash, .product-archive{
   position: relative;
   color: var(--darkT);
   display: flex;
@@ -1186,13 +1554,13 @@ input:checked + .slider:before {
   color: var(--lightBlue);
 }
 
-.product-view:hover,.product-edit:hover,.product-chart:hover,.product-trash:hover{
+.product-archive:hover, .product-edit:hover,.product-chart:hover,.product-trash:hover{
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
   
 }
 
-.product-edit:hover::after{
-  content: "Edit";
+.product-archive:hover::after{
+  content: "Archive";
   z-index: 2;
   transition-delay:1s;
   position: absolute;
@@ -1204,10 +1572,11 @@ input:checked + .slider:before {
   color: var(--lightwhite);
   font-size:1.0rem ;
 }
-.product-view:hover::after{
-  content: "view";
-  transition-delay:1s;
+
+.product-edit:hover::after{
+  content: "Edit";
   z-index: 2;
+  transition-delay:1s;
   position: absolute;
   bottom: -30px;
   text-align: center;
@@ -1246,12 +1615,16 @@ input:checked + .slider:before {
 
 
 
-thead{
-  background-color: var(--primary);
+// thead{
+//   background-color: var(--primary);
   
+// }
+.photo-holder-th{
+  width: 70px;
+  height: 70px;
 }
 tbody tr{
-  background-color: var(--light);
+  background-color: rgba(242,245,245,0.8);
   height: 35px;
 }
 tr:hover{
@@ -1287,7 +1660,9 @@ tr:hover{
 }
 thead tr th{
   // background-color: var(--blue1);
-  color: var(--lightBlue);
+  color: var(--dark);
+  background-color: rgba(242, 245, 245, 0.8);
+  border-top: 1px solid var(--lightBlue) ;
   letter-spacing: 1px;
   font-weight: 600;
   height: 40px;
@@ -1297,9 +1672,17 @@ thead tr th{
   width: 100%;
 }
 // controling the overflow
-// .overflow{
+.overflow{
+  width: 95%;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid var(--primaryT);
+  background-color:rgba(242, 245, 245, 0.8);
+  margin-top: 20px;
+  border-radius: 10px;
   
-// }
+
+}
 .work-wrapper{
   position: relative;
   display: none;
@@ -1308,10 +1691,10 @@ thead tr th{
 .work{
   position: absolute;
   display: flex;
-  left: -300px;
+  left: -200px;
   top: -15px;
-  width: 300px;
-  background-color: var(--light);
+  width: 200px;
+  background-color: rgba(242,245,245,1);
 }
 .td-work-wrapper{
   width: 100%;
@@ -1351,7 +1734,7 @@ This query will take effect for any screen smaller than 760px
 and also iPads specifically.
 */
 @media 
-only screen and (max-width: 500px),
+only screen and (max-width: 540px),
 (min-device-width: 768px) and (max-device-width: 700px)  {
 
 	/* Force table to not be like tables anymore */
@@ -1391,18 +1774,14 @@ only screen and (max-width: 500px),
   .table td{
     text-align: right;
     position: relative;
-    
+    padding-right: 10px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
     font-size: 1.2rem;
-    
-    
     height: 50px;
   }
-  .moretoit{
-    display: none;
-  }
+  
   .selecttablerow{
     height: 50px;
   }
@@ -1410,7 +1789,7 @@ only screen and (max-width: 500px),
     content: attr(data-label);
     position: absolute;
     top: 5px;
-    left: 0;
+    left: -5px;
     width: 50%;
     padding-left: 15px;
     font-size: 1.3rem;
@@ -1423,7 +1802,18 @@ only screen and (max-width: 500px),
 	/*
 	Label the data
 	*/
-
+  // top header shifting stuff in the middle
+  .workerbar-sizer{
+    display: grid;
+    justify-content: center;
+  }
+  .workbar-right{
+    justify-content: center;
+    width: 100%;
+  }
+  .workbar-right > div{
+    width: 60px;
+  }
 } 
 @media (max-width: 950px){
    
