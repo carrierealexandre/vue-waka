@@ -58,8 +58,12 @@
               </div>
               <div class="delete-action">
                 <div class="action-cancel" @click="closewindow" role="button">Cancel</div>
-                <div v-if="!deleteButton" @click="archiveProduct('Archived')" class="action-confirmed" role="button">Archive</div>
+                <div v-if="ractiveBtn" @click="archiveProduct('Active')" class="action-active" role="button">Reactive</div>
+                <div v-if="activeBtn" @click="archiveProduct('Active')" class="action-active" role="button">Activate</div>
+                <div v-if="restorebtn" @click="archiveProduct('Pending')" class="action-restore" role="button">Restore</div>
+                <div v-if="archiveBtn" @click="archiveProduct('Archived')" class="action-confirmed" role="button">Archive</div>
                 <div v-if="deleteButton" @click="deleteProduct(product)" class="action-confirmed" role="button">Delete</div>
+                <div v-if="suspendbtn" @click="archiveProduct('Pending')" class="action-restore" role="button">Suspend</div>
               </div>
 
             </div>
@@ -130,10 +134,28 @@
                 <fa-icon class="work-icon" :icon="['fa', 'ellipsis-v']"/>                      
             </div>
 
-            <div v-if="checkedNumbers > 0" class="work-archive" @click="confirmdeletewindow('archive')" role="button">
-              <fa-icon :icon="['fa', 'folder-minus']"/>
+            
+            
+            <!-- Acvtivate icon action -->
+            <div v-if="checkedNumbers > 0 && reactiveItems" class="work-reactivate" @click="confirmdeletewindow('Reactivate')" role="button">
+              <fa-icon class="work-icon" :icon="['fa', 'folder-plus']"/>
             </div>
-
+            <div v-if="checkedNumbers > 0 && activeItems" class="work-activate" @click="confirmdeletewindow('Active')" role="button">
+              <fa-icon class="work-icon" :icon="['fa', 'folder-plus']"/>
+            </div>
+            <!-- pendent icon action -->
+            <div v-if="checkedNumbers > 0 && pendentItems" class="work-suspend" @click="confirmdeletewindow('Suspend')" role="button">
+              <fa-icon class="work-icon" :icon="['fa', 'folder-minus']"/>
+            </div>
+            <!-- Archive icon action -->
+            <div v-if="checkedNumbers > 0 && !restoreItems" class="work-archive" @click="confirmdeletewindow('Archive')" role="button">
+              <fa-icon class="work-icon" :icon="['fa', 'inbox']"/>
+            </div>
+            <!-- retore icon action -->
+            <div v-if="checkedNumbers > 0 && restoreItems" class="work-restore" @click="confirmdeletewindow('Pending')" role="button">
+              <fa-icon class="work-icon" :icon="['fa', 'trash-restore-alt']"/>
+            </div>
+            <!-- delete icon action -->
             <div v-if="checkedNumbers > 0" class="work-delete" @click="confirmdeletewindow('delete')" role="button">
               <fa-icon class="work-icon" :icon="['fa', 'trash-alt']"/>
             </div>
@@ -231,7 +253,12 @@
                     </div>
                   </td>
                   <td data-label="Product">{{product.name}}</td>
-                  <td data-label="Category">{{product.status}}</td>
+                  <!-- colored stastus to help visualize start -->
+                  <td v-if="product.status == 'Active'" data-label="Status"><div class="active-status" >{{product.status}}</div></td>
+                  <td v-if="product.status == 'Pending'" data-label="Status"><div class="pending-status" >{{product.status}}</div></td>
+                  <td v-if="product.status == 'Archived'" data-label="Status"><div class="archived-status" >{{product.status}}</div></td>
+                  <td v-if="!product.status" data-label="Status"><div id="archived-status" >Unknown</div></td>
+                  <!-- colored stastus to help visualize end -->
                   <td data-label="Price">{{product.qty}}</td>
                   <td data-label="Price">{{product.price / 100 }}</td>
                   <td data-label="Weight">{{product.weight + product.Unit}}</td>
@@ -242,12 +269,27 @@
                     <div class="work-wrapper">
                       <div class="work">
                         <div class="td-work-wrapper">
-                          <div class="">
-                            <button v-if="product.status != 'Archived'" @click="singleConfirmdeletewindow('archive',product)" class="product-archive"><fa-icon :icon="['fa', 'folder-minus']"/></button>
+                          <!-- activate -->
+                          <div v-if="product.status != 'Active' && product.status != 'Archived'"  class="">
+                            <button @click="singleConfirmdeletewindow('Active',product)" class="product-active"><fa-icon :icon="['fa', 'folder-plus']"/></button>
                           </div>
+                          <!-- restore -->
+                          <div v-if="product.status == 'Archived'" class="">
+                            <button  @click="singleConfirmdeletewindow('Pending',product)" class="product-restore"><fa-icon :icon="['fa', 'trash-restore-alt']"/></button>
+                          </div>
+                          <div v-if="product.status == 'Active'"  class="">
+                            <button @click="singleConfirmdeletewindow('Pending',product)" class="product-pending"><fa-icon :icon="['fa', 'folder-minus']"/></button>
+                          </div>
+                          <!-- archive -->
+                          <div v-if="product.status != 'Archived'"  class="">
+                            <button @click="singleConfirmdeletewindow('Archive',product)" class="product-archive"><fa-icon :icon="['fa', 'inbox']"/></button>
+                          </div>
+
+                          <!-- edit -->
                           <div class="">
                             <button @click="editProduct(product)" class="product-edit"><fa-icon :icon="['fa', 'edit']"/></button>
                           </div>
+                          <!-- delete -->
                           <div class="">
                             <button @click="singleConfirmdeletewindow('delete',product)"  class="product-trash"><fa-icon :icon="['fa', 'trash-alt']"/></button>
                           </div>
@@ -310,8 +352,18 @@ export default {
   },
   data() {
     return {
+      pendentItems:true,
+      reactiveItems:false,
+      activeItems:false,
+      restoreItems:false,
+      archiveIcon:true,
       deleteAction:'',
-      deleteButton: null,
+      suspendbtn:null,
+      deleteButton:null,
+      archiveBtn:null,
+      activeBtn:null,
+      ractiveBtn:null,
+      restorebtn:null,
       pageLoaded:false,
       search:'',
       lastLength:null,
@@ -332,7 +384,7 @@ export default {
       checkedNumbers: 0 ,
       single: null,
       selectedId: null,
-      activeItem: null,
+      // activeItem: null,
       // realProduct: null,
       noProductSelected: null,
       productSuccessAlert: false,
@@ -404,6 +456,7 @@ export default {
             product.id = doc.id
             var str = product.tags.join(' ');
             product.tagsInString = str.toLowerCase()
+            
             this.products.push(product);
             
             console.log(doc.id, " => ", doc.data());
@@ -417,7 +470,21 @@ export default {
     
     computed:{
       filteredProducts: function(){
+        
           return this.products.filter((product) => {
+            if(product.status == "Active"){
+              console.log("Active");
+              
+              $("#status-row").addClass("active-status");
+            }
+            if(product.status == "Pending"){
+              console.log( "Pending");
+              $("#statusRow").addClass("pending-status");
+            }
+            if(product.status == "Archived"){
+              console.log("Archived");
+              $("#statusRow").addClass("archived-status");
+            }
             return product.tagsInString.match(this.search.toLowerCase())
           })
         
@@ -438,10 +505,13 @@ export default {
 
       archivedQuery(){
         
-        
+        this.uncheckedMe();
         // reseting page counter
-        this.lastTotal = 1
-
+        this.lastTotal = 1;
+        // hidding Icons in the work bar
+        this.activeItems = false;
+        this.restoreItems = true;
+        this.pendentItems = false
         db.collection("products").where("status", "==", "Archived").get().then((querySnapshot) => {
 
           // removing active
@@ -450,7 +520,7 @@ export default {
           $("#queryAll").removeClass("all-active");
           $("#frozen-activation").removeClass("active-active");
           
-          $('thead tr th').css("border-top","1px solid var(--red)");
+          $('thead tr th').css("border-top","1px solid var(--primary)");
 
           // Adding Active
           $("#chips-activation").addClass("archived-active");
@@ -495,7 +565,12 @@ export default {
       activeQuery(){
         
         // reseting page counter
-        this.lastTotal = 1
+        this.lastTotal = 1;
+        this.uncheckedMe();
+        // hidding Icons in the work bar
+        this.activeItems = false;
+        this.restoreItems = false;
+        this.pendentItems = true
 
         db.collection("products").where("status", "==", "Active").get().then((querySnapshot) => {
 
@@ -505,7 +580,7 @@ export default {
           $("#chips-activation").removeClass("archived-active");
           $("#beverages-activation").removeClass("pending-active");
 
-          $('thead tr th').css("border-top","1px solid var(--green)");
+          $('thead tr th').css("border-top","1px solid var(--active)");
           
 
           // Adding Active
@@ -549,9 +624,13 @@ export default {
          
       },
       pendingQuery(){
-        
+        this.uncheckedMe();
         // reseting page counter
-        this.lastTotal = 1
+        this.lastTotal = 1;
+        // hidding Icons in the work bar
+        this.activeItems = true;
+        this.restoreItems = false;
+        this.pendentItems = false
 
         db.collection("products").where("status", "==", "Pending").get().then((querySnapshot) => {
 
@@ -559,7 +638,7 @@ export default {
           
           $("#frozen-activation").removeClass("active-active");
           $("#chips-activation").removeClass("archived-active");
-          $('thead tr th').css("border-top","1px solid var(--brown)");
+          $('thead tr th').css("border-top","1px solid var(--pending)");
 
           $("#beverages-activation").addClass("pending-active");
           this.totalProducts = 0;
@@ -600,14 +679,20 @@ export default {
          
       },
       watcher(){
+        this.uncheckedMe();
         // reseting page counter
         this.lastTotal = 1
+        // hidding Icons in the work bar
+        this.activeItems = false
+        this.reactiveItems = false
+        this.restoreItems = false
+        this.pendentItems = true
 
         
         $("#beverages-activation").removeClass("pending-active");
         $("#frozen-activation").removeClass("active-active");
         $("#chips-activation").removeClass("archived-active");
-         $('thead tr th').css("border-top","1px solid var(--dark)");
+         $('thead tr th').css("border-top","1px solid var(--lightBlue)");
         db.collection("products").get().then((querySnapshot) => {
           $("#queryAll").addClass("all-active");
           this.totalProducts = 0;
@@ -730,7 +815,7 @@ export default {
           this.checkedNumbers = 0
           $('.popup-wrapper').css("display","none");
           this.single = ''
-          const currentProduct = this.products.find((product) => {
+          this.products.find((product) => {
             if(product.id == this.selectedId){
               db.collection("products").doc(this.selectedId).update({
                 status: updateStatus
@@ -739,7 +824,7 @@ export default {
             
 
             })
-          console.log(currentProduct);
+          
           // this.$firestore.products.add(this.selectedId);
           
           // this.$firestore.products.doc(this.selectedId).delete();
@@ -752,11 +837,22 @@ export default {
 
         }else{
           
-          this.checkedProductArray.forEach( () => {
+          this.checkedProductArray.forEach( (productId) => {
             // this.$firestore.products.add(item)
+            this.products.find((product) => {
+              if(product.id == productId){
+                db.collection("products").doc(productId).update({
+                  status: updateStatus
+                });
+              }
+              
+
+              })
             this.closewindow();
             $(".alert").delay(1000).slideUp(200, () => {
               this.productDeletedAlert = false
+              this.watcher();
+              this.uncheckedMe();
             });
           })
         }
@@ -818,7 +914,7 @@ export default {
         } else {
             $('div input').prop('checked', false);
             $('#productRow tr').css("background-color","rgba(242, 245, 245, 0.8)");
-            $('.work').css("background-color","var(--light");
+            $('.work').css("background-color","rgba(242,245,245,1)");
             this.checkedNumbers = 0 ;
             this.checkedProductArray = []; 
         }
@@ -826,12 +922,49 @@ export default {
 
       singleConfirmdeletewindow(string, doc){
         this.deleteAction = string
-        if(string == 'archive'){
+        if(string == 'Archive'){
+            this.suspendbtn = false
             this.deleteButton = false
-            
-            
+            this.archiveBtn = true
+            this.ractiveBtn = false
+            this.activeBtn = false
+            this.restorebtn = false
+          }else if(string == 'Active'){
+            this.suspendbtn = false
+            this.deleteButton = false
+            this.archiveBtn = false
+            this.ractiveBtn = false
+            this.activeBtn = true
+            this.restorebtn = false
+          }else if(string == 'Reactivate'){
+            this.suspendbtn = false
+            this.deleteButton = false
+            this.archiveBtn = false
+            this.ractiveBtn = true
+            this.restorebtn = false
+            this.activeBtn = false
+          }else if(string == 'Suspend'){
+            this.suspendbtn = true
+            this.deleteButton = false
+            this.archiveBtn = false
+            this.ractiveBtn = false
+            this.restorebtn = false
+            this.activeBtn = false
+          }else if(string == 'Pending'){
+            this.suspendbtn = false
+            this.deleteButton = false
+            this.archiveBtn = false
+            this.ractiveBtn = false
+            this.activeBtn = false
+            this.restorebtn = true
           }else{
+            this.suspendbtn = false
             this.deleteButton = true
+            this.archiveBtn = false
+            this.activeBtn = false
+            this.ractiveBtn = false
+            this.restorebtn = false
+
           }
         // this.realId = doc
         // this.realProduct = realProduct
@@ -846,10 +979,49 @@ export default {
 
       confirmdeletewindow: function(string){
         this.deleteAction = string
-        if(string == 'archive'){
+        if(string == 'Archive'){
+            this.suspendbtn = false
             this.deleteButton = false
+            this.archiveBtn = true
+            this.ractiveBtn = false
+            this.activeBtn = false
+            this.restorebtn = false
+          }else if(string == 'Active'){
+            this.suspendbtn = false
+            this.deleteButton = false
+            this.archiveBtn = false
+            this.ractiveBtn = false
+            this.activeBtn = true
+            this.restorebtn = false
+          }else if(string == 'Reactivate'){
+            this.suspendbtn = false
+            this.deleteButton = false
+            this.archiveBtn = false
+            this.ractiveBtn = true
+            this.restorebtn = false
+            this.activeBtn = false
+          }else if(string == 'Suspend'){
+            this.suspendbtn = true
+            this.deleteButton = false
+            this.archiveBtn = false
+            this.ractiveBtn = false
+            this.restorebtn = false
+            this.activeBtn = false
+          }else if(string == 'Pending'){
+            this.suspendbtn = false
+            this.deleteButton = false
+            this.archiveBtn = false
+            this.ractiveBtn = false
+            this.activeBtn = false
+            this.restorebtn = true
           }else{
+            this.suspendbtn = false
             this.deleteButton = true
+            this.archiveBtn = false
+            this.activeBtn = false
+            this.ractiveBtn = false
+            this.restorebtn = false
+
           }
         if(this.checkedNumbers > 0){
           
@@ -883,7 +1055,7 @@ export default {
         
         $('div input').prop('checked', false);
         $('#productRow tr').css("background-color","rgba(242,245,245,0.8)");
-        $('.work').css("background-color","rgba(242,245,245,0.8)");
+        $('.work').css("background-color","rgba(242,245,245,1)");
         this.checkedNumbers = 0 ;
         this.checkedProductArray = []; 
 
@@ -904,8 +1076,8 @@ export default {
          } 
          if(checkBox.checked == false){
            $(element.parentElement).css("background-color","rgba(242,245,245,0.8)"); 
-           $(toolBox).css("background-color","rgba(242,245,245,0.8)") 
-           $(toolBox.firstChild.firstChild).css("background-color","rgba(242,245,245,0.8)")
+           $(toolBox).css("background-color","rgba(242,245,245,1)") 
+           $(toolBox.firstChild.firstChild).css("background-color","rgba(242,245,245,1)")
            this.checkedNumbers = this.checkedNumbers - 1;
            this.checkedProductArray.splice(this.checkedProductArray.indexOf(product.id), 1);
          }
@@ -1049,10 +1221,22 @@ export default {
   color: var(--warning);
 }
 .action-confirmed{
-  background-color: var(--danger);
+  background-color: #9f0000;
 }
 .action-confirmed:hover{
-  background-color: var(--red);
+  background-color: #e30000;
+}
+.action-active{
+  background-color: var(--active);
+}
+.action-active:hover{
+  background-color: var(--active);
+}
+.action-restore{
+  background-color: var(--pending);
+}
+.action-restore:hover{
+  background-color: var(--pending);
 }
 .action-cancel{
   background-color: var(--primary);
@@ -1325,8 +1509,41 @@ input:checked + .slider:before {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
   color: pink;
 }
-.work-select,.work-refresh,.work-add,.work-delete, .work-archive ,.work-more{
+.work-suspend, .work-activate, .work-reactivate, .work-restore, .work-select, .work-refresh, .work-add, .work-delete, .work-archive, .work-more{
   position: relative;
+}
+.work-suspend:hover::after{
+  content: "Suspend";
+  z-index: 1;
+  position: absolute;
+  bottom: -30px;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
+.work-activate:hover::after{
+  content: "activate";
+  z-index: 1;
+  position: absolute;
+  bottom: -30px;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
+.work-reactivate:hover::after{
+  content: "Reactivate";
+  z-index: 1;
+  position: absolute;
+  bottom: -30px;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
 }
 .work-select:hover::after{
   content: "Select";
@@ -1358,6 +1575,18 @@ input:checked + .slider:before {
   position: absolute;
   bottom: -30px;
   width: 75px;
+  text-align: center;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
+.work-restore:hover::after{
+  content: "Restore";
+  z-index: 1;
+  position: absolute;
+  bottom: -30px;
   text-align: center;
   padding: 0.5px 5px;
   border-radius: 5px;
@@ -1445,7 +1674,7 @@ input:checked + .slider:before {
 .all-active{
   cursor: pointer;
   background-color: var(--primaryT);
-  color: var(--lightBlue);
+  color: var(--dark);
 }
 
 .all-active::after{
@@ -1462,7 +1691,7 @@ input:checked + .slider:before {
 .block-frozen:hover, .active-active{
   cursor: pointer;
   background-color: var(--primaryT);
-  color: var(--green);
+  color: var(--dark);
 }
 .block-frozen:hover::after, .active-active::after{
   content: "";
@@ -1471,14 +1700,14 @@ input:checked + .slider:before {
   height: 5px;
   width: 100%;
   border-radius: 5px 5px 0 0 ;
-  background-color: var(--green);
+  background-color: var(--active);
   
 }
 .block-beverages:hover, .pending-active{
 
   cursor: pointer;
   background-color: var(--primaryT);
-  color: var(--brown);
+  color: var(--dark);
 }
 .block-beverages:hover::after, .pending-active::after{
   content: "";
@@ -1487,12 +1716,12 @@ input:checked + .slider:before {
   height: 5px;
   width: 100%;
   border-radius: 5px 5px 0 0 ;
-  background-color: var(--brown);
+  background-color: var(--pending);
 }
 .block-chips:hover, .archived-active{
   cursor: pointer;
   background-color: var(--primaryT);
-  color: var(--red);
+  color: var(--dark);
 }
 .block-chips:hover::after, .archived-active::after{
   content: "";
@@ -1501,13 +1730,13 @@ input:checked + .slider:before {
   height: 5px;
   width: 100%;
   border-radius: 5px 5px 0 0 ;
-  background-color: var(--red);
+  background-color: var(--primary);
   
 }
 .block-utilities:hover, .utilities-active{
   cursor: pointer;
   background-color: var(--primaryT);
-  color: var(--lighterBlue);
+  color: var(--dark);
 }
 .block-utilities:hover::after, .utilities-active::after{
   content: "";
@@ -1537,7 +1766,7 @@ input:checked + .slider:before {
   height: 20px;
   width: 50px;;
 }
- .product-edit, .product-chart, .product-trash, .product-archive{
+ .product-restore,.product-edit, .product-pending, .product-active, .product-trash, .product-archive{
   position: relative;
   color: var(--darkT);
   display: flex;
@@ -1553,12 +1782,76 @@ input:checked + .slider:before {
 .td-work-wrapper{
   color: var(--lightBlue);
 }
-
-.product-archive:hover, .product-edit:hover,.product-chart:hover,.product-trash:hover{
+.pending-status{
+  margin: auto;
+  font-size: 0.9rem;
+  width: fit-content;
+  font-weight: 500;
+  padding: 5px;
+  background-color: var(--pending);
+  border-radius: 20px;
+}
+.active-status{
+  margin: auto;
+  width: fit-content;
+  padding: 5px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background-color: var(--active);
+  border-radius: 20px;
+}
+.archived-status{
+  margin: auto;
+  width: fit-content;
+  padding: 5px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background-color:var(--primary);
+  border-radius: 20px;
+}
+.product-restore:hover.product-suspend:hover,.product-active:hover,.product-archive:hover, .product-edit:hover,.product-pending:hover,.product-trash:hover{
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
   
 }
-
+.product-restore:hover::after{
+  content: "Restore";
+  z-index: 2;
+  transition-delay:1s;
+  position: absolute;
+  bottom: -30px;
+  text-align: center;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
+.product-pending:hover::after{
+  content: "Suspend";
+  z-index: 2;
+  transition-delay:1s;
+  position: absolute;
+  bottom: -30px;
+  text-align: center;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
+.product-active:hover::after{
+  content: "Activate";
+  z-index: 2;
+  transition-delay:1s;
+  position: absolute;
+  bottom: -30px;
+  text-align: center;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
 .product-archive:hover::after{
   content: "Archive";
   z-index: 2;

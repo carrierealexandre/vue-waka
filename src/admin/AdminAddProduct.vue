@@ -1,6 +1,60 @@
 /* eslint-disable */ 
 <template>
   <div class="addproduct">
+
+    
+        <div class="center-screen alert alert-success" role="alert">
+          <div>
+            <label class="check-mark-label" for="">
+              <div class="check-icon"></div>
+            </label>
+          </div>
+          <div class="restore-message">
+            <div>
+              <span class="span-success-popup">Success!</span>
+            </div>
+            <div class="span-notice">
+              <span>Product is restored</span>
+            </div>
+          </div>
+          <div @click="closeAlert" class="close-alert-succes">
+            <h4>&#10006;</h4>
+          </div>
+          
+
+        </div>
+        
+        <div class="popup-wrapper">
+
+          
+          
+          <div class="confirm-delete-pop-up dflex centercenter" role="alert">
+          
+            <div class="alert-wrapper ">
+              
+              <div>
+                <fa-icon class="alert-icon" :icon="['fa', 'exclamation-triangle']" />
+              </div>
+              <div class="alert-title">
+                <span>Confirm Restore</span>
+              </div>
+              <div class="alert-message ">
+                
+                <span class="dflex centercenter">Restoring this product will change its status to Pending so you can work on it again.</span>
+                
+              </div>
+              <div class="delete-action">
+                <div class="action-cancel" @click="closePopup" role="button">Cancel</div>
+                <div class="action-restore" @click="restoreProduct()" role="button">Restore</div>
+              </div>
+              <div @click="closePopup" class="close-popup-icon">
+                <h5>&#10006;</h5>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
     
       <div class="btn-group-wrapper"> <!--  HEADER START -->
         <div class="header-wrapper">
@@ -331,7 +385,7 @@
               </div>
 
               <div class="unarchive-btn-wrapper">
-                <button class="unarchive-btn" @click="restoreProduct() ">Restore product</button>
+                <button class="unarchive-btn" @click="openPopup">Restore product</button>
               </div>
 
 
@@ -407,14 +461,17 @@
 // import productsCategories from "./AdminProducts"
 import {VueEditor} from "vue2-editor";
 import {fb, db} from '../firebase';
-import {productsCategories} from "../admin/AdminProducts"
+import {productsCategories} from "../admin/AdminProducts";
+import $ from 'jquery';
 
+$('.alert').css("display","flex");
 
 // import $ from 'jquery'
 export default {
   
   name: "addproduct",
   async created () {
+    
     console.log(productsCategories);
     if(localStorage.docRefProduct){
       this.docRefProduct = localStorage.docRefProduct;
@@ -513,7 +570,7 @@ export default {
       productsCategories: productsCategories,
       docRefProduct:null,
       pDescription:null,
-      
+      popupWindow:true,
       
       vendorNumber:null,
       categoryNumber:null,
@@ -585,8 +642,37 @@ export default {
     }
   },
   methods:{
+    openPopup: function(){
+      
+      $('.popup-wrapper').fadeIn(200);
+    },
+    closePopup: function(){
+      // $(".confirm-delete-pop-up").slideUp(200,()=>{
+      //   $('.popup-wrapper').css("display","none");
+      // });
+      $('.popup-wrapper').fadeOut(200);
+    },
+    closeAlert(){
+      $('.alert').css("display","none");
+    },
     restoreProduct(){
-      this.product.status = 'Pending'
+      $('.popup-wrapper').fadeOut(200);
+      // $('.popup-wrapper').css("display","none");
+      $('.alert').css("display","flex");
+      setTimeout(() => {
+        
+        $('.check-icon').css("display","block");
+        $('.restore-message').css("visibility","visible");
+        $('.close-alert-succes').css("visibility","visible");
+        $('.check-mark-label').addClass('stop-check-animation');
+      }, 2000);
+      setTimeout(() => {
+        this.product.status = 'Pending'
+        this.$firestore.products.doc(this.docRefProduct).update(this.product);
+        $(".alert").delay(2000).fadeOut(2000);
+      }, 3000);
+      
+      
     },
     goBack() {
       window.history.length > 1 ? this.$router.go(-1) : this.$router.push('/');
@@ -773,6 +859,259 @@ export default {
 .form-control{
   height: 40px;
 }
+// Popup Window style start <----
+
+.dflex{
+  display: flex;
+}
+.dcolum{
+  flex-direction: column;
+}
+.centercenter{
+  justify-content: center;
+  align-items: center;
+}
+.justcontaround{
+  justify-content: space-around;
+}
+.alingcontaround{
+  align-content: space-around;
+}
+.popup-wrapper{
+  display: none;
+  position: relative;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(3, 30, 51, 0.4);
+  z-index: 20;
+
+}
+.confirm-delete-pop-up{
+  margin: auto;
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  width: 50%;
+  height: 35%;
+  background-color:var(--lightwhite1);
+  display: flex;
+  justify-content: space-around;
+  align-content: space-around;
+  z-index: 30;
+  border: 1px solid var(--primaryT);
+  box-shadow: var(--shadow);
+  
+  
+  
+  
+}
+
+.alert-wrapper{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 50px;
+}
+.alert-message{
+  margin-top: 20px;
+  text-align: center;
+  width: 100%;
+  font-size: 1.0rem;
+  color: var(--dark);
+}
+.alert-title{
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-top: 10px;
+  color: var(--dark);
+}
+.delete-action{
+  display: flex;
+  position: absolute;
+  justify-content: space-around;
+  align-items: center;
+  height: 50px;
+  width: 100%;
+  bottom: 0;
+  border-radius: 0 0 10px 10px;
+  
+  
+}
+.close-popup-icon{
+  cursor: pointer;
+  position: absolute;
+  top: 5px;
+  right: 10px;
+}
+.delete-action > div{
+  display: flex;
+  height: 100%;
+  font-size: 1.2rem;
+  font-weight: 500;
+  width: 100%;
+  
+  outline: none;
+  justify-content: center;
+  align-items: center;
+}
+.alert-icon{
+  margin-top: 0px;
+  font-size: 3.0rem;
+  color: var(--pending);
+}
+.action-confirmed{
+  background-color: #9f0000;
+}
+.action-confirmed:hover{
+  background-color: #e30000;
+}
+.action-active{
+  background-color: var(--active);
+}
+.action-active:hover{
+  background-color: var(--active);
+}
+.action-restore{
+  background-color: var(--actionSuccess);
+}
+.action-restore:hover{
+  background-color: var(--success);
+}
+.action-cancel{
+  background-color: var(--primary);
+  
+}
+.action-cancel:hover{
+  background-color: var(--blueGoogle);
+}
+
+
+// Popup Window style end <----
+// SUCCES POPUP STYLE START <----
+// CheckMark Animation START
+
+.check-mark-label{
+  position: relative;
+  height: 50px;
+  width: 50px;
+  display: inline-block;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-radius: 50%;
+  border-left-color: #5cb85c ;
+  animation: rotate 1.2s linear infinite;
+}
+@keyframes rotate {
+  50%{
+    border-left-color: #9b59b6;
+  }
+  75%{
+    border-left-color: #e67e22;
+  }
+  100%{
+    transform: rotate(360deg);
+  }
+}
+.restore-message{
+ visibility: hidden;
+}
+label .check-icon {
+  display: none;
+// translate(-25%, 50%)
+}
+label .check-icon:after{
+  position: absolute;
+  content: "";
+  top: 55%;
+  left: 8px;
+  transform: scaleX(-1) rotate(135deg);
+  height: 28px;
+  width: 14px;
+  border-top: 4px solid #5cb85c;
+  border-right: 4px solid  #5cb85c;
+  transform-origin: left top ;
+  
+  animation: check-icon 0.8s ease
+}
+@keyframes check-icon {
+  0%{
+    height: 0;
+    width: 0;
+    opacity: 1;
+  }
+  20%{
+    height: 0;
+    width: 14px;
+    opacity: 1;
+  }
+  40%{
+    height: 28px;
+    width: 14px;
+    opacity: 1;
+  }
+  100%{
+    height: 28px;
+    width: 14px;
+    opacity: 1;
+  }
+
+}
+.close-alert-succes{
+  visibility: hidden;
+  position: absolute;
+  top: 30%;
+  right: 10px;
+  cursor: pointer;
+}
+.stop-check-animation{
+  animation: none;
+  border-color: #5cb85c;
+  transition:  border 0.5s ease-out;
+}
+// CHECKMARK ANIMATION END
+.center-screen{
+  margin: auto;
+  position: fixed;
+  top: 20px; right: 20px;
+  width: 380px;
+  height: 90px;
+  background-color: var(--dark);
+  display: none;
+  justify-content: center;
+  align-content: center;
+  z-index: 30;
+  border: 1px solid var(--dark);
+  box-shadow: var(--shadow);
+  border-radius: 20px;
+
+}
+.center-screen > div {
+  display: flex;
+  
+  margin-right: 20px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.alert-error-icon{
+  font-size: 3rem;
+  color: var(--danger);
+}
+.span-notice{
+  font-size: 1.0rem;
+  color: var(--lightwhite);
+}
+.span-success-popup{
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--actionSuccess);
+}
+// succes POPUP STYLE END <----
+// ALERT PRODUCTS END<-----
 // HEADER STYLE START <----
 .btn-group-wrapper{
   display: flex;
@@ -1321,8 +1660,15 @@ option {
 // MODAL ADD PRODUCTS END<-----
 // MEDIA QUERIES START
 @media (max-width: 1060px){
+  .centering-wraper{
+  width: 75%;
+  }
 .page-grid-wrapper{
   grid-template-columns: 75%;
+}
+.confirm-delete-pop-up{
+  height: 70%;
+  width: 99%;
 }
 }
 @media (max-width: 750px){
