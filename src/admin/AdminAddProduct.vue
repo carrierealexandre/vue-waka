@@ -3,7 +3,7 @@
   <div class="addproduct">
 
     
-        <div class="center-screen alert alert-success" role="alert">
+        <div v-if="alert" class="center-screen alert alert-success" role="alert">
           <div>
             <label class="check-mark-label" for="">
               <div class="check-icon"></div>
@@ -11,10 +11,10 @@
           </div>
           <div class="restore-message">
             <div>
-              <span class="span-success-popup">Success!</span>
+              <span class="span-success-popup">{{alert.badgeSuccessTitle}}</span>
             </div>
             <div class="span-notice">
-              <span>Product is restored</span>
+              <span>{{alert.badgeMsg}}</span>
             </div>
           </div>
           <div @click="closeAlert" class="close-alert-succes">
@@ -24,7 +24,7 @@
 
         </div>
         
-        <div class="popup-wrapper">
+        <div v-if="alert" class="popup-wrapper">
 
           
           
@@ -32,20 +32,23 @@
           
             <div class="alert-wrapper ">
               
-              <div>
+              <div v-if="alert.level == 'warning'">
                 <fa-icon class="alert-icon" :icon="['fa', 'exclamation-triangle']" />
               </div>
               <div class="alert-title">
-                <span>Confirm Restore</span>
+                <span>{{alert.title}}</span>
               </div>
               <div class="alert-message ">
                 
-                <span class="dflex centercenter">Restoring this product will change its status to Pending so you can work on it again.</span>
+                <span class="dflex centercenter"> {{alert.msg}} </span>
                 
               </div>
               <div class="delete-action">
-                <div class="action-cancel" @click="closePopup" role="button">Cancel</div>
-                <div class="action-restore" @click="restoreProduct()" role="button">Restore</div>
+                <div class="action-cancel" @click="closePopup" role="button">{{alert.leftBtn}}</div>
+                <div v-if="alert.type == 'restore'" class="action-restore" @click="restoreProduct()" role="button">{{alert.rightBtn}}</div>
+                <div v-if="alert.type == 'update' && this.docRefProduct" class="action-restore" @click="updateData()" role="button">{{alert.rightBtn}}</div>
+                <div v-if="alert.type == 'create' && !this.docRefProduct" class="action-restore" @click="updateData()" role="button">{{alert.rightBtn}}</div>
+                <div v-if="alert.type == 'discard'" class="action-restore" @click="goBack()" role="button">{{alert.rightBtn}}</div>
               </div>
               <div @click="closePopup" class="close-popup-icon">
                 <h5>&#10006;</h5>
@@ -56,14 +59,15 @@
           </div>
         </div>
     
-      <div class="btn-group-wrapper"> <!--  HEADER START -->
+      <div v-if="!saved" class="btn-group-wrapper"> <!--  HEADER START -->
         <div class="header-wrapper">
           <span>Unsaved Changes</span>
         </div>
         <div class="header-btn">
-          <button @click="goBack()" class="btn" >Discard</button>
-          <button v-if="!this.docRefProduct" @click="saveData()"  class="btn btn-primary">Create</button>
-          <button v-if="this.docRefProduct" @click="updateData()"  class="btn btn-primary">Update</button>
+          
+          <button  @click="openPopup('discard')" class="btn" >Discard</button>
+          <button v-if="!this.docRefProduct" @click="openPopup('create')"  class="btn btn-primary">Save</button>
+          <button v-if="this.docRefProduct" @click="updateData('update')"  class="btn btn-primary">Save</button>
         </div>
       </div>                          <!--  HEADER END -->     
       <div class="add-work-wrapper">
@@ -94,11 +98,11 @@
             <h5>Product details</h5>
             <div class="form-group">
               <label class="main-grid-label" for="exampleFormControlInput1">Product name</label>
-              <input v-model="product.name" type="text" class="form-control"  placeholder="Title">
+              <input @input="unSaved" v-model="product.name" type="text" class="form-control"  placeholder="Title">
             </div>
             <div class="">
               <label class="main-grid-label" for="exampleFormControlInput1">Description</label>
-              <vue-editor :editor-toolbar="customToolbar" v-model="pDescription" ></vue-editor>
+              <vue-editor  :editor-toolbar="customToolbar" v-model="pDescription" ></vue-editor>
               <!-- <input v-model="product.description" type="text" placeholder="Tag Name" maxlength="10"> -->
             </div>
 
@@ -385,7 +389,7 @@
               </div>
 
               <div class="unarchive-btn-wrapper">
-                <button class="unarchive-btn" @click="openPopup">Restore product</button>
+                <button class="unarchive-btn" @click="openPopup('restore')">Restore product</button>
               </div>
 
 
@@ -447,9 +451,9 @@
       <div class="btn-group-wrapper-footer"> <!--  HEADER START -->
         
         <div class="header-btn">
-          <button @click="goBack()" class="btn btn-primary " >Discard</button>
-          <button v-if="!this.docRefProduct" @click="saveData()"  class="btn btn-primary">Create</button>
-          <button v-if="this.docRefProduct" @click="updateData()"  class="btn btn-primary">Update</button>
+          <button @click="openPopup('discard')" class="btn" >Discard</button>
+          <button v-if="!this.docRefProduct" @click="openPopup('create')"  class="btn btn-primary">Create</button>
+          <button v-if="this.docRefProduct" @click="openPopup('update')"  class="btn btn-primary">Update</button>
         </div>
       </div> 
   </div>
@@ -567,6 +571,53 @@ export default {
   },
   data() {
     return {
+      saved:true,
+      testOne: 'hello',
+      alerts:[
+        { 
+          level: 'warning',
+          type:'restore',
+          title:'Confirm Restore',
+          msg: 'Restoring this product will change its status to Pending so you can work on it again.',
+          leftBtn: 'Cancel',
+          rightBtn: 'Restore',
+        },
+        { 
+          level: 'warning',
+          type:'update',
+          title:'Confirm Update',
+          msg: 'Updating this product will overwright all changed feild',
+          leftBtn: 'Cancel',
+          rightBtn: 'Update',
+          badgeSuccessTitle: 'Success!',
+          badgeMsg:' Your product as been updated',
+        },
+        { 
+          level: 'warning',
+          type:'create',
+          title:'Confirm Update',
+          msg: 'Updating this product will overwright all changed feild',
+          leftBtn: 'Cancel',
+          rightBtn: 'Update',
+        },
+        { 
+          level: 'warning',
+          type:'discard',
+          title:'Leave this page?',
+          msg: 'by clicking yes, all changes will be lost',
+          leftBtn: 'Cancel',
+          rightBtn: 'Yes',
+        }
+      ],
+      alert:{
+        level: null,
+        type: null,
+        title: null,
+        msg: null,
+        leftBtn: null,
+        rightBtn: null,
+        work: null
+      },
       productsCategories: productsCategories,
       docRefProduct:null,
       pDescription:null,
@@ -642,8 +693,15 @@ export default {
     }
   },
   methods:{
-    openPopup: function(){
-      
+    unSaved(){
+      this.saved = false;
+    },
+    openPopup: function(type){
+
+      let obj = this.alerts.find(x => x.type == type);
+      let index = this.alerts.indexOf(obj);
+      this.alert = this.alerts[index];
+      console.log(this.alert);
       $('.popup-wrapper').fadeIn(200);
     },
     closePopup: function(){
@@ -651,11 +709,10 @@ export default {
       //   $('.popup-wrapper').css("display","none");
       // });
       $('.popup-wrapper').fadeOut(200);
+      
+      this.alert = {}
     },
-    closeAlert(){
-      $('.alert').css("display","none");
-    },
-    restoreProduct(){
+    alertBadge(){
       $('.popup-wrapper').fadeOut(200);
       // $('.popup-wrapper').css("display","none");
       $('.alert').css("display","flex");
@@ -666,11 +723,17 @@ export default {
         $('.close-alert-succes').css("visibility","visible");
         $('.check-mark-label').addClass('stop-check-animation');
       }, 2000);
+    },
+    closeAlert(){
+      $('.alert').css("display","none");
+    },
+    restoreProduct(){
+      this.alertBadge()
       setTimeout(() => {
         this.product.status = 'Pending'
         this.$firestore.products.doc(this.docRefProduct).update(this.product);
         $(".alert").delay(2000).fadeOut(2000);
-      }, 3000);
+      }, 2000);
       
       
     },
@@ -816,9 +879,14 @@ export default {
         this.product.tags.push(this.product.vendor);
       }
       this.$firestore.products.add(this.product);
-      this.$router.push('products');
+      // this.$router.push('products');
     },
-    updateData(){
+    updateData(type){
+      let obj = this.alerts.find(x => x.type == type);
+      let index = this.alerts.indexOf(obj);
+      this.alert = this.alerts[index];
+      console.log(this.alert);
+
       this.comparePrice();
       this.price();
       this.CostPrice();
@@ -833,11 +901,14 @@ export default {
       if(this.product.vendor){
         this.product.tags.push(this.product.vendor);
       }
+      this.alertBadge()
+      setTimeout(() => {
+        
+        this.$firestore.products.doc(this.docRefProduct).update(this.product);
+        $(".alert").delay(2000).fadeOut(2000);
+      }, 2000);
       
-      
-      
-      this.$firestore.products.doc(this.docRefProduct).update(this.product);
-      this.goBack()
+      // this.goBack()
     },  
   }
   
