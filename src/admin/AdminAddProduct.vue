@@ -59,29 +59,44 @@
           </div>
         </div>
     
-      <div v-if="!saved" class="btn-group-wrapper"> <!--  HEADER START -->
+      <div v-if="!this.docRefProduct" class="btn-group-wrapper"> <!--  HEADER START -->
         <div class="header-wrapper">
-          <span>Unsaved Changes</span>
+          <span>Unsaved Product</span>
+          
         </div>
         <div class="header-btn">
           
           <button  @click="openPopup('discard')" class="btn" >Discard</button>
-          <button v-if="!this.docRefProduct" @click="openPopup('create')"  class="btn btn-primary">Save</button>
-          <button v-if="this.docRefProduct" @click="updateData('update')"  class="btn btn-primary">Save</button>
+          <button :disabled="saved" v-if="!this.docRefProduct" @click="updateData('create')"  class="btn btn-primary">Save</button>
+          
+        </div>
+      </div>                          <!--  HEADER END -->   
+
+      <div v-if="this.docRefProduct && !this.saved" class="btn-group-wrapper"> <!--  HEADER START -->
+        <div class="header-wrapper">
+          
+          <span v-if="this.docRefProduct">Unsaved Changes</span>
+        </div>
+        <div class="header-btn">
+          
+          <button  @click="openPopup('discard')" class="btn" >Discard</button>
+          
+          <button :disabled="saved" v-if="this.docRefProduct" @click="updateData('update')"  class="btn btn-primary">Save</button>
         </div>
       </div>                          <!--  HEADER END -->     
+
       <div class="add-work-wrapper">
         <div class="centering-wraper">
 
           <div class=""> <!--  PAGE TITLE START -->   
             <div class="prev-link__add-work-wrapper">
 
-              <router-link class="prev-link" to="/admin/products">
+              <div @click="openPopup('discard')" class="prev-link" to="/admin/products">
                   <div>
                     <fa-icon class="previous-icon" :icon="['fa', 'chevron-left']" />
                     <span>Products</span>
                   </div>
-              </router-link>
+              </div>
 
             </div>
 
@@ -93,51 +108,73 @@
         </div>
       </div>                 <!--  PAGE TITLE END -->   
       <div class="page-grid-wrapper">
+
         <div class="main-grid">
+
           <div class="product-name-wrapper">
+
             <h5>Product details</h5>
             <div class="form-group">
               <label class="main-grid-label" for="exampleFormControlInput1">Product name</label>
               <input @input="unSaved" v-model="product.name" type="text" class="form-control"  placeholder="Title">
             </div>
-            <div class="">
+            <div @click="unSaved" class="">
               <label class="main-grid-label" for="exampleFormControlInput1">Description</label>
               <vue-editor  :editor-toolbar="customToolbar" v-model="pDescription" ></vue-editor>
               <!-- <input v-model="product.description" type="text" placeholder="Tag Name" maxlength="10"> -->
             </div>
 
           </div>
+
           <div class="product-img-wrapper">
-            <div class="">
-              <h5>Images</h5> 
-                
-            </div>
-            <div v-if="!product.images.length" v-show="isLoad" class="icon-image-wrapper">
-              <fa-icon class="work-icon" :icon="['fa', 'image']"/>
-              <span> Select Images to upload</span>
-              
-            </div>
-            <div v-show="!isLoad" class="spinner-wrapper">
-              <div class="upload-frame icon-image-wrapper"></div>
+
+            <div class="product-img-row1">
+
+              <div class="">
+                <h5>Image</h5> 
+              </div>
+
+              <div>
+                <input :disabled="this.product.images.length == 1" @input="unSaved"  type="file" @change="uploadImage" class="hidden" id="files">
+                <label class="select-image-link" for="files"></label>
+              </div>
+
             </div>
             
-            <div v-if="product.images.length " class="form-group d-flex">
-              <div class="p-1"  v-for="(image,idx) in product.images" :key="idx" >
-                <div class="img-wrapp">
-                  <img width="250px" :src="image" alt="">
-                  <span class="delete-img" @click="deleteImage(image,idx)">&times;</span>
-                </div>
+            
+
+            <div class="images-grid-wrapper">
+
+              <div  v-if="!product.images.length" v-show="isLoad" class="icon-image-wrapper">
                 
+                <div class="when-empty-image-sizer">
+                  <fa-icon class="work-icon" :icon="['fa', 'image']"/>
+                  <span> Select Images to upload</span>
+                </div>
+
               </div>
               
-            </div>
+              <div v-show="!isLoad" class="spinner-wrapper">
+                <label class="check-mark-label" for=""></label>
+              </div>
               
-            <div  >
-              
-              <input  type="file" @change="uploadImage" class="hidden" id="files">
-              <label class="select-image-link" for="files"></label>
+              <div v-if="product.images.length " class=" images-flex">
+                <div class="p-1"  v-for="(image,idx) in product.images" :key="idx" >
+                  <div class="img-wrapp">
+                    <img width="200px" :src="image" alt="">
+                    <span class="delete-img" @click="deleteImage(image,idx)">&times;</span>
+                  </div>
+                </div>
+              </div>
+
             </div>
+
+                
+              
+              
+            
           </div>
+
           <div class="">
             <div class="product-pricing-wrapper">
               <h5>Pricing $CAD</h5>
@@ -152,12 +189,12 @@
                   <div class="form-wrapper">
                     <div class="unit-container">
                       <h6>Dolar</h6>
-                      <numberInput :height="'40px'" :num="productDolar" @numberChanged="productDolar = $event"></numberInput>
+                      <numberInput @change="unSaved" :height="'40px'" :num="productDolar" @numberChanged="productDolar = $event"></numberInput>
                     </div>
                     <div class=""><h6>.</h6></div>
                     <div class="unit-container">
                       <h6>Cent</h6>
-                      <decimalInput :height="'40px'" :dec="productCent" @numberChanged="productCent = $event"></decimalInput>
+                      <decimalInput @change="unSaved" :height="'40px'" :dec="productCent" @numberChanged="productCent = $event"></decimalInput>
                     </div>
                   </div>
                 </div>
@@ -170,12 +207,12 @@
                     
                     <div class="unit-container">
                       <h6>Dolar</h6>
-                      <numberInput :num="productCompareDolar" @numberChanged="productCompareDolar = $event"></numberInput>
+                      <numberInput @change="unSaved" :num="productCompareDolar" @numberChanged="productCompareDolar = $event"></numberInput>
                     </div>
                     <div class=""><h6>.</h6></div>
                     <div class="unit-container">
                       <h6>Dolar</h6>
-                      <decimalInput :dec="productCompareCent" @numberChanged="productCompareCent = $event"></decimalInput>
+                      <decimalInput @change="unSaved" :dec="productCompareCent" @numberChanged="productCompareCent = $event"></decimalInput>
                     </div>
                   </div>
                 </div>
@@ -188,12 +225,12 @@
                     
                     <div class="unit-container">
                       <h6>Dolar</h6>
-                      <numberInput :num="productCostDolar" @numberChanged="productCostDolar = $event"></numberInput>
+                      <numberInput @change="unSaved" :num="productCostDolar" @numberChanged="productCostDolar = $event"></numberInput>
                     </div>
                     <div class=""><h6>.</h6></div>
                     <div class="unit-container">
                       <h6>Dolar</h6>
-                      <decimalInput :dec="productCostCent" @numberChanged="productCostCent = $event"></decimalInput>
+                      <decimalInput @change="unSaved" :dec="productCostCent" @numberChanged="productCostCent = $event"></decimalInput>
                     </div>
                   </div>
                 </div>
@@ -203,7 +240,7 @@
             <div class="">
               <div class="product-price-checkbox">
                 
-                <input  v-model="product.taxes" type="checkbox"  name="applyTaxes" id="">
+                <input @input="unSaved"  v-model="product.taxes" type="checkbox"  name="applyTaxes" id="">
                 <h6>Charge taxes on this product</h6>
                 
               </div>
@@ -223,12 +260,12 @@
                   
                   <div class="">
                     <h6>SKU (Stock keeping Unit)</h6>
-                    <input v-model="product.productId" type="text" class="form-control" maxlength="15" >
+                    <input @input="unSaved" v-model="product.productId" type="text" class="form-control" maxlength="15" >
                     <p>Generate ProductId</p> 
                   </div>
                   <div class="qty-form">
                     <h6>Quantity</h6>
-                    <numberInput :num="product.qty" @numberChanged="product.qty = $event"></numberInput>
+                    <numberInput @change="unSaved" :num="product.qty" @numberChanged="product.qty = $event"></numberInput>
                   </div>
                   
                   
@@ -239,11 +276,11 @@
             </div>
             <div class="inventory-form-wrapper">
               <div class="product-price-checkbox">
-                <input v-model="product.trackQty"  type="checkbox"  name="applyTaxes" id="">
+                <input @input="unSaved" v-model="product.trackQty"  type="checkbox"  name="applyTaxes" id="">
                 <h6>Track quantity</h6>
               </div>
               <div class="product-price-checkbox">
-                <input type="checkbox" v-model="product.sellWhenOut"  name="applyTaxes" id="">
+                <input @input="unSaved" type="checkbox" v-model="product.sellWhenOut"  name="applyTaxes" id="">
                 <h6>Continue selling when out of stock</h6>
                 
               </div>
@@ -272,17 +309,17 @@
                   <div class="input-label-wrapper">
                     <h6>Dollar</h6>
                     
-                    <numberInput :num="shippingDolar" @numberChanged="shippingDolar = $event"></numberInput>
+                    <numberInput @change="unSaved" :num="shippingDolar" @numberChanged="shippingDolar = $event"></numberInput>
                   </div>
                   <div class=""><h6>.</h6></div>
                   <div class="input-label-wrapper">
                     <h6>Cent</h6>
-                    <decimalInput :dec="shippingCent" @numberChanged="shippingCent = $event"></decimalInput>
+                    <decimalInput @change="unSaved" :dec="shippingCent" @numberChanged="shippingCent = $event"></decimalInput>
                   </div>
                   <div id="slashBetUnit223"><h6>/</h6></div>
                   <div class="input-label-wrapper">
                     <h6>Unit</h6>
-                    <select  v-model="product.Unit" class="custom-select" id="exampleFormControlSelect1">
+                    <select @change="unSaved"  v-model="product.Unit" class="custom-select" id="exampleFormControlSelect1">
                       <option selected>Lbs</option>
                       <option >Kg</option>
                     </select>   
@@ -305,11 +342,11 @@
               <div class="product-weight-wrapper form-group">
                 <div class="input-label-wrapper">
                   <h6>WEIGHT</h6>
-                  <input v-model="product.weight" type="text" name="" id="" class="form-control" placeholder="0" pattern="$[0-9].[0-9]">
+                  <input @input="unSaved" v-model="product.weight" type="text" name="" id="" class="form-control" placeholder="0" pattern="$[0-9].[0-9]">
                 </div>
                 <div class="input-label-wrapper">
                   <h6>Unit</h6>
-                  <select v-model="product.Unit" class="custom-select" id="exampleFormControlSelect1">
+                  <select @change="unSaved" v-model="product.Unit" class="custom-select" id="exampleFormControlSelect1">
                   <option selected>Lbs</option>
                   <option >Kg</option>
                 </select> 
@@ -326,7 +363,7 @@
                 <div class="form-group">
                   <h6>Lenght</h6>
                   <div class="product-weight-wrapper">
-                    <input type="number" name="" id="" class="form-control" placeholder="0" >
+                    <input @input="unSaved" type="number" name="" id="" class="form-control" placeholder="0" >
                     
                   </div>
                   
@@ -334,14 +371,14 @@
                 <div class="form-group">
                   <h6>width</h6>
                   <div class="product-weight-wrapper">
-                    <input type="number" name="" id="" class="form-control" placeholder="0" >
+                    <input @input="unSaved" type="number" name="" id="" class="form-control" placeholder="0" >
                     
                   </div>
                 </div>
                 <div class="form-group">
                   <h6>height</h6>
                   <div class="product-weight-wrapper">
-                    <input type="number" name="" id="" class="form-control" placeholder="0" >
+                    <input @input="unSaved" type="number" name="" id="" class="form-control" placeholder="0" >
                     
                   </div>
                 </div>
@@ -350,7 +387,7 @@
                   
                   <div class="product-weight-wrapper">
                    
-                    <select class="custom-select" id="exampleFormControlSelect1">
+                    <select @change="unSaved" class="custom-select" id="exampleFormControlSelect1">
                       <option selected>Inch</option>
                       <option >Cm</option>
                     </select>  
@@ -388,8 +425,8 @@
 
               </div>
 
-              <div class="unarchive-btn-wrapper">
-                <button class="unarchive-btn" @click="openPopup('restore')">Restore product</button>
+              <div  class="unarchive-btn-wrapper">
+                <button @change="unSaved" class="unarchive-btn" @click="openPopup('restore')">Restore product</button>
               </div>
 
 
@@ -401,7 +438,7 @@
               
              
               
-              <select  v-model="product.status" class="custom-select" id="exampleFormControlSelect1">
+              <select @change="unSaved"  v-model="product.status" class="custom-select" id="exampleFormControlSelect1">
                 <option value="" disabled selected="selected">Select Product Status</option>
                 <option v-for="(status, idx) in  productstatus" :key="idx" >{{status}}</option>
               </select> 
@@ -416,7 +453,7 @@
               <label class="main-grid-label" for="exampleFormControlSelect1">Product Type</label>
              
               
-              <select  v-model="product.categorie" class="custom-select" id="exampleFormControlSelect1">
+              <select @change="unSaved"  v-model="product.categorie" class="custom-select" id="exampleFormControlSelect1">
                 <option value="" disabled selected="selected">Select Product Type</option>
                 <option v-for="(cat, idx) in  productsCategories" :key="idx" >{{cat}}</option>
               </select> 
@@ -427,7 +464,7 @@
               <label class="main-grid-label" for="exampleFormControlSelect2">Vendor</label>
              
               
-              <select  v-model="product.vendor" class="custom-select" id="exampleFormControlSelect2">
+              <select @change="unSaved"  v-model="product.vendor" class="custom-select" id="exampleFormControlSelect2">
                 <option value="" disabled selected="selected">Select Vendor</option>
                 <option v-for="(vendor, idx) in vendors" :key="idx" >{{vendor}}</option>
               </select> 
@@ -436,7 +473,7 @@
             </div>
               <div class="form-group">
                 <label class="main-grid-label" for="exampleFormControlInput1">Tag name</label>
-                <input @keypress.enter="addTag" @keyup.188="addTag" v-model="tag" type="text" class="form-control"  placeholder="Tag Name">
+                <input @input="unSaved" @keypress.enter="addTag" @keyup.188="addTag" v-model="tag" type="text" class="form-control"  placeholder="Example: Pop, Drink">
                 <ul class="form-tags" >
                   
                   <li v-for="(tag, idx) in product.tags" :key="idx" >
@@ -581,32 +618,34 @@ export default {
           msg: 'Restoring this product will change its status to Pending so you can work on it again.',
           leftBtn: 'Cancel',
           rightBtn: 'Restore',
+          badgeSuccessTitle: 'Success!',
+          badgeMsg:' Your product as been restored',
         },
         { 
           level: 'warning',
           type:'update',
           title:'Confirm Update',
-          msg: 'Updating this product will overwright all changed feild',
-          leftBtn: 'Cancel',
-          rightBtn: 'Update',
           badgeSuccessTitle: 'Success!',
-          badgeMsg:' Your product as been updated',
+          // max lenght of 30 characters in badgeMsg
+          badgeMsg:' Your product as been Saved',
         },
         { 
           level: 'warning',
           type:'create',
-          title:'Confirm Update',
-          msg: 'Updating this product will overwright all changed feild',
+          title:'Confirm creation',
+          msg: 'Do you want to crate this product?',
           leftBtn: 'Cancel',
-          rightBtn: 'Update',
+          rightBtn: 'Create',
+          badgeSuccessTitle: 'Success!',
+          badgeMsg:' Your product as been created',
         },
         { 
           level: 'warning',
           type:'discard',
-          title:'Leave this page?',
+          title:'Unsave Changes',
           msg: 'by clicking yes, all changes will be lost',
           leftBtn: 'Cancel',
-          rightBtn: 'Yes',
+          rightBtn: 'Leave this page',
         }
       ],
       alert:{
@@ -616,7 +655,8 @@ export default {
         msg: null,
         leftBtn: null,
         rightBtn: null,
-        work: null
+        badgeMsg:null,
+        badgeSuccessTitle:null
       },
       productsCategories: productsCategories,
       docRefProduct:null,
@@ -697,12 +737,18 @@ export default {
       this.saved = false;
     },
     openPopup: function(type){
+      if(this.saved && type == 'discard'){
 
-      let obj = this.alerts.find(x => x.type == type);
-      let index = this.alerts.indexOf(obj);
-      this.alert = this.alerts[index];
-      console.log(this.alert);
-      $('.popup-wrapper').fadeIn(200);
+        this.goBack();   
+      
+      }else{
+        let obj = this.alerts.find(x => x.type == type);
+        let index = this.alerts.indexOf(obj);
+        this.alert = this.alerts[index];
+        console.log(this.alert);
+        $('.popup-wrapper').fadeIn(200);
+      }
+     
     },
     closePopup: function(){
       // $(".confirm-delete-pop-up").slideUp(200,()=>{
@@ -742,8 +788,10 @@ export default {
       window.localStorage.removeItem('docRefProduct');
     },
     trimDescriptionTags(){
-      let str = this.pDescription;
-      this.product.description = str.replace("<p>","").replace("</p>","");
+      if(!this.pDescription==null){
+        let str = this.pDescription;
+        this.product.description = str.replace("<p>","").replace("</p>","");
+        }
     },
     shippingcost(){
       console.log(this.shippingDolar + "dollar");
@@ -812,45 +860,47 @@ export default {
         })
       },
     uploadImage(e){
-      if(e.target.files[0]){
-        let file = e.target.files[0];
-        var storageRef = fb.storage().ref('Products/' + file.name);
-        let uploadTask = storageRef.put(file);
-        // Register three observers:
-        // 1. 'state_changed' observer, called any time the state changes
-        // 2. Error observer, called on failure
-        // 3. Completion observer, called on successful completion
-        uploadTask.on('state_changed', (snapshot) => {
-          // uploadTask.on('state_changed', function(){
-          // Observe state change events such as progress, pause, and resume
-          // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-          if(snapshot.bytesTransferred !== snapshot.totalBytes){
-            this.isLoad = false;
-          
-          }else{
-            this.isLoad = true;
-          }
-          var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log('Upload is ' + progress + '% done');
-          // switch (snapshot.state) {
-          //   case fb.storage.TaskState.PAUSED: // or 'paused'
-          //     console.log('Upload is paused');
-          //     break;
-          //   case fb.storage.TaskState.RUNNING: // or 'running'
-          //     console.log('Upload is running');
-          //     break;
-          // }
-        }, () => {
-          // Handle unsuccessful uploads function(error)
-        }, () => {
-          // Handle successful uploads on complete
-          // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-          uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-            this.product.images.push(downloadURL);
-            console.log('File available at', downloadURL);
-          });
-        }); 
-      }
+
+      
+        if(e.target.files[0]){
+          let file = e.target.files[0];
+          var storageRef = fb.storage().ref('Products/' + file.name);
+          let uploadTask = storageRef.put(file);
+          // Register three observers:
+          // 1. 'state_changed' observer, called any time the state changes
+          // 2. Error observer, called on failure
+          // 3. Completion observer, called on successful completion
+          uploadTask.on('state_changed', (snapshot) => {
+            // uploadTask.on('state_changed', function(){
+            // Observe state change events such as progress, pause, and resume
+            // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+            if(snapshot.bytesTransferred !== snapshot.totalBytes){
+              this.isLoad = false;
+            
+            }else{
+              this.isLoad = true;
+            }
+            var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log('Upload is ' + progress + '% done');
+            // switch (snapshot.state) {
+            //   case fb.storage.TaskState.PAUSED: // or 'paused'
+            //     console.log('Upload is paused');
+            //     break;
+            //   case fb.storage.TaskState.RUNNING: // or 'running'
+            //     console.log('Upload is running');
+            //     break;
+            // }
+          }, () => {
+            // Handle unsuccessful uploads function(error)
+          }, () => {
+            // Handle successful uploads on complete
+            // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+              this.product.images.push(downloadURL);
+              console.log('File available at', downloadURL);
+            });
+          }); 
+        }
       
 
     },
@@ -860,6 +910,7 @@ export default {
     },
     deleteTag(idx){
       this.product.tags.splice(idx, 1)
+      this.unSaved();
       
       
     },
@@ -869,43 +920,49 @@ export default {
       this.CostPrice();
       this.shippingcost();
       this.trimDescriptionTags();
-      if(this.product.name){
-        this.product.tags.push(this.product.name);
-      }
-      if(this.product.categorie){
-        this.product.tags.push(this.product.categorie);
-      }
-      if(this.product.vendor){
-        this.product.tags.push(this.product.vendor);
-      }
+      // if(this.product.name){
+      //   this.product.tags.push(this.product.name);
+      // }
+      // if(this.product.categorie){
+      //   this.product.tags.push(this.product.categorie);
+      // }
+      // if(this.product.vendor){
+      //   this.product.tags.push(this.product.vendor);
+      // }
       this.$firestore.products.add(this.product);
       // this.$router.push('products');
     },
-    updateData(type){
+    setAlertParam(type){
       let obj = this.alerts.find(x => x.type == type);
       let index = this.alerts.indexOf(obj);
       this.alert = this.alerts[index];
       console.log(this.alert);
-
+    },
+    updateData(type){
+      
+      this.setAlertParam(type)
       this.comparePrice();
       this.price();
       this.CostPrice();
       this.shippingcost();
       this.trimDescriptionTags();
-      if(this.product.name){
-        this.product.tags.push(this.product.name);
-      }
-      if(this.product.categorie){
-        this.product.tags.push(this.product.categorie);
-      }
-      if(this.product.vendor){
-        this.product.tags.push(this.product.vendor);
-      }
+      // if(this.product.name){
+      //   this.product.tags.push(this.product.name);
+      // }
+      // if(this.product.categorie){
+      //   this.product.tags.push(this.product.categorie);
+      // }
+      // if(this.product.vendor){
+      //   this.product.tags.push(this.product.vendor);
+      // }
+      console.log(this.alert.badgeMsg);
       this.alertBadge()
       setTimeout(() => {
         
         this.$firestore.products.doc(this.docRefProduct).update(this.product);
-        $(".alert").delay(2000).fadeOut(2000);
+        
+        this.saved = true;
+        $(".alert").delay((this.alert.badgeMsg.length * 100)).fadeOut(2000);
       }, 2000);
       
       // this.goBack()
@@ -1148,7 +1205,7 @@ label .check-icon:after{
   position: fixed;
   top: 20px; right: 20px;
   width: 380px;
-  height: 90px;
+  height: fit-content;
   background-color: var(--dark);
   display: none;
   justify-content: center;
@@ -1231,6 +1288,13 @@ label .check-icon:after{
 .prev-link__add-work-wrapper{
   padding-bottom: 12.5px;
 
+}
+.prev-link{
+  width: fit-content;
+}
+.prev-link:hover{
+  text-decoration: underline;
+  cursor: pointer;
 }
 .prev-link > div{
   color: var(--secondary);
@@ -1589,15 +1653,32 @@ select:required:invalid {
 option {
   color: black;
 }
-.product-img-wrapper{
+// PRODUCT IMAGES STARTS
+.product-img-row1{
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+
+.images-grid-wrapper{
+  display: grid;
+  height: auto
+}
+.images-flex{
+ display: flex;
+ flex-wrap: wrap;
+ justify-content: center;
+ align-items: center;
+
+}
+.product-img-wrapper{
   padding: 20px;
-  min-height: 400px;
+  height: fit-content;
 }
 .hidden{
   display: none;
 }
+
 .icon-image-wrapper{
   display: flex;
   flex-direction: column;
@@ -1605,6 +1686,17 @@ option {
   align-items: center;
   color: var(--grayDisable);
   font-size: 4rem;
+}
+.when-empty-image-sizer{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  width: 200px;
+  padding: 10px;
+  border: 1px dashed var(--grayDisable);
+  border-radius: 10px;
 }
 .icon-image-wrapper span{
   font-size: 1rem;
@@ -1681,6 +1773,9 @@ option {
 }
 .img-wrapp{
   position: relative;
+  padding: 5px;
+  border-radius: 10px;
+  border: 1px dashed var(--dark);
 }
 .img-wrapp span.delete-img{
   font-size: 1.5rem;

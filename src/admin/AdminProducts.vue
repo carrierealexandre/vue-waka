@@ -350,6 +350,7 @@ export default {
     
     
   },
+ 
   data() {
     return {
       pendentItems:true,
@@ -423,6 +424,7 @@ export default {
   },
   mounted(){
     this.pageLoaded = true
+    window.localStorage.removeItem('docRefProduct');
   },
   created(){
   
