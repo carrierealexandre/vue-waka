@@ -46,8 +46,8 @@
               <div class="delete-action">
                 <div class="action-cancel" @click="closePopup" role="button">{{alert.leftBtn}}</div>
                 <div v-if="alert.type == 'restore'" class="action-restore" @click="restoreProduct()" role="button">{{alert.rightBtn}}</div>
-                <div v-if="alert.type == 'update' && this.docRefProduct" class="action-restore" @click="updateData()" role="button">{{alert.rightBtn}}</div>
-                <div v-if="alert.type == 'create' && !this.docRefProduct" class="action-restore" @click="updateData()" role="button">{{alert.rightBtn}}</div>
+                <div v-if="alert.type == 'update' && this.docRefProduct" class="action-restore" @click="updateData('update')" role="button">{{alert.rightBtn}}</div>
+                <div v-if="alert.type == 'create' && !this.docRefProduct" class="action-restore" @click="saveData('create')" role="button">{{alert.rightBtn}}</div>
                 <div v-if="alert.type == 'discard'" class="action-restore" @click="goBack()" role="button">{{alert.rightBtn}}</div>
               </div>
               <div @click="closePopup" class="close-popup-icon">
@@ -64,12 +64,15 @@
           <span>Unsaved Product</span>
           
         </div>
-        <div class="header-btn">
+        
+
           
-          <button  @click="openPopup('discard')" class="btn" >Discard</button>
-          <button :disabled="saved" v-if="!this.docRefProduct" @click="updateData('create')"  class="btn btn-primary">Save</button>
-          
-        </div>
+          <div class="header-btn">
+            <button  @click="openPopup('discard')" class="btn" >Discard</button>
+            <button :disabled="saved" v-if="!this.docRefProduct" @click="saveData('create')"   class="btn btn-primary btn-fixed-width-and-height"> <span v-if="!eventSavingRunning">save</span> <label v-if="eventSavingRunning" class="btn-spinner-label" for=""></label> </button>
+          </div>
+
+        
       </div>                          <!--  HEADER END -->   
 
       <div v-if="this.docRefProduct && !this.saved" class="btn-group-wrapper"> <!--  HEADER START -->
@@ -100,6 +103,10 @@
 
             </div>
 
+            <div v-if="newAddedProduct" class="title__add-work">
+              <span>added the new product</span>
+            </div>
+
             <div class="title__add-work">
               <span>Add Product</span>
             </div>
@@ -114,9 +121,14 @@
           <div class="product-name-wrapper">
 
             <h5>Product details</h5>
-            <div class="form-group">
-              <label class="main-grid-label" for="exampleFormControlInput1">Product name</label>
-              <input @input="unSaved" v-model="product.name" type="text" class="form-control"  placeholder="Title">
+            <div class="form-group ">
+
+              <div class="d-flex-s-e">
+                <label class="main-grid-label" for="exampleFormControlInput1">Product name</label>
+                <span v-if="fieldNameMissing" class="alert-missing-field" > You must name your product!</span>
+              </div>
+              
+              <input id="productnameinput" @input="unSaved" v-model="product.name" type="text" class="form-control"  placeholder="Title">
             </div>
             <div @click="unSaved" class="">
               <label class="main-grid-label" for="exampleFormControlInput1">Description</label>
@@ -309,7 +321,7 @@
                   <div class="input-label-wrapper">
                     <h6>Dollar</h6>
                     
-                    <numberInput @change="unSaved" :num="shippingDolar" @numberChanged="shippingDolar = $event"></numberInput>
+                    <numberInput @input="unSaved" :num="shippingDolar" @numberChanged="shippingDolar = $event"></numberInput>
                   </div>
                   <div class=""><h6>.</h6></div>
                   <div class="input-label-wrapper">
@@ -512,7 +524,9 @@ export default {
   
   name: "addproduct",
   async created () {
-    
+    if(localStorage.newAddedProduct == "true"){
+      this.newAddedProduct = true
+    }
     console.log(productsCategories);
     if(localStorage.docRefProduct){
       this.docRefProduct = localStorage.docRefProduct;
@@ -527,67 +541,84 @@ export default {
               const data = doc.data();
               this.product =  data;
               
-              // deleting
-              if(this.product.name){
-                var index = this.product.tags.indexOf(this.product.name);
-                this.product.tags.splice(index,1);
-              }
-              if(this.product.categorie){
-                index = this.product.tags.indexOf(this.product.categorie);
-                this.product.tags.splice(index,1);
+              // // deleting tags
+              // if(this.product.name){
+              //   var index = this.product.tags.indexOf(this.product.name);
+              //   this.product.tags.splice(index,1);
+              // }
+              // if(this.product.categorie){
+              //   index = this.product.tags.indexOf(this.product.categorie);
+              //   this.product.tags.splice(index,1);
 
-              }
-              if(this.product.vendor){
-                index = this.product.tags.indexOf(this.product.vendor);
-                this.product.tags.splice(index,1);
+              // }
+              // if(this.product.vendor){
+              //   index = this.product.tags.indexOf(this.product.vendor);
+              //   this.product.tags.splice(index,1);
 
-              }
+              // }
               
               
               
 
               // convert the description
               this.pDescription = this.product.description ;
+
               // converte the price into two dollar and Cents for (product.price & product.comparePrice & product.costPrice)
               // product.price delivered to productDollar and productCent
-              let price = this.product.price;
+              let price = (this.product.price/100).toFixed(2);
               let strPrice = price.toString()
               let length = strPrice.length
               this.productCent = strPrice.slice(-2,length);
               this.productDolar = parseInt(strPrice.slice(0,-2));
-              console.log(strPrice.slice(-2,length));
-              console.log(strPrice.slice(0,-2));  
+              console.log('product Price:');
+              console.log(this.productCent);
+              console.log(this.productDolar);
+              
+
               // product.price delivered to productCompareDollar and productCompareCent 
-              price = this.product.comparePrice;
+              price = (this.product.comparePrice/100).toFixed(2)
               strPrice = price.toString()
               length = strPrice.length
               this.productCompareCent = strPrice.slice(-2,length);
               this.productCompareDolar = parseInt(strPrice.slice(0,-2));
-              console.log(strPrice.slice(-2,length));
-              console.log(strPrice.slice(0,-2));  
+              console.log('Compare Cost:');
+              console.log(this.productCompareCent);
+              console.log(this.productCompareDolar);
+
               // product.price delivered to productCostDollar and productCostCent     
-              price = this.product.costPrice;
+              price = (this.product.costPrice/100).toFixed(2)
               strPrice = price.toString()
               length = strPrice.length
               this.productCostCent = strPrice.slice(-2,length);
               this.productCostDolar = parseInt(strPrice.slice(0,-2));
-              console.log(strPrice.slice(-2,length));
-              console.log(strPrice.slice(0,-2));      
+              console.log('Cost Cost:');
+              console.log(this.productCostCent);
+              console.log(this.productCostCent);
+
               //pruduct shippingcost to shippingCent and shippingDolar
-              price = this.product.shippingcost;
-              console.log(price + "that is the raw shiiping price from google");
-              price = price / this.product.weight;
-              price = price.toFixed(2);
-              console.log(price + "you suposed 2 digit num");
-              strPrice = price.toString();
-              length = strPrice.length;
+              price = (this.product.shippingCost/100).toFixed(2)
+              strPrice = price.toString()
+              length = strPrice.length
               this.shippingCent = strPrice.slice(-2,length);
               this.shippingDolar = parseInt(strPrice.slice(0,-2));
-              console.log(strPrice.slice(-2,length));
-              console.log(strPrice.slice(0,-2));   
+              console.log('Shipping Cost:');
+              console.log(this.shippingCent);
+              console.log(this.shippingDolar);
+
               // product Weight 
 
-              
+              this.initialProductDollar = this.productDolar;
+              this.initialProductCent = this.productCent;
+
+              this.initialProductCompareDolar = this.productCompareDolar;
+              this.initialProductCompareCent = this.productCompareCent;
+
+              this.initialProductCostDolar = this.productCostDolar;
+              this.initialProductCostCent = this.productCostCent;
+
+              this.initialShippingDolar = this.shippingDolar;
+              this.initialShippingCent = this.shippingCent;
+
           } else {
               // doc.data() will be undefined in this case
               console.log("No such document!");
@@ -608,6 +639,10 @@ export default {
   },
   data() {
     return {
+      eventSavingRunning:false,
+      newAddedProduct: false,
+      fieldMissing:false,
+      fieldNameMissing:false,
       saved:true,
       testOne: 'hello',
       alerts:[
@@ -626,7 +661,6 @@ export default {
           type:'update',
           title:'Confirm Update',
           badgeSuccessTitle: 'Success!',
-          // max lenght of 30 characters in badgeMsg
           badgeMsg:' Your product as been Saved',
         },
         { 
@@ -662,35 +696,32 @@ export default {
       docRefProduct:null,
       pDescription:null,
       popupWindow:true,
-      
       vendorNumber:null,
       categoryNumber:null,
       weightNumber:null,
       productNumber:null,
-      shippingCent:"00",
-      
       shippingDolar:0,
+      initialShippingDolar:null,
+      shippingCent:"00",
+      initialShippingCent:null,
       productCompareDolar:0,
+      initialProductCompareDolar:null,
       productCompareCent:"00",
+      initialProductCompareCent:null,
       productCostCent:"00",
+      initialProductCostCent:null,
       productCostDolar:0,
+      initialProductCostDolar:null,
       productDolar: 0,
+      initialProductDollar:null,
       productCent: "00",
+      initialProductCent: null,
       productstatus: ["Active", "Pending"],
       customToolbar:[
-         
-            
             [{ 'align': ''},{ 'align': 'justify'}, { 'align': 'right' }],
             ['code-block']
           ],
-    
-      ImgSource: 'public/admin_img/products.svg',
-      AdminPage: 'addproduct',
-      AdminPageContent: `Lorem ipsum dolor, sit amet consectetur adipisicing 
-                         elit. Laudantium dolorum sint nobis ex illo inventore autem consectetur 
-                         aspernatur possimus exercitationem.`,
       isLoad: true,
-      // cats: [{cat:'Dry', id:'01'},{cat:'Frozen', id:'02'},{cat:'Chips', id:'03'},{cat:'Pop', id:'04'},{cat:'Utilities', id:'05'} ],
       tag: null,
       vendors: ['Superior Airways','IGA','Red Apple','Red Lake Marine'],
       products: [],
@@ -732,13 +763,98 @@ export default {
       products: db.collection('products'),
     }
   },
+  watch: {
+    productDolar(){
+      if(this.initialProductDollar != this.productDolar){
+        this.unSaved()
+      }else{
+        this.saved = true;
+      }
+    },
+    productCent(){
+      if(this.initialProductCent != this.productCent){
+        this.unSaved()
+      }else{
+        this.saved = true;
+      }
+    },
+    productCompareDolar(){
+      if(this.initialProductCompareDolar != this.productCompareDolar){
+        this.unSaved()
+      }else{
+        this.saved = true;
+      }
+    },
+    productCompareCent(){
+      if(this.initialProductCompareCent != this.productCompareCent){
+        this.unSaved()
+      }else{
+        this.saved = true;
+      }
+    },
+    productCostDolar(){
+      if(this.initialProductCostDolar != this.productCostDolar){
+        this.unSaved()
+      }else{
+        this.saved = true;
+      }
+    },
+    productCostCent(){
+      if(this.initialProductCostCent != this.productCostCent){
+        this.unSaved()
+      }else{
+        this.saved = true;
+      }
+    },
+    shippingDolar(){
+      if(this.initialShippingDolar != this.shippingDolar){
+        this.unSaved()
+      }else{
+        this.saved = true;
+      }
+    },
+    shippingCent(){
+      if(this.initialShippingCent != this.shippingCent){
+        this.unSaved()
+      }else{
+        this.saved = true;
+      }
+    },
+    // adding green and red borders to missing fields and adding them back if user miss or earase that field again!
+    'product.name': function(){
+
+      if(this.fieldMissing){
+
+        
+
+        if(this.product.name != "" || this.product.name != null ){
+        console.log("action fired");
+        $('#productnameinput').removeClass('border-missing-field');
+        $('#productnameinput').addClass('border-corrected-field');
+        this.fieldNameMissing = false;
+        }
+
+        if(this.product.name === ""){
+          console.log('else in function');
+          $('#productnameinput').removeClass('border-corrected-field');
+          $('#productnameinput').addClass('border-missing-field');
+          this.fieldNameMissing = true;
+        }
+
+        
+        
+      }
+    }
+    
+  },
   methods:{
     unSaved(){
       this.saved = false;
     },
     openPopup: function(type){
       if(this.saved && type == 'discard'){
-
+        window.localStorage.removeItem('docRefProduct');
+        window.localStorage.removeItem('newAddedProduct');
         this.goBack();   
       
       }else{
@@ -786,6 +902,8 @@ export default {
     goBack() {
       window.history.length > 1 ? this.$router.go(-1) : this.$router.push('/');
       window.localStorage.removeItem('docRefProduct');
+      window.localStorage.removeItem('newAddedProduct');
+
     },
     trimDescriptionTags(){
       if(!this.pDescription==null){
@@ -794,13 +912,17 @@ export default {
         }
     },
     shippingcost(){
-      console.log(this.shippingDolar + "dollar");
-      console.log(this.shippingCent + "Cent" );
-      console.log(this.product.weight + "Weight"  );
-      const shippingCost = parseFloat(this.shippingDolar.toString() + "." + this.shippingCent.toString()) * this.product.weight;
-      console.log(shippingCost);
-      this.product.shippingcost = shippingCost.toFixed(2);
-      console.log(this.product.shippingcost + " is your NaN");
+      let shippingDolar = this.shippingDolar;
+      let shippingCent = this.shippingCent;
+      let stringPrice = shippingDolar + '.' + shippingCent
+      var price = parseFloat(stringPrice) * 100
+      this.product.shippingCost = price
+      console.log(price);
+
+      // const shippingCost = parseFloat(this.shippingDolar.toString() + "." + this.shippingCent.toString()) * this.product.weight;
+      // console.log(shippingCost);
+      // this.product.shippingcost = shippingCost.toFixed(2);
+      // console.log(this.product.shippingcost + " is your NaN");
     },
     createId(){
         
@@ -814,14 +936,11 @@ export default {
     },
     
     price(){
-      let stringPrice = this.productDolar + '.' + this.productCent
-      console.log(stringPrice);
+      let productDolar = this.productDolar;
+      let productCent = this.productCent;
+      let stringPrice = productDolar + '.' + productCent
       var price = parseFloat(stringPrice) * 100
-      console.log(price);
       this.product.price = price
-      var n = price / 100
-      var m = n.toFixed(2);
-      return "$" +  m;
     },
     
     comparePrice(){
@@ -914,22 +1033,45 @@ export default {
       
       
     },
-    saveData(){
-      this.comparePrice();
-      this.price();
-      this.CostPrice();
-      this.shippingcost();
-      this.trimDescriptionTags();
-      // if(this.product.name){
-      //   this.product.tags.push(this.product.name);
-      // }
-      // if(this.product.categorie){
-      //   this.product.tags.push(this.product.categorie);
-      // }
-      // if(this.product.vendor){
-      //   this.product.tags.push(this.product.vendor);
-      // }
-      this.$firestore.products.add(this.product);
+    saveData(type){
+      if(this.product.name === "" || this.product.name === null ){
+        console.log("name field missing");
+        this.fieldNameMissing = true;
+        this.fieldMissing = true;
+        $('#productnameinput').addClass('border-missing-field')
+
+      }else{
+        this.setAlertParam(type)
+        this.price();
+        this.comparePrice();
+        this.CostPrice();
+        this.shippingcost(); 
+        this.trimDescriptionTags();
+        console.log(this.alert.badgeMsg);
+        this.eventSavingRunning = true;
+        $('#topSaveBtn').addClass('btn-spinner-label')
+        setTimeout(() => {
+          console.log('this is your product: ', this.product);
+          this.$firestore.products.add(this.product)
+          .then( (docRef) => {
+            console.log("Document written with ID: ", docRef.id);
+            this.fieldNameMissing = false;
+            this.fieldMissing = false;
+            this.saved = true;
+            localStorage.docRefProduct = docRef.id;
+            localStorage.newAddedProduct = true;
+            location.reload();
+          })
+          .catch( (error) => {
+            console.log("Error adding document: ", error);
+          });
+          
+        }, 2000);
+        
+        
+      }
+      
+      
       // this.$router.push('products');
     },
     setAlertParam(type){
@@ -1030,10 +1172,13 @@ export default {
   z-index: 30;
   border: 1px solid var(--primaryT);
   box-shadow: var(--shadow);
-  
-  
-  
-  
+}
+.btn-fixed-width-and-height{
+  width: 80px;
+  height:80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .alert-wrapper{
@@ -1126,6 +1271,16 @@ export default {
   position: relative;
   height: 50px;
   width: 50px;
+  display: inline-block;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-radius: 50%;
+  border-left-color: #5cb85c ;
+  animation: rotate 1.2s linear infinite;
+}
+.btn-spinner-label{
+  position: relative;
+  height: 20px;
+  width: 20px;
   display: inline-block;
   border: 2px solid rgba(0,0,0,0.2);
   border-radius: 50%;
@@ -1265,8 +1420,12 @@ label .check-icon:after{
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
   align-items: center;
 }
+.header-btn{
+  display: flex;
+}
 .header-btn > button{
   margin: 0 10px;
+  
 }
 @media (max-width: 760px) {
 .btn-group-wrapper{
@@ -1798,10 +1957,48 @@ option {
   height: 100px;
   background-color: var(--primaryT);
 }
+.border-missing-field{
+ border: 3px solid var(--red) !important;
+ outline: 0;
+}
+.border-missing-field:focus{
+  border-color:#CCC;
+  outline:0;
+  -webkit-box-shadow:none;
+  box-shadow:none;
+}
+.border-corrected-field{
+ border: 3px solid var(--green) !important;
+ outline: 0;
+}
+.border-corrected-field:focus{
+  border-color:#CCC;
+  outline:0;
+  -webkit-box-shadow:none;
+  box-shadow:none;
+}
 .d-flex{
   justify-content: center;
   align-items: center;
 }
+.d-flex-s-e{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+.alert-missing-field{
+  padding: 10px;
+  margin-top: 5px;
+  font-size: 0.9rem;
+  color: var(--red);
+}
+// .shadow-none{
+//    border: 1px solid #ccc;
+//    height: 40px;
+//    padding-left: 10px;
+//    outline: 0;
+//  }
+
 .upload-frame::before{
   content: "";
   box-sizing: border-box;

@@ -27,7 +27,6 @@ export default {
   props:{
     num:{
       type:Number,
-      default:0
     },
     height:{
       type:String,

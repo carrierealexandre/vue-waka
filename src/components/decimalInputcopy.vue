@@ -6,7 +6,7 @@
       <span @click="subDecimalValue()" class="prev"></span>
       <div id ="box">
         
-        <input @change="limiteDecimalValue()" type="number" v-model.number="datadecimal" >
+        <input placeholder="00" @change="limiteDecimalValue()" type="number" v-model.number="datadecimal" >
         
       </div>
     </div>
@@ -20,7 +20,6 @@ export default {
   props: {
     decimal: {
       type: String,
-      default: "00",
       require: true
     }
   },

@@ -225,16 +225,16 @@
             <table class="table sticky">
               <thead>
                 <tr>
-                  <th class="row-select" scope="col"></th>
-                  <th class="photo-holder-th" scope="col"></th>
+                  <th class="row-select p-2" scope="col"></th>
+                  <th class="p-2 img-col" scope="col"></th>
 
-                  <th scope="col">Product</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Inventory</th>
-                  <th scope="col">Price</th>
-                  <th scope="col">Weight</th>
-                  <th scope="col">Type</th>
-                  <th scope="col">Vendor</th>
+                  <th class="p-2" scope="col">Product</th>
+                  <th class="p-2" scope="col">Status</th>
+                  <th class="p-2" scope="col">Inventory</th>
+                  <th class="p-2" scope="col">Price</th>
+                  <th class="p-2" scope="col">Weight</th>
+                  <th class="p-2" scope="col">Type</th>
+                  <th class="p-2" scope="col">Vendor</th>
                   <th v-if="windowWidth()" scope="col endrow"></th>
                   
                   
@@ -244,8 +244,15 @@
                 <tr class="data-row" v-for="(product, idx) in filteredProducts" :key="idx">
                   <th class="selecttablerow" data-label="Select"><input value="1" class="myCheck" @click.stop="checkedMe($event, product)" type="checkbox" name="sample[]" ></th>
 
-                  <td class="photo-holder-th" data-label="">
-                    <div v-for="(image,idx) in product.images" :key="idx" >
+                  <td class="image-centered"  >
+
+                    <div v-if="!product.images.length" class="icon-image-wrapper">
+                      <div class="image-box when-empty-image-sizer">
+                        <fa-icon class="img-icon" :icon="['fa', 'image']"/>
+                      </div>
+                    </div>
+
+                    <div class="" v-for="(image,idx) in product.images" :key="idx" >
                       <div class="image-box">
                         <img width="60px" :src="image" alt="">
                       </div>
@@ -259,11 +266,13 @@
                   <td v-if="product.status == 'Archived'" data-label="Status"><div class="archived-status" >{{product.status}}</div></td>
                   <td v-if="!product.status" data-label="Status"><div id="archived-status" >Unknown</div></td>
                   <!-- colored stastus to help visualize end -->
-                  <td data-label="Price">{{product.qty}}</td>
+                  <td data-label="Quantity">{{product.qty}}</td>
                   <td data-label="Price">{{product.price / 100 }}</td>
                   <td data-label="Weight">{{product.weight + product.Unit}}</td>
-                  <td data-label="In-Stock Quatity">{{product.categorie}}</td>
-                  <td data-label="In-Stock Quatity">{{product.vendor}}</td>
+                  <td v-if="product.categorie" data-label="Categorie">{{product.categorie}}</td>
+                  <td v-if="!product.categorie" data-label="Categorie">Unknown</td>
+                  <td v-if="product.Vendor" data-label="Vendor">{{product.vendor}}</td>
+                  <td v-if="!product.Vendor" data-label="Vendor">Unknown</td>
                   <td data-label="" class="show-more-tools" >
 
                     <div class="work-wrapper">
@@ -1759,6 +1768,9 @@ input:checked + .slider:before {
   padding: 0rem;
   
 }
+.table td{
+  height: 70px;
+}
 .image-box{
   border-radius: 5px;
   border: 1px  solid var(--primary);
@@ -1914,9 +1926,37 @@ input:checked + .slider:before {
 //   background-color: var(--primary);
   
 // }
+.img-col{
+  width: 70px;
+}
+.img-icon{
+  font-size: 3rem;
+}
+.icon-image-wrapper{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: var(--grayDisable);
+  font-size: 4rem;
+}
+.when-empty-image-sizer{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+  width: 60px;
+  padding: 10px;
+  border: 1px dashed var(--grayDisable);
+  border-radius: 10px;
+}
 .photo-holder-th{
   width: 70px;
   height: 70px;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
 }
 tbody tr{
   background-color: rgba(242,245,245,0.8);
@@ -1972,6 +2012,7 @@ thead tr th{
   margin: auto;
   padding: 20px;
   border: 1px solid var(--primaryT);
+  
   background-color:rgba(242, 245, 245, 0.8);
   margin-top: 20px;
   border-radius: 10px;
@@ -2041,16 +2082,37 @@ only screen and (max-width: 540px),
     width: 100%;
     
   }
+  .img-icon{
+    font-size: 6rem;
+  }
+  .image-centered {
+    
+    justify-content: center !important;
+    
+  }
   .table tr{
     margin-bottom: 15px;
     height: auto;
+  }
+  .overflow{
+    background-color: transparent;
   }
   .table th{
     text-align: center;
     width: 100vw;
   }
-  tr:hover{
-  box-shadow: var(--shadowTable);
+  .when-empty-image-sizer{
+    height: 150px;
+    width: 150px;
+  }
+  .image-box img{
+    height: 150px;
+    width: auto;
+  }
+  tr{
+    margin-top: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--primary);
     .work-wrapper{
       display: flex;
       height: 100%;
@@ -2062,26 +2124,34 @@ only screen and (max-width: 540px),
       left: 0;
       height: 100%;
       width: 100%;
+      background-color: transparent;
 
     }
+    .td-work-wrapper{
+      align-items: center;
+      
+    }
   }
-  
   .table td{
     text-align: right;
     position: relative;
-    padding-right: 10px;
+    padding: 10px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
     font-size: 1.2rem;
-    height: 50px;
+    height: fit-content;
   }
   
   .selecttablerow{
     height: 50px;
   }
+  .pending-status, .active-status, .archived-status{
+    margin: 0;
+  }
   .table td::before{
     content: attr(data-label);
+    height: fit-content;
     position: absolute;
     top: 5px;
     left: -5px;
@@ -2091,8 +2161,11 @@ only screen and (max-width: 540px),
     font-weight: bold;
     text-align: left;
   }
+  .show-more-tools{
+    height: 80px !important;
+  }
   .endrow{
-    height: 50px;
+    height: 80px;
   }
 	/*
 	Label the data
