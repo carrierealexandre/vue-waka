@@ -497,14 +497,37 @@
           </div>
         </div>
       </div>
-      <div class="btn-group-wrapper-footer"> <!--  HEADER START -->
-        
-        <div class="header-btn">
-          <button @click="openPopup('discard')" class="btn" >Discard</button>
-          <button v-if="!this.docRefProduct" @click="openPopup('create')"  class="btn btn-primary">Create</button>
-          <button v-if="this.docRefProduct" @click="openPopup('update')"  class="btn btn-primary">Update</button>
+    
+      <div v-if="!this.docRefProduct" class="btn-group-wrapper"> <!--  HEADER START -->
+        <div class="header-wrapper">
+          <span>Unsaved Product</span>
+          
         </div>
-      </div> 
+        
+
+          
+          <div class="header-btn">
+            <button  @click="openPopup('discard')" class="btn" >Discard</button>
+            <button :disabled="saved" v-if="!this.docRefProduct" @click="saveData('create')"   class="btn btn-primary btn-fixed-width-and-height"> <span v-if="!eventSavingRunning">save</span> <label v-if="eventSavingRunning" class="btn-spinner-label" for=""></label> </button>
+          </div>
+
+        
+      </div>                           <!--  HEADER END -->   
+
+      <div v-if="this.docRefProduct && !this.saved" class="btn-group-wrapper"> <!--  HEADER START -->
+        <div class="header-wrapper">
+          
+          <span v-if="this.docRefProduct">Unsaved Changes</span>
+        </div>
+        <div class="header-btn">
+          
+          <button  @click="openPopup('discard')" class="btn" >Discard</button>
+          
+          <button :disabled="saved" v-if="this.docRefProduct" @click="updateData('update')"  class="btn btn-primary">Save</button>
+        </div>
+      </div>                          <!--  HEADER END -->     
+
+      
   </div>
 </template>
 
@@ -968,7 +991,9 @@ export default {
 
     deleteImage(img,idx){
         let image = fb.storage().refFromURL(img);
-
+        console.log(img);
+        console.log(image);
+        console.log(idx);
         this.product.images.splice(idx,1);
 
         image.delete().then(function(){
@@ -979,48 +1004,68 @@ export default {
         })
       },
     uploadImage(e){
-
-      
+      console.log(e.target.value);
+      console.log(e.target.files);
+        console.log(e.target.files[0]);
         if(e.target.files[0]){
-          let file = e.target.files[0];
-          var storageRef = fb.storage().ref('Products/' + file.name);
-          let uploadTask = storageRef.put(file);
-          // Register three observers:
-          // 1. 'state_changed' observer, called any time the state changes
-          // 2. Error observer, called on failure
-          // 3. Completion observer, called on successful completion
-          uploadTask.on('state_changed', (snapshot) => {
-            // uploadTask.on('state_changed', function(){
-            // Observe state change events such as progress, pause, and resume
-            // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-            if(snapshot.bytesTransferred !== snapshot.totalBytes){
-              this.isLoad = false;
+
+            let file = e.target.files[0];
             
-            }else{
-              this.isLoad = true;
-            }
-            var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log('Upload is ' + progress + '% done');
-            // switch (snapshot.state) {
-            //   case fb.storage.TaskState.PAUSED: // or 'paused'
-            //     console.log('Upload is paused');
-            //     break;
-            //   case fb.storage.TaskState.RUNNING: // or 'running'
-            //     console.log('Upload is running');
-            //     break;
-            // }
-          }, () => {
-            // Handle unsuccessful uploads function(error)
-          }, () => {
-            // Handle successful uploads on complete
-            // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-              this.product.images.push(downloadURL);
-              console.log('File available at', downloadURL);
-            });
-          }); 
+            var storageRef = fb.storage().ref();
+            
+            let ID = Date.now();
+            var uploadTask = storageRef.child("Products/" + ID + "_" + file.name ).put(file);
+            // Register three observers:
+            // 1. 'state_changed' observer, called any time the state changes
+            // 2. Error observer, called on failure
+            // 3. Completion observer, called on successful completion
+            uploadTask.on('state_changed', (snapshot) => {
+              // Observe state change events such as progress, pause, and resume
+              // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+              if(snapshot.bytesTransferred !== snapshot.totalBytes){
+                this.isLoad = false;
+              
+              }else{
+                this.isLoad = true;
+              }
+              var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              console.log('Upload is ' + progress + '% done');
+            }, () => {
+              // Handle unsuccessful uploads function(error)
+            }, () => {
+              // Handle successful uploads on complete
+              // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+              uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                this.product.images.push(downloadURL);
+                console.log('File available at', downloadURL);
+              });
+              e.target.value = '';
+            
+          });
+
+          
+          
+
+          
+
         }
       
+
+
+// https://firebasestorage.googleapis.com/v0/b/wakaconnection-4f240
+// .appspot.com/o/Products%2Fgrape.jpg?alt=media&token=6dc00ffc-4378-432f-
+// 9556-05f2fe9e6790
+
+// https://firebasestorage.googleapis.com/v0/b/wakaconnection-4f240
+// .appspot.com/o/Products%2Fgrape.jpg?alt=media&token=3754ab9c-fe98-4945-
+// bf81-d00f05c598fa
+
+
+
+
+
+
+
 
     },
     addTag(){
