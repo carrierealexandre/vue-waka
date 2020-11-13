@@ -49,6 +49,10 @@
                 <div v-if="alert.type == 'update' && this.docRefProduct" class="action-restore" @click="updateData('update')" role="button">{{alert.rightBtn}}</div>
                 <div v-if="alert.type == 'create' && !this.docRefProduct" class="action-restore" @click="saveData('create')" role="button">{{alert.rightBtn}}</div>
                 <div v-if="alert.type == 'discard'" class="action-restore" @click="goBack()" role="button">{{alert.rightBtn}}</div>
+                <div v-if="alert.type == 'delete'" class="action-delete" @click="deleteProduct('delete')" role="button">{{alert.rightBtn}}</div>
+                <div v-if="alert.type == 'archive'" class="action-delete" @click="archiveProduct('archive')" role="button">{{alert.rightBtn}}</div>
+
+
               </div>
               <div @click="closePopup" class="close-popup-icon">
                 <h5>&#10006;</h5>
@@ -68,7 +72,7 @@
 
           
           <div class="header-btn">
-            <button  @click="openPopup('discard')" class="btn" >Discard</button>
+            <button  @click="openPopup('discard')" class="btn btn-discard" >Discard</button>
             <button :disabled="saved" v-if="!this.docRefProduct" @click="saveData('create')"   class="btn btn-primary btn-fixed-width-and-height"> <span v-if="!eventSavingRunning">save</span> <label v-if="eventSavingRunning" class="btn-spinner-label" for=""></label> </button>
           </div>
 
@@ -82,7 +86,7 @@
         </div>
         <div class="header-btn">
           
-          <button  @click="openPopup('discard')" class="btn" >Discard</button>
+          <button  @click="openPopup('discard')" class="btn btn-discard" >Discard</button>
           
           <button :disabled="saved" v-if="this.docRefProduct" @click="updateData('update')"  class="btn btn-primary">Save</button>
         </div>
@@ -91,24 +95,103 @@
       <div class="add-work-wrapper">
         <div class="centering-wraper">
 
-          <div class=""> <!--  PAGE TITLE START -->   
-            <div class="prev-link__add-work-wrapper">
+          <!--  PAGE TITLE START --> 
+          <div class="">   
+            <div class="top-nav-wrapper">
 
-              <div @click="openPopup('discard')" class="prev-link" to="/admin/products">
-                  <div>
-                    <fa-icon class="previous-icon" :icon="['fa', 'chevron-left']" />
-                    <span>Products</span>
-                  </div>
+              <div class="prev-link__add-work-wrapper">
+
+                <div @click="openPopup('discard')" class="top-box-nav p-1" to="/admin/products">
+                    
+                    <div>
+                      <fa-icon class="previous-icon " :icon="['fa', 'chevron-left']" />
+                      
+                    </div>
+                    <div class="">
+                      <span>Products</span>
+                    </div>
+                </div>
               </div>
 
+              
+
+              <div v-if="this.docRefProduct && this.product.name" class="top-box-arrows-container">
+
+                <div class="navbox-wrapper">
+
+                  <div class="separator-line__nav-bov">
+                    <div id="prevNavProduct" @click="previousProduct()" class="title-box1 ">
+
+                      <fa-icon class="" :icon="['fa', 'chevron-left']" />
+
+                    </div>
+
+                  </div>
+
+                    
+                  <div id="nextNavProduct" @click="nextProduct()" class="title-box2">
+
+                    <fa-icon class="" :icon="['fa', 'chevron-right']" />
+
+                  </div>
+
+                </div>
+                  
+              </div>
+
+                
+
             </div>
 
-            <div v-if="newAddedProduct" class="title__add-work">
-              <span>added the new product</span>
-            </div>
+              <div class="top-nav-product-name-wrapper">
 
-            <div class="title__add-work">
-              <span>Add Product</span>
+                <div v-if="this.docRefProduct && this.product.name" class="product-name__title">
+                  <span>{{product.name}}</span>
+                </div>
+
+                <div v-if="!this.docRefProduct || !this.product.name" class="product-name__title">
+                  <span>Add Product</span>
+                </div>
+              </div>
+
+              <div>
+
+              
+                <div v-if="this.docRefProduct && this.product.name" class="">
+                  <span v-if="product.status == 'Active'" data-label="Status"><div class="active-status" >{{product.status}}</div></span>
+                  <span v-if="product.status == 'Pending'" data-label="Status"><div class="pending-status" >{{product.status}}</div></span>
+                  <span v-if="product.status == 'Archived'" data-label="Status"><div class="archived-status" >{{product.status}}</div></span>
+                  <span v-if="!product.status" data-label="Status"><div id="archived-status" >Unknown</div></span>
+                </div>
+
+              </div>
+
+            <div v-if="newAddedProduct" class="addeed-new-product-container">
+
+              <div class="added-new-wrapper">
+
+                <div class="add-new__name-and-icon">
+
+                  <div class="add-new__icon">
+                    <fa-icon class="" :icon="['fa', 'check-square']" />
+                  </div>
+
+                  <div class="add-new__wrap">
+                    <span> Added {{product.name}}</span>
+                  </div>
+
+                </div>
+
+                <div @click="newAddedProduct = false" class="add-neww__close-btn">
+                  <h5>&#10006;</h5>
+                </div>
+
+              </div>
+
+              <div class="add-new__link">
+               <a href="#" @click="refreshWindow">Added new product</a>
+              </div>
+              
             </div>
 
           </div> 
@@ -128,7 +211,7 @@
                 <span v-if="fieldNameMissing" class="alert-missing-field" > You must name your product!</span>
               </div>
               
-              <input id="productnameinput" @input="unSaved" v-model="product.name" type="text" class="form-control"  placeholder="Title">
+              <input id="productnameinput" @input="unSaved" v-model="product.name" type="text" class="form-control"   placeholder="Example: Paper Water">
             </div>
             <div @click="unSaved" class="">
               <label class="main-grid-label" for="exampleFormControlInput1">Description</label>
@@ -450,7 +533,7 @@
               
              
               
-              <select @change="unSaved"  v-model="product.status" class="custom-select" id="exampleFormControlSelect1">
+              <select @change="unSaved"  v-model="selectedProductStatus" class="custom-select" id="exampleFormControlSelect1">
                 <option value="" disabled selected="selected">Select Product Status</option>
                 <option v-for="(status, idx) in  productstatus" :key="idx" >{{status}}</option>
               </select> 
@@ -495,6 +578,17 @@
                 </ul>
               </div>
           </div>
+          <div class="actions">
+
+            <div class="form-group">
+              <button @click="openPopup('delete')" class="form-control action-delete "> Delete Product</button>
+            </div>
+
+            <div class="form-group">
+              <button @click="openPopup('archive')" class="form-control "> Archive Product</button>
+            </div>
+
+          </div>
         </div>
       </div>
     
@@ -507,7 +601,7 @@
 
           
           <div class="header-btn">
-            <button  @click="openPopup('discard')" class="btn" >Discard</button>
+            <button  @click="openPopup('discard')" class="btn btn-discard" >Discard</button>
             <button :disabled="saved" v-if="!this.docRefProduct" @click="saveData('create')"   class="btn btn-primary btn-fixed-width-and-height"> <span v-if="!eventSavingRunning">save</span> <label v-if="eventSavingRunning" class="btn-spinner-label" for=""></label> </button>
           </div>
 
@@ -521,7 +615,7 @@
         </div>
         <div class="header-btn">
           
-          <button  @click="openPopup('discard')" class="btn" >Discard</button>
+          <button  @click="openPopup('discard')" class="btn btn-discard" >Discard</button>
           
           <button :disabled="saved" v-if="this.docRefProduct" @click="updateData('update')"  class="btn btn-primary">Save</button>
         </div>
@@ -547,6 +641,256 @@ export default {
   
   name: "addproduct",
   async created () {
+    window.onbeforeunload = function()
+    {
+        return confirm("Confirm refresh");
+    };
+    this.loadNewProduct()
+  },
+  components: {
+    VueEditor
+  },
+  props: {
+    
+  },
+  data() {
+    return {
+      endOfList: false,
+      eventSavingRunning:false,
+      newAddedProduct: false,
+      fieldMissing:false,
+      fieldNameMissing:false,
+      saved:true,
+      testOne: 'hello',
+      alerts:[
+        { 
+          level: 'warning',
+          type:'restore',
+          title:'Confirm Restore',
+          msg: 'Restoring this product will change its status to Pending so you can work on it again.',
+          leftBtn: 'Cancel',
+          rightBtn: 'Restore',
+          badgeSuccessTitle: 'Success!',
+          badgeMsg:' Your product as been restored',
+        },
+        { 
+          level: 'warning',
+          type:'update',
+          title:'Confirm Update',
+          badgeSuccessTitle: 'Success!',
+          badgeMsg:' Your product as been Saved',
+        },
+        { 
+          level: 'warning',
+          type:'create',
+          title:'Confirm creation',
+          msg: 'Do you want to crate this product?',
+          leftBtn: 'Cancel',
+          rightBtn: 'Create',
+          badgeSuccessTitle: 'Success!',
+          badgeMsg:' Your product as been created',
+        },
+        { 
+          level: 'warning',
+          type:'archive',
+          title:'Confirm Archive',
+          msg: 'after clicking Archive Product, It will still be available, but will no longer appear onto your admin page. You will still be able to restore and make changes to this product.',
+          leftBtn: 'Cancel',
+          rightBtn: 'Archive Product',
+          badgeSuccessTitle: 'Success!',
+          badgeMsg:' Your product as been Archive',
+        },
+        { 
+          level: 'warning',
+          type:'delete',
+          title:'Confirm Delete',
+          msg: 'after clicking Delete Product, this product will no longer exist.',
+          leftBtn: 'Cancel',
+          rightBtn: 'Delete Product',
+          badgeSuccessTitle: 'Success!',
+          badgeMsg:' Your product as been deleted',
+        },
+        { 
+          level: 'warning',
+          type:'discard',
+          title:'Unsave Changes',
+          msg: 'by clicking yes, all changes will be lost',
+          leftBtn: 'Cancel',
+          rightBtn: 'Leave this page',
+        }
+      ],
+      alert:{
+        level: null,
+        type: null,
+        title: null,
+        msg: null,
+        leftBtn: null,
+        rightBtn: null,
+        badgeMsg:null,
+        badgeSuccessTitle:null
+      },
+      
+      productsCategories: productsCategories,
+      docRefProduct:null,
+      pDescription:null,
+      popupWindow:true,
+      vendorNumber:null,
+      categoryNumber:null,
+      weightNumber:null,
+      productNumber:null,
+      shippingDolar:0,
+      initialShippingDolar:null,
+      shippingCent:"00",
+      initialShippingCent:null,
+      productCompareDolar:0,
+      initialProductCompareDolar:null,
+      productCompareCent:"00",
+      initialProductCompareCent:null,
+      productCostCent:"00",
+      initialProductCostCent:null,
+      productCostDolar:0,
+      initialProductCostDolar:null,
+      productDolar: 0,
+      initialProductDollar:null,
+      productCent: "00",
+      initialProductCent: null,
+      selectedProductStatus:null,
+      productstatus: ["Active", "Pending"],
+      customToolbar:[
+            [{ 'align': ''},{ 'align': 'justify'}, { 'align': 'right' }],
+            ['code-block']
+          ],
+      isLoad: true,
+      tag: null,
+      vendors: ['Superior Airways','IGA','Red Apple','Red Lake Marine'],
+      products: [],
+      product: {
+        status:null,
+        images:[],
+        productId:null,
+        name:null,
+        tags:[],
+        categorie:null,
+        vendor:null,
+        description:null,
+        costPrice:null,
+        comparePrice:null,
+        price: null,
+        weight:null,
+        shippingcost:null,
+        size:null,
+        Unit:null,
+        qty:0,
+        taxes:false,
+        trackQty:false,
+        sellWhenOut:false
+      },
+
+    }
+  },
+  
+  // editProduct(docRefProduct){
+  //   if(docRefProduct){
+  //     return console.log(docRefProduct);
+  //   }else{
+  //     return console.log('No Propduct');
+  //   }
+  // },
+  
+  firestore(){
+    return {
+      products: db.collection('products'),
+    }
+  },
+  watch: {
+    docRefProduct(){
+      this.loadNewProduct()
+    },
+    productDolar(){
+      if(this.initialProductDollar != this.productDolar){
+        this.unSaved()
+      }else{
+        this.saved = true;
+      }
+    },
+    productCent(){
+      if(this.initialProductCent != this.productCent){
+        this.unSaved()
+      }else{
+        this.saved = true;
+      }
+    },
+    productCompareDolar(){
+      if(this.initialProductCompareDolar != this.productCompareDolar){
+        this.unSaved()
+      }else{
+        this.saved = true;
+      }
+    },
+    productCompareCent(){
+      if(this.initialProductCompareCent != this.productCompareCent){
+        this.unSaved()
+      }else{
+        this.saved = true;
+      }
+    },
+    productCostDolar(){
+      if(this.initialProductCostDolar != this.productCostDolar){
+        this.unSaved()
+      }else{
+        this.saved = true;
+      }
+    },
+    productCostCent(){
+      if(this.initialProductCostCent != this.productCostCent){
+        this.unSaved()
+      }else{
+        this.saved = true;
+      }
+    },
+    shippingDolar(){
+      if(this.initialShippingDolar != this.shippingDolar){
+        this.unSaved()
+      }else{
+        this.saved = true;
+      }
+    },
+    shippingCent(){
+      if(this.initialShippingCent != this.shippingCent){
+        this.unSaved()
+      }else{
+        this.saved = true;
+      }
+    },
+    // adding green and red borders to missing fields and adding them back if user miss or earase that field again!
+    'product.name': function(){
+
+      if(this.fieldMissing){
+
+        
+
+        if( this.product.name != "" || this.product.name != null ){
+        console.log("action fired");
+        $('#productnameinput').removeClass('border-missing-field');
+        $('#productnameinput').addClass('border-corrected-field');
+        this.fieldNameMissing = false;
+        }
+
+        if(!this.product.name.trim() ||this.product.name === ""){
+          console.log('else in function');
+          $('#productnameinput').removeClass('border-corrected-field');
+          $('#productnameinput').addClass('border-missing-field');
+          this.fieldNameMissing = true;
+        }
+
+        
+        
+      }
+    }
+    
+  },
+  methods:{
+    loadNewProduct(){
     if(localStorage.newAddedProduct == "true"){
       this.newAddedProduct = true
     }
@@ -642,6 +986,20 @@ export default {
               this.initialShippingDolar = this.shippingDolar;
               this.initialShippingCent = this.shippingCent;
 
+               this.selectedProductStatus = this.product.status;
+
+               var index = this.products.findIndex(x => x.id === this.docRefProduct );
+               var endOfList = this.products.length - 1; 
+               if(index == endOfList ){
+                  $('#nextNavProduct').removeClass('title-box2')
+                  $('#nextNavProduct').addClass('title-box-disabled')
+               }
+               if(index == 0){
+                  $('#prevNavProduct').removeClass('title-box1')
+                  $('#prevNavProduct').addClass('title-box-disabled')
+               }
+               
+              
           } else {
               // doc.data() will be undefined in this case
               console.log("No such document!");
@@ -653,224 +1011,88 @@ export default {
       console.log('no product to edit');
     }
     
-  },
-  components: {
-    VueEditor
-  },
-  props: {
-    
-  },
-  data() {
-    return {
-      eventSavingRunning:false,
-      newAddedProduct: false,
-      fieldMissing:false,
-      fieldNameMissing:false,
-      saved:true,
-      testOne: 'hello',
-      alerts:[
-        { 
-          level: 'warning',
-          type:'restore',
-          title:'Confirm Restore',
-          msg: 'Restoring this product will change its status to Pending so you can work on it again.',
-          leftBtn: 'Cancel',
-          rightBtn: 'Restore',
-          badgeSuccessTitle: 'Success!',
-          badgeMsg:' Your product as been restored',
-        },
-        { 
-          level: 'warning',
-          type:'update',
-          title:'Confirm Update',
-          badgeSuccessTitle: 'Success!',
-          badgeMsg:' Your product as been Saved',
-        },
-        { 
-          level: 'warning',
-          type:'create',
-          title:'Confirm creation',
-          msg: 'Do you want to crate this product?',
-          leftBtn: 'Cancel',
-          rightBtn: 'Create',
-          badgeSuccessTitle: 'Success!',
-          badgeMsg:' Your product as been created',
-        },
-        { 
-          level: 'warning',
-          type:'discard',
-          title:'Unsave Changes',
-          msg: 'by clicking yes, all changes will be lost',
-          leftBtn: 'Cancel',
-          rightBtn: 'Leave this page',
-        }
-      ],
-      alert:{
-        level: null,
-        type: null,
-        title: null,
-        msg: null,
-        leftBtn: null,
-        rightBtn: null,
-        badgeMsg:null,
-        badgeSuccessTitle:null
-      },
-      productsCategories: productsCategories,
-      docRefProduct:null,
-      pDescription:null,
-      popupWindow:true,
-      vendorNumber:null,
-      categoryNumber:null,
-      weightNumber:null,
-      productNumber:null,
-      shippingDolar:0,
-      initialShippingDolar:null,
-      shippingCent:"00",
-      initialShippingCent:null,
-      productCompareDolar:0,
-      initialProductCompareDolar:null,
-      productCompareCent:"00",
-      initialProductCompareCent:null,
-      productCostCent:"00",
-      initialProductCostCent:null,
-      productCostDolar:0,
-      initialProductCostDolar:null,
-      productDolar: 0,
-      initialProductDollar:null,
-      productCent: "00",
-      initialProductCent: null,
-      productstatus: ["Active", "Pending"],
-      customToolbar:[
-            [{ 'align': ''},{ 'align': 'justify'}, { 'align': 'right' }],
-            ['code-block']
-          ],
-      isLoad: true,
-      tag: null,
-      vendors: ['Superior Airways','IGA','Red Apple','Red Lake Marine'],
-      products: [],
-      product: {
-        status:null,
-        images:[],
-        productId:null,
-        name:null,
-        tags:[],
-        categorie:null,
-        vendor:null,
-        description:null,
-        costPrice:null,
-        comparePrice:null,
-        price: null,
-        weight:null,
-        shippingcost:null,
-        size:null,
-        Unit:null,
-        qty:0,
-        taxes:false,
-        trackQty:false,
-        sellWhenOut:false
-      },
-
-    }
-  },
   
-  // editProduct(docRefProduct){
-  //   if(docRefProduct){
-  //     return console.log(docRefProduct);
-  //   }else{
-  //     return console.log('No Propduct');
-  //   }
-  // },
-  
-  firestore(){
-    return {
-      products: db.collection('products'),
-    }
-  },
-  watch: {
-    productDolar(){
-      if(this.initialProductDollar != this.productDolar){
-        this.unSaved()
-      }else{
-        this.saved = true;
-      }
-    },
-    productCent(){
-      if(this.initialProductCent != this.productCent){
-        this.unSaved()
-      }else{
-        this.saved = true;
-      }
-    },
-    productCompareDolar(){
-      if(this.initialProductCompareDolar != this.productCompareDolar){
-        this.unSaved()
-      }else{
-        this.saved = true;
-      }
-    },
-    productCompareCent(){
-      if(this.initialProductCompareCent != this.productCompareCent){
-        this.unSaved()
-      }else{
-        this.saved = true;
-      }
-    },
-    productCostDolar(){
-      if(this.initialProductCostDolar != this.productCostDolar){
-        this.unSaved()
-      }else{
-        this.saved = true;
-      }
-    },
-    productCostCent(){
-      if(this.initialProductCostCent != this.productCostCent){
-        this.unSaved()
-      }else{
-        this.saved = true;
-      }
-    },
-    shippingDolar(){
-      if(this.initialShippingDolar != this.shippingDolar){
-        this.unSaved()
-      }else{
-        this.saved = true;
-      }
-    },
-    shippingCent(){
-      if(this.initialShippingCent != this.shippingCent){
-        this.unSaved()
-      }else{
-        this.saved = true;
-      }
-    },
-    // adding green and red borders to missing fields and adding them back if user miss or earase that field again!
-    'product.name': function(){
 
-      if(this.fieldMissing){
+    },
+    previousProduct(){
+      console.log(this.docRefProduct);
+      var index = this.products.findIndex(x => x.id === this.docRefProduct );
+      console.log(index);
 
+      var firstItem = index - 1
+      console.log('firstitme: ', firstItem);
+
+      if(firstItem == 0){
+
+        $('#prevNavProduct').removeClass('title-box1')
+        $('#prevNavProduct').addClass('title-box-disabled')
         
-
-        if(this.product.name != "" || this.product.name != null ){
-        console.log("action fired");
-        $('#productnameinput').removeClass('border-missing-field');
-        $('#productnameinput').addClass('border-corrected-field');
-        this.fieldNameMissing = false;
-        }
-
-        if(this.product.name === ""){
-          console.log('else in function');
-          $('#productnameinput').removeClass('border-corrected-field');
-          $('#productnameinput').addClass('border-missing-field');
-          this.fieldNameMissing = true;
-        }
-
+        var newDocRefProduct = this.products[index-1].id;
+        console.log(newDocRefProduct);
+        localStorage.docRefProduct = newDocRefProduct
+        this.docRefProduct = newDocRefProduct;
         
         
+        console.log('that was the last product');
+
       }
-    }
+      if(index > 0){
+
+        $('#nextNavProduct').removeClass('title-box-disabled')
+        $('#nextNavProduct').addClass('title-box2')
+        newDocRefProduct = this.products[index-1].id;
+        console.log(newDocRefProduct);
+        localStorage.docRefProduct = newDocRefProduct
+        this.docRefProduct = newDocRefProduct;
+      }else{
+        $('#prevNavProduct').removeClass('title-box1')
+        $('#prevNavProduct').addClass('title-box-disabled')
+        console.log('no more product');
+      }
+    },
     
-  },
-  methods:{
+    nextProduct(){
+      console.log(this.docRefProduct);
+      var index = this.products.findIndex(x => x.id === this.docRefProduct );
+      console.log(index);
+      var endOfList = this.products.length - 1;
+      console.log(endOfList);
+      var lastItem = endOfList - 1; 
+      if(index == 0 ){
+
+        $('#prevNavProduct').removeClass('title-box-disabled')
+        $('#prevNavProduct').addClass('title-box1')
+        
+        var newDocRefProduct = this.products[index+1].id;
+        console.log(newDocRefProduct);
+        localStorage.docRefProduct = newDocRefProduct
+        this.docRefProduct = newDocRefProduct;
+        
+        
+        
+
+      }
+      if(index < endOfList ){
+        console.log(index);
+
+        newDocRefProduct = this.products[(index+1)].id;
+        console.log(newDocRefProduct);
+        localStorage.docRefProduct = newDocRefProduct
+        this.docRefProduct = newDocRefProduct;
+
+      }
+      if(index == lastItem){
+        newDocRefProduct = this.products[(index+1)].id;
+        console.log(newDocRefProduct);
+        localStorage.docRefProduct = newDocRefProduct
+        this.docRefProduct = newDocRefProduct;
+        $('#nextNavProduct').removeClass('title-box2')
+        $('#nextNavProduct').addClass('title-box-disabled')
+        
+      }else{
+        console.log('last product end no more');
+      }
+    },
     unSaved(){
       this.saved = false;
     },
@@ -916,6 +1138,7 @@ export default {
       this.alertBadge()
       setTimeout(() => {
         this.product.status = 'Pending'
+        this.selectedProductStatus = this.product.status;
         this.$firestore.products.doc(this.docRefProduct).update(this.product);
         $(".alert").delay(2000).fadeOut(2000);
       }, 2000);
@@ -986,6 +1209,9 @@ export default {
       var m = n.toFixed(2);
       return "$" +  m;
 
+    },
+    refreshWindow(){
+      location.reload();
     },
 
 
@@ -1079,13 +1305,18 @@ export default {
       
     },
     saveData(type){
-      if(this.product.name === "" || this.product.name === null ){
+      if(!this.product.name.trim() || this.product.name === null || this.product.name === "" ){
         console.log("name field missing");
         this.fieldNameMissing = true;
         this.fieldMissing = true;
+        $('#productnameinput').removeClass('border-corrected-field')
         $('#productnameinput').addClass('border-missing-field')
 
       }else{
+        this.product.status = this.selectedProductStatus;
+      if(this.selectedProductStatus === "" || this.selectedProductStatus === null){
+        this.product.status = "Pending"
+      }
         this.setAlertParam(type)
         this.price();
         this.comparePrice();
@@ -1105,7 +1336,7 @@ export default {
             this.saved = true;
             localStorage.docRefProduct = docRef.id;
             localStorage.newAddedProduct = true;
-            location.reload();
+            this.loadNewProduct();
           })
           .catch( (error) => {
             console.log("Error adding document: ", error);
@@ -1125,34 +1356,62 @@ export default {
       this.alert = this.alerts[index];
       console.log(this.alert);
     },
+
+    deleteProduct(type){
+      this.setAlertParam(type);
+      this.alertBadge();
+        setTimeout(() => {
+          // this.$firestore.products.doc(this.docRefProduct).delete(this.product);
+          
+          this.saved = true;
+          $(".alert").delay((this.alert.badgeMsg.length * 100)).fadeOut(2000);
+        }, 2000);
+    },
+
+    archiveProduct(type){
+      this.setAlertParam(type);
+      this.alertBadge();
+        setTimeout(() => {
+          // this.$firestore.products.doc(this.docRefProduct).delete(this.product);
+          
+          this.saved = true;
+          $(".alert").delay((this.alert.badgeMsg.length * 100)).fadeOut(2000);
+        }, 2000);
+    },
+
     updateData(type){
       
-      this.setAlertParam(type)
-      this.comparePrice();
-      this.price();
-      this.CostPrice();
-      this.shippingcost();
-      this.trimDescriptionTags();
-      // if(this.product.name){
-      //   this.product.tags.push(this.product.name);
-      // }
-      // if(this.product.categorie){
-      //   this.product.tags.push(this.product.categorie);
-      // }
-      // if(this.product.vendor){
-      //   this.product.tags.push(this.product.vendor);
-      // }
-      console.log(this.alert.badgeMsg);
-      this.alertBadge()
-      setTimeout(() => {
-        
-        this.$firestore.products.doc(this.docRefProduct).update(this.product);
-        
-        this.saved = true;
-        $(".alert").delay((this.alert.badgeMsg.length * 100)).fadeOut(2000);
-      }, 2000);
+      if(!this.product.name.trim() || this.product.name === null || this.product.name === "" ){
+        console.log("name field missing");
+        this.fieldNameMissing = true;
+        this.fieldMissing = true;
+        $('#productnameinput').removeClass('border-corrected-field')
+        $('#productnameinput').addClass('border-missing-field')
+
+      }else{
+        this.product.status = this.selectedProductStatus;
+        if(this.selectedProductStatus === "" || this.selectedProductStatus === null){
+          this.product.status = "Pending"
+        }
+        this.setAlertParam(type)
+        this.comparePrice();
+        this.price();
+        this.CostPrice();
+        this.shippingcost();
+        this.trimDescriptionTags();
+        console.log(this.alert.badgeMsg);
+        this.alertBadge()
+        setTimeout(() => {
+          
+          this.$firestore.products.doc(this.docRefProduct).update(this.product);
+          
+          this.saved = true;
+          $(".alert").delay((this.alert.badgeMsg.length * 100)).fadeOut(2000);
+        }, 2000);
+      }
       
-      // this.goBack()
+      
+      
     },  
   }
   
@@ -1298,6 +1557,12 @@ export default {
 }
 .action-restore:hover{
   background-color: var(--success);
+}
+.action-delete{
+  background-color: var(--archive);
+}
+.action-delete:hover{
+  background-color: var(--red);
 }
 .action-cancel{
   background-color: var(--primary);
@@ -1472,6 +1737,24 @@ label .check-icon:after{
   margin: 0 10px;
   
 }
+.btn-primary{
+  background-color: var(--blue) !important;
+  outline: 0;
+  border: 0;
+}
+.btn-primary:hover{
+  background-color: var(--blue1) !important;
+}
+.btn-discard:disabled, .btn-discard:hover:disabled{
+  background-color: var(--grayDisable) ;
+}
+.btn-discard{
+  border: 1px solid var(--primary);
+  outline: 0;
+}
+.btn-discard:hover{
+  background-color: var(--primaryT) ;
+}
 @media (max-width: 760px) {
 .btn-group-wrapper{
   padding: 0 15px 0 60px;
@@ -1489,33 +1772,227 @@ label .check-icon:after{
   padding: 20px 0 ;
   width: 1020px;
 }
+.top-nav-wrapper{
+  margin: 30px 0 ;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 .prev-link__add-work-wrapper{
-  padding-bottom: 12.5px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
 
 }
-.prev-link{
-  width: fit-content;
+.navbox-container{
+  border: 1px solid var();
 }
-.prev-link:hover{
+.navbox-wrapper{
+  display: flex;
+}
+.top-nav-product-name-wrapper{
+  display: flex;
+  height: fit-content;
+  width: 1020px;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.top-box-arrows-container{
+  color: var(--secondary);
+  width: fit-content;
+  height: 40px;
+  border: 1px solid var(--secondary);
+  border-radius: 5px;
+  font-size: 1.2rem;
+}
+.top-box-nav{
+  color: var(--gray);
+  display: flex;
+  justify-content: space-around;
+  width: 120px;
+  border: 1px solid var(--secondary);
+  border-radius: 5px;
+}
+.separator-line__nav-bov{
+  border-right: 1px solid var(--dark);
+}
+.title-box1{
+  position: relative;
+  padding: 4px 15px;
+  
+ 
+}
+.title-box1:hover{
+  cursor: pointer;
+  color: var(--dark) !important;
+}
+
+.title-box-disabled{
+  position: relative;
+  padding: 4px 15px;
+  color: var(--grayDisable);
+}
+.title-box1:hover::after{
+  content: "Previous";
+  z-index: 1;
+  position: absolute;
+  left: -15px;
+  bottom: -30px;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
+.title-box2{
+  position: relative;
+  padding: 4px 15px;
+}
+.title-box2:hover{
+  cursor: pointer;
+  color: var(--dark) !important;
+}
+.title-box2:hover::after{
+  content: "Next";
+  z-index: 1;
+  position: absolute;
+  left: 0px;
+  bottom: -30px;
+  padding: 0.5px 5px;
+  border-radius: 5px;
+  background-color: var(--darkT);
+  color: var(--lightwhite);
+  font-size:1.0rem ;
+}
+.top-box-nav:hover{
+  cursor: pointer;
+  color: var(--dark);
+}
+.top-box-nav > div{
+  font-size: 1.3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+}
+.top-box-nav > div > span{
+  font-weight: 500;
+  
+}
+
+
+.product-name__title{
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap ;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--dark);
+}
+.product-name__title span {
+  max-width: 100%;
+}
+
+.pending-status{
+  font-size: 0.9rem;
+  width: fit-content;
+  font-weight: 500;
+  padding: 5px;
+  background-color: var(--pending);
+  border-radius: 20px;
+}
+.active-status{
+  width: fit-content;
+  padding: 5px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background-color: var(--active);
+  border-radius: 20px;
+}
+.archived-status{
+  width: fit-content;
+  padding: 5px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background-color:var(--primary);
+  border-radius: 20px;
+}
+
+// WHEN THE PRODUCT GETS ADDED START
+.addeed-new-product-container{
+  position: relative;
+  margin-top: 20px;
+  padding: 20px;
+  width: 100%;
+  background-color: var(--actionSuccessT);
+  border: 3px solid var(--actionSuccess);
+  border-radius: 5px;
+}
+.added-new-wrapper{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.add-new__name-and-icon{
+  display: flex;
+  justify-content: flex-start;
+}
+.add-new__wrap{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 5px;
+  flex-wrap: wrap ;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--dark);
+}
+.action-delete{
+  background-color: var(--archive);
+  color: var(--lightwhite1);
+}
+.action-delete:hover{
+  background-color: var(--red);
+  color: var(--lightwhite1);
+}
+.add-new__icon{
+  font-size: 2rem;
+  color: var(--actionSuccess);
+}
+.add-new__link{
+  padding-left: 50px;
+  padding-top: 20px;
+  font-size: 1rem;
+  font-weight: 500;
   text-decoration: underline;
+}
+.add-new__link a{
+  color: var(--blue);
+}
+.add-new__link a:hover{
+  color: var(--dark);
+}
+.add-neww__close-btn{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+}
+.add-neww__close-btn h5:hover{
   cursor: pointer;
 }
-.prev-link > div{
-  color: var(--secondary);
-  
-}
-.prev-link > div > span{
-  font-weight: 100px;
-  
-}
-.previous-icon{
-  font-size: 1.3rem;
-  padding-right: 5px;
-}
-.title__add-work{
-  font-size: 1.5rem;
-  font-weight: 600;
-}
+
+// WHEN THE PRODUCT GETS ADDED END
+
+
+
+
+
+
 // PAGE TITLE END
 
 // MAIN GRID START
@@ -2067,7 +2544,7 @@ option {
 }
 // MODAL ADD PRODUCTS END<-----
 // MEDIA QUERIES START
-@media (max-width: 1060px){
+@media (max-width: 1150px){
   .centering-wraper{
   width: 75%;
   }

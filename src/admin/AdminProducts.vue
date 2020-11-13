@@ -436,7 +436,9 @@ export default {
     window.localStorage.removeItem('docRefProduct');
   },
   created(){
-  
+    
+    window.localStorage.removeItem('docRefProduct');
+    window.localStorage.removeItem('newAddedProduct');
     
     db.collection("products").get().then((querySnapshot) => {
       $("#queryAll").addClass("all-active");
@@ -2178,9 +2180,6 @@ only screen and (max-width: 540px),
   .workbar-right{
     justify-content: center;
     width: 100%;
-  }
-  .workbar-right > div{
-    width: 60px;
   }
 } 
 @media (max-width: 950px){
