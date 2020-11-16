@@ -1,7 +1,6 @@
 /* eslint-disable */ 
 <template>
   <div class="addproduct">
-
     
         <div v-if="alert" class="center-screen alert alert-success" role="alert">
           <div>
@@ -45,12 +44,12 @@
               </div>
               <div class="delete-action">
                 <div class="action-cancel" @click="closePopup" role="button">{{alert.leftBtn}}</div>
-                <div v-if="alert.type == 'restore'" class="action-restore" @click="restoreProduct()" role="button">{{alert.rightBtn}}</div>
+                <div v-if="alert.type == 'restore'" class="action-restore" @click="restoreProduct('Pending')" role="button">{{alert.rightBtn}}</div>
                 <div v-if="alert.type == 'update' && this.docRefProduct" class="action-restore" @click="updateData('update')" role="button">{{alert.rightBtn}}</div>
                 <div v-if="alert.type == 'create' && !this.docRefProduct" class="action-restore" @click="saveData('create')" role="button">{{alert.rightBtn}}</div>
                 <div v-if="alert.type == 'discard'" class="action-restore" @click="goBack()" role="button">{{alert.rightBtn}}</div>
-                <div v-if="alert.type == 'delete'" class="action-delete" @click="deleteProduct('delete')" role="button">{{alert.rightBtn}}</div>
-                <div v-if="alert.type == 'archive'" class="action-delete" @click="archiveProduct('archive')" role="button">{{alert.rightBtn}}</div>
+                <div v-if="alert.type == 'delete'" class="action-delete" @click="deleteProcess('delete', docRefProduct)" role="button">{{alert.rightBtn}}</div>
+                <div v-if="alert.type == 'archive'" class="action-delete" @click="restoreProduct('Archived')" role="button">{{alert.rightBtn}}</div>
 
 
               </div>
@@ -189,7 +188,7 @@
               </div>
 
               <div class="add-new__link">
-               <a href="#" @click="refreshWindow">Added new product</a>
+               <a href="#" @click="refreshWindow">Add new product</a>
               </div>
               
             </div>
@@ -580,11 +579,11 @@
           </div>
           <div class="actions">
 
-            <div class="form-group">
+            <div v-if="this.docRefProduct" class="form-group">
               <button @click="openPopup('delete')" class="form-control action-delete "> Delete Product</button>
             </div>
 
-            <div class="form-group">
+            <div v-if="product.status != 'Archived' && this.docRefProduct" class="form-group">
               <button @click="openPopup('archive')" class="form-control "> Archive Product</button>
             </div>
 
@@ -641,10 +640,7 @@ export default {
   
   name: "addproduct",
   async created () {
-    window.onbeforeunload = function()
-    {
-        return confirm("Confirm refresh");
-    };
+    
     this.loadNewProduct()
   },
   components: {
@@ -655,6 +651,7 @@ export default {
   },
   data() {
     return {
+      timer:null,
       endOfList: false,
       eventSavingRunning:false,
       newAddedProduct: false,
@@ -729,7 +726,6 @@ export default {
         badgeMsg:null,
         badgeSuccessTitle:null
       },
-      
       productsCategories: productsCategories,
       docRefProduct:null,
       pDescription:null,
@@ -803,6 +799,20 @@ export default {
     }
   },
   watch: {
+    saved(){
+      if(this.saved == false){
+        window.onbeforeunload = function(){
+
+            return confirm("Confirm refresh");
+        };
+      }else{
+        window.onbeforeunload = function(){
+
+            return null;
+        };
+
+      }
+    },
     docRefProduct(){
       this.loadNewProduct()
     },
@@ -986,18 +996,19 @@ export default {
               this.initialShippingDolar = this.shippingDolar;
               this.initialShippingCent = this.shippingCent;
 
-               this.selectedProductStatus = this.product.status;
+              this.selectedProductStatus = this.product.status;
+              this.saved = true;
 
-               var index = this.products.findIndex(x => x.id === this.docRefProduct );
-               var endOfList = this.products.length - 1; 
-               if(index == endOfList ){
-                  $('#nextNavProduct').removeClass('title-box2')
-                  $('#nextNavProduct').addClass('title-box-disabled')
-               }
-               if(index == 0){
-                  $('#prevNavProduct').removeClass('title-box1')
-                  $('#prevNavProduct').addClass('title-box-disabled')
-               }
+              var index = this.products.findIndex(x => x.id === this.docRefProduct );
+              var endOfList = this.products.length - 1; 
+              if(index == endOfList ){
+                $('#nextNavProduct').removeClass('title-box2')
+                $('#nextNavProduct').addClass('title-box-disabled')
+              }
+              if(index == 0){
+                $('#prevNavProduct').removeClass('title-box1')
+                $('#prevNavProduct').addClass('title-box-disabled')
+              }
                
               
           } else {
@@ -1119,11 +1130,8 @@ export default {
       
       this.alert = {}
     },
-    alertBadge(){
-      $('.popup-wrapper').fadeOut(200);
-      // $('.popup-wrapper').css("display","none");
-      $('.alert').css("display","flex");
-      setTimeout(() => {
+    badgeTimeOut(){
+      this.timer = setTimeout(() => {
         
         $('.check-icon').css("display","block");
         $('.restore-message').css("visibility","visible");
@@ -1131,13 +1139,25 @@ export default {
         $('.check-mark-label').addClass('stop-check-animation');
       }, 2000);
     },
+    badgeClearTimeOut(){
+      console.log(this.timer);
+      clearTimeout(this.timer)
+      console.log(this.timer);
+    },
+    alertBadge(){
+      $('.popup-wrapper').fadeOut(200);
+      // $('.popup-wrapper').css("display","none");
+      $('.alert').css("display","flex");
+      this.badgeTimeOut();
+      
+    },
     closeAlert(){
       $('.alert').css("display","none");
     },
-    restoreProduct(){
+    restoreProduct(status){
       this.alertBadge()
       setTimeout(() => {
-        this.product.status = 'Pending'
+        this.product.status = status
         this.selectedProductStatus = this.product.status;
         this.$firestore.products.doc(this.docRefProduct).update(this.product);
         $(".alert").delay(2000).fadeOut(2000);
@@ -1145,8 +1165,13 @@ export default {
       
       
     },
+    refreshWindow(){
+      window.localStorage.removeItem('docRefProduct');
+      window.localStorage.removeItem('newAddedProduct');
+      window.location.reload();
+    },
     goBack() {
-      window.history.length > 1 ? this.$router.go(-1) : this.$router.push('/');
+      window.history.length > 1 ? this.$router.go(-1) : this.$router.push('/products');
       window.localStorage.removeItem('docRefProduct');
       window.localStorage.removeItem('newAddedProduct');
 
@@ -1210,17 +1235,14 @@ export default {
       return "$" +  m;
 
     },
-    refreshWindow(){
-      location.reload();
-    },
-
 
     deleteImage(img,idx){
         let image = fb.storage().refFromURL(img);
         console.log(img);
         console.log(image);
         console.log(idx);
-        this.product.images.splice(idx,1);
+          this.product.images.splice(idx,1);
+        
 
         image.delete().then(function(){
           console.log('image deleted');
@@ -1357,27 +1379,51 @@ export default {
       console.log(this.alert);
     },
 
-    deleteProduct(type){
-      this.setAlertParam(type);
-      this.alertBadge();
-        setTimeout(() => {
+    deleteProcess(type,docRefProduct){
+
+
+      
+       
           // this.$firestore.products.doc(this.docRefProduct).delete(this.product);
           
-          this.saved = true;
-          $(".alert").delay((this.alert.badgeMsg.length * 100)).fadeOut(2000);
-        }, 2000);
+
+          db.collection("products").doc(docRefProduct).delete()
+          .then(() => {
+            let img = this.product.images[0];
+            let image = fb.storage().refFromURL(img);
+            image.delete().then( () => {
+              console.log('image deleted');
+
+            }).catch(function(error){
+              // uh-oh, an error occured
+              console.log('an error occurred:' + error );
+            })
+            this.setAlertParam(type);
+            this.alertBadge();
+            $(".alert").delay((this.alert.badgeMsg.length * 100)).fadeOut(2000);
+            this.saved = true;
+            setTimeout(() => {
+              this.goBack()
+            }, 3000);
+          })
+          .catch((error) => {
+            console.log(error);
+          })
+          
+         
+          
+        
     },
 
-    archiveProduct(type){
-      this.setAlertParam(type);
-      this.alertBadge();
-        setTimeout(() => {
-          // this.$firestore.products.doc(this.docRefProduct).delete(this.product);
+    // archiveProduct(type){
+    //   this.setAlertParam(type);
+    //   this.alertBadge();
+    //     setTimeout(() => {
           
-          this.saved = true;
-          $(".alert").delay((this.alert.badgeMsg.length * 100)).fadeOut(2000);
-        }, 2000);
-    },
+    //       this.saved = true;
+    //       $(".alert").delay((this.alert.badgeMsg.length * 100)).fadeOut(2000);
+    //     }, 2000);
+    // },
 
     updateData(type){
       
@@ -1433,278 +1479,279 @@ export default {
 .form-control{
   height: 40px;
 }
-// Popup Window style start <----
+// // Popup Window style start <----
 
-.dflex{
-  display: flex;
-}
-.dcolum{
-  flex-direction: column;
-}
-.centercenter{
-  justify-content: center;
-  align-items: center;
-}
-.justcontaround{
-  justify-content: space-around;
-}
-.alingcontaround{
-  align-content: space-around;
-}
-.popup-wrapper{
-  display: none;
-  position: relative;
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background: rgba(3, 30, 51, 0.4);
-  z-index: 20;
+// .dflex{
+//   display: flex;
+// }
+// .dcolum{
+//   flex-direction: column;
+// }
+// .centercenter{
+//   justify-content: center;
+//   align-items: center;
+// }
+// .justcontaround{
+//   justify-content: space-around;
+// }
+// .alingcontaround{
+//   align-content: space-around;
+// }
+// .popup-wrapper{
+//   display: none;
+//   position: relative;
+//   position: fixed;
+//   top: 0;
+//   right: 0;
+//   bottom: 0;
+//   left: 0;
+//   background: rgba(3, 30, 51, 0.4);
+//   z-index: 20;
 
-}
-.confirm-delete-pop-up{
-  margin: auto;
-  position: fixed;
-  top: 0; left: 0; bottom: 0; right: 0;
-  width: 50%;
-  height: 35%;
-  background-color:var(--lightwhite1);
-  display: flex;
-  justify-content: space-around;
-  align-content: space-around;
-  z-index: 30;
-  border: 1px solid var(--primaryT);
-  box-shadow: var(--shadow);
-}
-.btn-fixed-width-and-height{
-  width: 80px;
-  height:80%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+// }
+// .confirm-delete-pop-up{
+//   margin: auto;
+//   position: fixed;
+//   top: 0; left: 0; bottom: 0; right: 0;
+//   width: 600px;
+//   height: fit-content;
+//   background-color:var(--lightwhite1);
+//   display: flex;
+//   justify-content: space-around;
+//   align-content: space-around;
+//   z-index: 30;
+//   border: 1px solid var(--primaryT);
+//   box-shadow: var(--shadow);
+// }
+// .btn-fixed-width-and-height{
+//   width: 80px;
+//   height:80%;
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+// }
 
-.alert-wrapper{
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 50px;
-}
-.alert-message{
-  margin-top: 20px;
-  text-align: center;
-  width: 100%;
-  font-size: 1.0rem;
-  color: var(--dark);
-}
-.alert-title{
-  font-size: 1.2rem;
-  font-weight: 500;
-  margin-top: 10px;
-  color: var(--dark);
-}
-.delete-action{
-  display: flex;
-  position: absolute;
-  justify-content: space-around;
-  align-items: center;
-  height: 50px;
-  width: 100%;
-  bottom: 0;
-  border-radius: 0 0 10px 10px;
+// .alert-wrapper{
+//   height: 100%;
+//   display: flex;
+//   flex-direction: column;
+//   justify-content: center;
+//   align-items: center;
+//   margin: 50px;
+// }
+// .alert-message{
+//   margin-top: 20px;
+//   padding-bottom: 50px;
+//   text-align: center;
+//   width: 100%;
+//   font-size: 1.0rem;
+//   color: var(--dark);
+// }
+// .alert-title{
+//   font-size: 1.2rem;
+//   font-weight: 500;
+//   margin-top: 10px;
+//   color: var(--dark);
+// }
+// .delete-action{
+//   display: flex;
+//   position: absolute;
+//   justify-content: space-around;
+//   align-items: center;
+//   height: 50px;
+//   width: 100%;
+//   bottom: 0;
+//   border-radius: 0 0 10px 10px;
   
   
-}
-.close-popup-icon{
-  cursor: pointer;
-  position: absolute;
-  top: 5px;
-  right: 10px;
-}
-.delete-action > div{
-  display: flex;
-  height: 100%;
-  font-size: 1.2rem;
-  font-weight: 500;
-  width: 100%;
+// }
+// .close-popup-icon{
+//   cursor: pointer;
+//   position: absolute;
+//   top: 5px;
+//   right: 10px;
+// }
+// .delete-action > div{
+//   display: flex;
+//   height: 100%;
+//   font-size: 1.2rem;
+//   font-weight: 500;
+//   width: 100%;
   
-  outline: none;
-  justify-content: center;
-  align-items: center;
-}
-.alert-icon{
-  margin-top: 0px;
-  font-size: 3.0rem;
-  color: var(--pending);
-}
-.action-confirmed{
-  background-color: #9f0000;
-}
-.action-confirmed:hover{
-  background-color: #e30000;
-}
-.action-active{
-  background-color: var(--active);
-}
-.action-active:hover{
-  background-color: var(--active);
-}
-.action-restore{
-  background-color: var(--actionSuccess);
-}
-.action-restore:hover{
-  background-color: var(--success);
-}
-.action-delete{
-  background-color: var(--archive);
-}
-.action-delete:hover{
-  background-color: var(--red);
-}
-.action-cancel{
-  background-color: var(--primary);
+//   outline: none;
+//   justify-content: center;
+//   align-items: center;
+// }
+// .alert-icon{
+//   margin-top: 0px;
+//   font-size: 3.0rem;
+//   color: var(--pending);
+// }
+// .action-confirmed{
+//   background-color: #9f0000;
+// }
+// .action-confirmed:hover{
+//   background-color: #e30000;
+// }
+// .action-active{
+//   background-color: var(--active);
+// }
+// .action-active:hover{
+//   background-color: var(--active);
+// }
+// .action-restore{
+//   background-color: var(--actionSuccess);
+// }
+// .action-restore:hover{
+//   background-color: var(--success);
+// }
+// .action-delete{
+//   background-color: var(--archive);
+// }
+// .action-delete:hover{
+//   background-color: var(--red);
+// }
+// .action-cancel{
+//   background-color: var(--primary);
   
-}
-.action-cancel:hover{
-  background-color: var(--blueGoogle);
-}
+// }
+// .action-cancel:hover{
+//   background-color: var(--blueGoogle);
+// }
 
 
-// Popup Window style end <----
-// SUCCES POPUP STYLE START <----
-// CheckMark Animation START
+// // Popup Window style end <----
+// // SUCCES POPUP STYLE START <----
+// // CheckMark Animation START
 
-.check-mark-label{
-  position: relative;
-  height: 50px;
-  width: 50px;
-  display: inline-block;
-  border: 2px solid rgba(0,0,0,0.2);
-  border-radius: 50%;
-  border-left-color: #5cb85c ;
-  animation: rotate 1.2s linear infinite;
-}
-.btn-spinner-label{
-  position: relative;
-  height: 20px;
-  width: 20px;
-  display: inline-block;
-  border: 2px solid rgba(0,0,0,0.2);
-  border-radius: 50%;
-  border-left-color: #5cb85c ;
-  animation: rotate 1.2s linear infinite;
-}
-@keyframes rotate {
-  50%{
-    border-left-color: #9b59b6;
-  }
-  75%{
-    border-left-color: #e67e22;
-  }
-  100%{
-    transform: rotate(360deg);
-  }
-}
-.restore-message{
- visibility: hidden;
-}
-label .check-icon {
-  display: none;
-// translate(-25%, 50%)
-}
-label .check-icon:after{
-  position: absolute;
-  content: "";
-  top: 55%;
-  left: 8px;
-  transform: scaleX(-1) rotate(135deg);
-  height: 28px;
-  width: 14px;
-  border-top: 4px solid #5cb85c;
-  border-right: 4px solid  #5cb85c;
-  transform-origin: left top ;
+// .check-mark-label{
+//   position: relative;
+//   height: 50px;
+//   width: 50px;
+//   display: inline-block;
+//   border: 2px solid rgba(0,0,0,0.2);
+//   border-radius: 50%;
+//   border-left-color: #5cb85c ;
+//   animation: rotate 1.2s linear infinite;
+// }
+// .btn-spinner-label{
+//   position: relative;
+//   height: 20px;
+//   width: 20px;
+//   display: inline-block;
+//   border: 2px solid rgba(0,0,0,0.2);
+//   border-radius: 50%;
+//   border-left-color: #5cb85c ;
+//   animation: rotate 1.2s linear infinite;
+// }
+// @keyframes rotate {
+//   50%{
+//     border-left-color: #9b59b6;
+//   }
+//   75%{
+//     border-left-color: #e67e22;
+//   }
+//   100%{
+//     transform: rotate(360deg);
+//   }
+// }
+// .restore-message{
+//  visibility: hidden;
+// }
+// label .check-icon {
+//   display: none;
+// // translate(-25%, 50%)
+// }
+// label .check-icon:after{
+//   position: absolute;
+//   content: "";
+//   top: 55%;
+//   left: 8px;
+//   transform: scaleX(-1) rotate(135deg);
+//   height: 28px;
+//   width: 14px;
+//   border-top: 4px solid #5cb85c;
+//   border-right: 4px solid  #5cb85c;
+//   transform-origin: left top ;
   
-  animation: check-icon 0.8s ease
-}
-@keyframes check-icon {
-  0%{
-    height: 0;
-    width: 0;
-    opacity: 1;
-  }
-  20%{
-    height: 0;
-    width: 14px;
-    opacity: 1;
-  }
-  40%{
-    height: 28px;
-    width: 14px;
-    opacity: 1;
-  }
-  100%{
-    height: 28px;
-    width: 14px;
-    opacity: 1;
-  }
+//   animation: check-icon 0.8s ease
+// }
+// @keyframes check-icon {
+//   0%{
+//     height: 0;
+//     width: 0;
+//     opacity: 1;
+//   }
+//   20%{
+//     height: 0;
+//     width: 14px;
+//     opacity: 1;
+//   }
+//   40%{
+//     height: 28px;
+//     width: 14px;
+//     opacity: 1;
+//   }
+//   100%{
+//     height: 28px;
+//     width: 14px;
+//     opacity: 1;
+//   }
 
-}
-.close-alert-succes{
-  visibility: hidden;
-  position: absolute;
-  top: 30%;
-  right: 10px;
-  cursor: pointer;
-}
-.stop-check-animation{
-  animation: none;
-  border-color: #5cb85c;
-  transition:  border 0.5s ease-out;
-}
-// CHECKMARK ANIMATION END
-.center-screen{
-  margin: auto;
-  position: fixed;
-  top: 20px; right: 20px;
-  width: 380px;
-  height: fit-content;
-  background-color: var(--dark);
-  display: none;
-  justify-content: center;
-  align-content: center;
-  z-index: 30;
-  border: 1px solid var(--dark);
-  box-shadow: var(--shadow);
-  border-radius: 20px;
+// }
+// .close-alert-succes{
+//   visibility: hidden;
+//   position: absolute;
+//   top: 30%;
+//   right: 10px;
+//   cursor: pointer;
+// }
+// .stop-check-animation{
+//   animation: none;
+//   border-color: #5cb85c;
+//   transition:  border 0.5s ease-out;
+// }
+// // CHECKMARK ANIMATION END
+// .center-screen{
+//   margin: auto;
+//   position: fixed;
+//   top: 20px; right: 20px;
+//   width: 380px;
+//   height: fit-content;
+//   background-color: var(--dark);
+//   display: none;
+//   justify-content: center;
+//   align-content: center;
+//   z-index: 30;
+//   border: 1px solid var(--dark);
+//   box-shadow: var(--shadow);
+//   border-radius: 20px;
 
-}
-.center-screen > div {
-  display: flex;
+// }
+// .center-screen > div {
+//   display: flex;
   
-  margin-right: 20px;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
+//   margin-right: 20px;
+//   flex-direction: column;
+//   justify-content: center;
+//   align-items: center;
+// }
 
-.alert-error-icon{
-  font-size: 3rem;
-  color: var(--danger);
-}
-.span-notice{
-  font-size: 1.0rem;
-  color: var(--lightwhite);
-}
-.span-success-popup{
-  font-size: 2rem;
-  font-weight: 600;
-  color: var(--actionSuccess);
-}
-// succes POPUP STYLE END <----
-// ALERT PRODUCTS END<-----
+// .alert-error-icon{
+//   font-size: 3rem;
+//   color: var(--danger);
+// }
+// .span-notice{
+//   font-size: 1.0rem;
+//   color: var(--lightwhite);
+// }
+// .span-success-popup{
+//   font-size: 2rem;
+//   font-weight: 600;
+//   color: var(--actionSuccess);
+// }
+// // succes POPUP STYLE END <----
+// // ALERT PRODUCTS END<-----
 // HEADER STYLE START <----
 .btn-group-wrapper{
   display: flex;
@@ -2552,8 +2599,7 @@ option {
   grid-template-columns: 75%;
 }
 .confirm-delete-pop-up{
-  height: 70%;
-  width: 99%;
+  width: 90%;
 }
 }
 @media (max-width: 750px){

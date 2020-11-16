@@ -8,10 +8,48 @@
       :AdminPageContent='AdminPageContent'
       ></whenempty>
 
-    
+        <div v-if="alert" class="popup-wrapper">
+
+          
+          
+          <div class="confirm-delete-pop-up dflex centercenter" role="alert">
+          
+            <div class="alert-wrapper ">
+              
+              <div v-if="alert.level == 'warning'">
+                <fa-icon class="alert-icon" :icon="['fa', 'exclamation-triangle']" />
+              </div>
+              <div class="alert-title">
+                <span>{{alert.title}}</span>
+              </div>
+              <div class="alert-message ">
+                
+                <span class="dflex centercenter"> {{alert.msg}} </span>
+                
+              </div>
+              <div class="delete-action">
+                <div class="action-cancel" @click="closePopup" role="button">{{alert.leftBtn}}</div>
+                <div class="action-restore"  role="button">{{alert.rightBtn}}</div>
+                <!-- <div v-if="alert.type == 'update' && this.docRefProduct" class="action-restore" @click="updateData('update')" role="button">{{alert.rightBtn}}</div> -->
+                <!-- <div v-if="alert.type == 'create' && !this.docRefProduct" class="action-restore" @click="saveData('create')" role="button">{{alert.rightBtn}}</div> -->
+                <!-- <div v-if="alert.type == 'discard'" class="action-restore" @click="goBack()" role="button">{{alert.rightBtn}}</div> -->
+                <!-- <div v-if="alert.type == 'delete'" class="action-delete" @click="deleteProcess('delete', docRefProduct)" role="button">{{alert.rightBtn}}</div> -->
+                <!-- <div v-if="alert.type == 'archive'" class="action-delete" @click="restoreProduct('Archived')" role="button">{{alert.rightBtn}}</div> -->
+
+
+              </div>
+              <div @click="closePopup" class="close-popup-icon">
+                <h5>&#10006;</h5>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
       
         
-        <div class="popup-wrapper">
+        <!-- <div class="popup-wrapper">
 
           
           
@@ -29,18 +67,18 @@
               </div>
               <div class="delete-action">
                 <div class="action-cancel" @click="closewindow" role="button">Cancel</div>
-                <div @click="deleteProduct(product)" class="action-confirmed" role="button">Delete</div>
+                <div @click="deleteProduct(selectedId)" class="action-confirmed" role="button">Delete</div>
               </div>
 
             </div>
 
           </div>
-        </div>
+        </div> -->
 
     
       
         
-        <div class="popup-wrapper">
+        <!-- <div class="popup-wrapper">
 
           
           
@@ -58,26 +96,26 @@
               </div>
               <div class="delete-action">
                 <div class="action-cancel" @click="closewindow" role="button">Cancel</div>
-                <div v-if="ractiveBtn" @click="archiveProduct('Active')" class="action-active" role="button">Reactive</div>
+                <div v-if="activeBtn" @click="archiveProduct('Active')" class="action-active" role="button">Reactive</div>
                 <div v-if="activeBtn" @click="archiveProduct('Active')" class="action-active" role="button">Activate</div>
                 <div v-if="restorebtn" @click="archiveProduct('Pending')" class="action-restore" role="button">Restore</div>
                 <div v-if="archiveBtn" @click="archiveProduct('Archived')" class="action-confirmed" role="button">Archive</div>
-                <div v-if="deleteButton" @click="deleteProduct(product)" class="action-confirmed" role="button">Delete</div>
+                <div v-if="deleteButton" @click="deleteProduct(selectedId)" class="action-confirmed" role="button">Delete</div>
                 <div v-if="suspendbtn" @click="archiveProduct('Pending')" class="action-restore" role="button">Suspend</div>
               </div>
 
             </div>
 
           </div>
-        </div>
+        </div> -->
         
       <div class="header-wrapper">
         
-        <div v-show="noProductSelected"  class="center-screen alert alert-warning" role="alert">
+        <!-- <div v-show="noProductSelected"  class="center-screen alert alert-warning" role="alert">
         
           0 Product selected, please select the product(s) you wish to trash!
 
-        </div>
+        </div> -->
         
         <div v-show="productDeletedAlert"  class="center-screen alert alert-success" role="alert">
           <div><fa-icon class="alert-success-icon" :icon="['fa', 'check-circle']" /></div>
@@ -137,26 +175,26 @@
             
             
             <!-- Acvtivate icon action -->
-            <div v-if="checkedNumbers > 0 && reactiveItems" class="work-reactivate" @click="confirmdeletewindow('Reactivate')" role="button">
+            <!-- <div v-if="checkedNumbers > 0 && reactiveItems" class="work-reactivate" @click="confirmdeletewindow('Reactivate')" role="button">
               <fa-icon class="work-icon" :icon="['fa', 'folder-plus']"/>
             </div>
             <div v-if="checkedNumbers > 0 && activeItems" class="work-activate" @click="confirmdeletewindow('Active')" role="button">
               <fa-icon class="work-icon" :icon="['fa', 'folder-plus']"/>
-            </div>
+            </div> -->
             <!-- pendent icon action -->
-            <div v-if="checkedNumbers > 0 && pendentItems" class="work-suspend" @click="confirmdeletewindow('Suspend')" role="button">
+            <div v-if="checkedNumbers > 0 && pendentItems" class="work-suspend" @click="openPopup('suspends')" role="button">
               <fa-icon class="work-icon" :icon="['fa', 'folder-minus']"/>
             </div>
             <!-- Archive icon action -->
-            <div v-if="checkedNumbers > 0 && !restoreItems" class="work-archive" @click="confirmdeletewindow('Archive')" role="button">
+            <div v-if="checkedNumbers > 0 && !restoreItems" class="work-archive" @click="openPopup('archives')" role="button">
               <fa-icon class="work-icon" :icon="['fa', 'inbox']"/>
             </div>
             <!-- retore icon action -->
-            <div v-if="checkedNumbers > 0 && restoreItems" class="work-restore" @click="confirmdeletewindow('Pending')" role="button">
+            <!-- <div v-if="checkedNumbers > 0 && restoreItems" class="work-restore" @click="openPopup('restore')" role="button">
               <fa-icon class="work-icon" :icon="['fa', 'trash-restore-alt']"/>
-            </div>
+            </div> -->
             <!-- delete icon action -->
-            <div v-if="checkedNumbers > 0" class="work-delete" @click="confirmdeletewindow('delete')" role="button">
+            <div v-if="checkedNumbers > 0" class="work-delete" @click="openPopup('deletes')" role="button">
               <fa-icon class="work-icon" :icon="['fa', 'trash-alt']"/>
             </div>
             
@@ -271,8 +309,8 @@
                   <td data-label="Weight">{{product.weight + product.Unit}}</td>
                   <td v-if="product.categorie" data-label="Categorie">{{product.categorie}}</td>
                   <td v-if="!product.categorie" data-label="Categorie">Unknown</td>
-                  <td v-if="product.Vendor" data-label="Vendor">{{product.vendor}}</td>
-                  <td v-if="!product.Vendor" data-label="Vendor">Unknown</td>
+                  <td v-if="product.vendor" data-label="Vendor">{{product.vendor}}</td>
+                  <td v-if="!product.vendor" data-label="Vendor">Unknown</td>
                   <td data-label="" class="show-more-tools" >
 
                     <div class="work-wrapper">
@@ -280,18 +318,18 @@
                         <div class="td-work-wrapper">
                           <!-- activate -->
                           <div v-if="product.status != 'Active' && product.status != 'Archived'"  class="">
-                            <button @click="singleConfirmdeletewindow('Active',product)" class="product-active"><fa-icon :icon="['fa', 'folder-plus']"/></button>
+                            <button @click="openPopup('reactivate', product)" class="product-active"><fa-icon :icon="['fa', 'folder-plus']"/></button>
                           </div>
                           <!-- restore -->
                           <div v-if="product.status == 'Archived'" class="">
-                            <button  @click="singleConfirmdeletewindow('Pending',product)" class="product-restore"><fa-icon :icon="['fa', 'trash-restore-alt']"/></button>
+                            <button  @click="openPopup('restore')" class="product-restore"><fa-icon :icon="['fa', 'trash-restore-alt']"/></button>
                           </div>
                           <div v-if="product.status == 'Active'"  class="">
-                            <button @click="singleConfirmdeletewindow('Pending',product)" class="product-pending"><fa-icon :icon="['fa', 'folder-minus']"/></button>
+                            <button @click="openPopup('suspend')" class="product-pending"><fa-icon :icon="['fa', 'folder-minus']"/></button>
                           </div>
                           <!-- archive -->
                           <div v-if="product.status != 'Archived'"  class="">
-                            <button @click="singleConfirmdeletewindow('Archive',product)" class="product-archive"><fa-icon :icon="['fa', 'inbox']"/></button>
+                            <button @click="openPopup('archive')" class="product-archive"><fa-icon :icon="['fa', 'inbox']"/></button>
                           </div>
 
                           <!-- edit -->
@@ -300,7 +338,7 @@
                           </div>
                           <!-- delete -->
                           <div class="">
-                            <button @click="singleConfirmdeletewindow('delete',product)"  class="product-trash"><fa-icon :icon="['fa', 'trash-alt']"/></button>
+                            <button @click="openPopup('delete')"  class="product-trash"><fa-icon :icon="['fa', 'trash-alt']"/></button>
                           </div>
                         </div>
                         
@@ -361,7 +399,100 @@ export default {
   },
  
   data() {
-    return {
+    return {      
+      alerts:[
+        { 
+          level: 'warning',
+          type:'restore',
+          title:'Confirm Restore',
+          msg: 'By restoring this product will change its status to Pending so you can work on it again.',
+          leftBtn: 'Cancel',
+          rightBtn: 'Restore',
+          badgeSuccessTitle: 'Success!',
+          badgeMsg:' Your product as been restored',
+        },
+        { 
+          level: 'warning',
+          type:'reactivate',
+          title:'Confirm Reactivation',
+          msg: 'By reactivating, your product will now be available for your customer on your website. Do you want to reactivate this product?',
+          leftBtn: 'Cancel',
+          rightBtn: 'Reactivate',
+          badgeSuccessTitle: 'Success!',
+          badgeMsg:' Your product as been reactivated',
+        },
+        { 
+          level: 'warning',
+          type:'suspends',
+          title:'Confirm Suspension',
+          msg: 'By clicking Suspend, your products will no longer be available to customers on your Website. Do you wish to suspend this product?',
+          leftBtn: 'Cancel',
+          rightBtn: 'Suspend',
+          badgeSuccessTitle: 'Success!',
+          badgeMsg:' Your products as been created',
+        },
+        { 
+          level: 'warning',
+          type:'suspend',
+          title:'Confirm Suspension',
+          msg: 'By clicking Suspend, your product will no longer be available to customers on your Website. Do you wish to suspend this product?',
+          leftBtn: 'Cancel',
+          rightBtn: 'Suspend',
+          badgeSuccessTitle: 'Success!',
+          badgeMsg:' Your product as been created',
+        },
+        { 
+          level: 'warning',
+          type:'archives',
+          title:'Confirm Archive',
+          msg: 'After clicking Archive Products, they will still be available, but will no longer appear on your website and on your admin page. You will still be able to restore them and make changes in the furure.',
+          leftBtn: 'Cancel',
+          rightBtn: 'Archive Products',
+          badgeSuccessTitle: 'Success!',
+          badgeMsg:' Your products as been Archive',
+        },
+        { 
+          level: 'warning',
+          type:'archive',
+          title:'Confirm Archive',
+          msg: 'After clicking Archive Product, It will still be available, but will no longer appear on your website and on your admin page. You will still be able to restore and make changes to this product in the furure.',
+          leftBtn: 'Cancel',
+          rightBtn: 'Archive Product',
+          badgeSuccessTitle: 'Success!',
+          badgeMsg:' Your product as been Archive',
+        },
+        { 
+          level: 'warning',
+          type:'deletes',
+          title:'Confirm Delete',
+          msg: 'After clicking Delete Products, these products will no longer exist.',
+          leftBtn: 'Cancel',
+          rightBtn: 'Delete Products',
+          badgeSuccessTitle: 'Success!',
+          badgeMsg:' Your products as been deleted',
+        },
+        { 
+          level: 'warning',
+          type:'delete',
+          title:'Confirm Delete',
+          msg: 'After clicking Delete Product, this product will no longer exist.',
+          leftBtn: 'Cancel',
+          rightBtn: 'Delete Product',
+          badgeSuccessTitle: 'Success!',
+          badgeMsg:' Your product as been deleted',
+        },
+      ],
+      alert:{
+        level: null,
+        type: null,
+        title: null,
+        msg: null,
+        leftBtn: null,
+        rightBtn: null,
+        badgeMsg:null,
+        badgeSuccessTitle:null
+      },
+
       pendentItems:true,
       reactiveItems:false,
       activeItems:false,
@@ -396,7 +527,7 @@ export default {
       selectedId: null,
       // activeItem: null,
       // realProduct: null,
-      noProductSelected: null,
+      // noProductSelected: null,
       productSuccessAlert: false,
       productDeletedAlert: false,
       confirmDelete: false,
@@ -436,6 +567,10 @@ export default {
     window.localStorage.removeItem('docRefProduct');
   },
   created(){
+     window.onbeforeunload = function ()
+      {
+          return null;
+      };
     
     window.localStorage.removeItem('docRefProduct');
     window.localStorage.removeItem('newAddedProduct');
@@ -826,7 +961,7 @@ export default {
           this.productDeletedAlert = true
           // reseting the form
           this.checkedNumbers = 0
-          $('.popup-wrapper').css("display","none");
+          // $('.popup-wrapper').css("display","none");
           this.single = ''
           this.products.find((product) => {
             if(product.id == this.selectedId){
@@ -873,17 +1008,17 @@ export default {
         
           
       },
-      deleteProduct(){
-        if(this.selectedId){
+      deleteProduct(selectedId){
+        if(selectedId){
 
           this.productDeletedAlert = true
           // reseting the form
           this.checkedNumbers = 0
-          $('.popup-wrapper').css("display","none");
+          // $('.popup-wrapper').css("display","none");
           this.single = ''
-          this.deleteProductItem(this.selectedId);
-          db.collection("products").doc(this.selectedId).delete()
-          
+          this.deleteProductItem(selectedId);
+          db.collection("products").doc(selectedId).delete()
+          console.log("Product : ", selectedId, "has been deleted");
           // this.$firestore.products.doc(this.selectedId).delete();
           this.closewindow();
           $(".alert").delay(1000).slideUp(200, () => {
@@ -932,63 +1067,85 @@ export default {
             this.checkedProductArray = []; 
         }
       },
+      // TEST FUNCTION FOR NEW PUPUP START
 
-      singleConfirmdeletewindow(string, doc){
-        this.deleteAction = string
-        if(string == 'Archive'){
-            this.suspendbtn = false
-            this.deleteButton = false
-            this.archiveBtn = true
-            this.ractiveBtn = false
-            this.activeBtn = false
-            this.restorebtn = false
-          }else if(string == 'Active'){
-            this.suspendbtn = false
-            this.deleteButton = false
-            this.archiveBtn = false
-            this.ractiveBtn = false
-            this.activeBtn = true
-            this.restorebtn = false
-          }else if(string == 'Reactivate'){
-            this.suspendbtn = false
-            this.deleteButton = false
-            this.archiveBtn = false
-            this.ractiveBtn = true
-            this.restorebtn = false
-            this.activeBtn = false
-          }else if(string == 'Suspend'){
-            this.suspendbtn = true
-            this.deleteButton = false
-            this.archiveBtn = false
-            this.ractiveBtn = false
-            this.restorebtn = false
-            this.activeBtn = false
-          }else if(string == 'Pending'){
-            this.suspendbtn = false
-            this.deleteButton = false
-            this.archiveBtn = false
-            this.ractiveBtn = false
-            this.activeBtn = false
-            this.restorebtn = true
-          }else{
-            this.suspendbtn = false
-            this.deleteButton = true
-            this.archiveBtn = false
-            this.activeBtn = false
-            this.ractiveBtn = false
-            this.restorebtn = false
-
-          }
-        // this.realId = doc
-        // this.realProduct = realProduct
-        this.checkedNumbers =  '';
         
-        this.confirmDelete = true
-        $('.popup-wrapper').css("display","inherit");
-        console.log(doc.id);
-        this.selectedId = doc.id;
-        this.single = '1';
+      openPopup: function(type){
+        
+          let obj = this.alerts.find(x => x.type == type);
+          let index = this.alerts.indexOf(obj);
+          this.alert = this.alerts[index];
+          console.log(this.alert);
+          $('.popup-wrapper').fadeIn(200);
+        
+      
       },
+    closePopup: function(){
+      // $(".confirm-delete-pop-up").slideUp(200,()=>{
+      //   $('.popup-wrapper').css("display","none");
+      // });
+      $('.popup-wrapper').fadeOut(200);
+      
+      this.alert = {}
+    },
+    // TEST FUNCTION FOR NEW PUPUP END
+
+      // singleConfirmdeletewindow(string, doc){
+      //   this.deleteAction = string
+      //   if(string == 'Archive'){
+      //       this.suspendbtn = false
+      //       this.deleteButton = false
+      //       this.archiveBtn = true
+      //       this.ractiveBtn = false
+      //       this.activeBtn = false
+      //       this.restorebtn = false
+      //     }else if(string == 'Active'){
+      //       this.suspendbtn = false
+      //       this.deleteButton = false
+      //       this.archiveBtn = false
+      //       this.ractiveBtn = false
+      //       this.activeBtn = true
+      //       this.restorebtn = false
+      //     }else if(string == 'Reactivate'){
+      //       this.suspendbtn = false
+      //       this.deleteButton = false
+      //       this.archiveBtn = false
+      //       this.ractiveBtn = true
+      //       this.restorebtn = false
+      //       this.activeBtn = false
+      //     }else if(string == 'Suspend'){
+      //       this.suspendbtn = true
+      //       this.deleteButton = false
+      //       this.archiveBtn = false
+      //       this.ractiveBtn = false
+      //       this.restorebtn = false
+      //       this.activeBtn = false
+      //     }else if(string == 'Pending'){
+      //       this.suspendbtn = false
+      //       this.deleteButton = false
+      //       this.archiveBtn = false
+      //       this.ractiveBtn = false
+      //       this.activeBtn = false
+      //       this.restorebtn = true
+      //     }else{
+      //       this.suspendbtn = false
+      //       this.deleteButton = true
+      //       this.archiveBtn = false
+      //       this.activeBtn = false
+      //       this.ractiveBtn = false
+      //       this.restorebtn = false
+
+      //     }
+      //   // this.realId = doc
+      //   // this.realProduct = realProduct
+      //   this.checkedNumbers =  '';
+        
+      //   this.confirmDelete = true
+      //   $('.popup-wrapper').css("display","inherit");
+      //   console.log(doc.id);
+      //   this.selectedId = doc.id;
+      //   this.single = '1';
+      // },
 
       confirmdeletewindow: function(string){
         this.deleteAction = string
@@ -1036,31 +1193,32 @@ export default {
             this.restorebtn = false
 
           }
-        if(this.checkedNumbers > 0){
+
+        // if(this.checkedNumbers > 0){
           
 
-          this.confirmDelete = true
-          $('.popup-wrapper').css("display","inherit");
-          if(this.checkedNumbers > 1){
-            this.s = 's';
-          }else{
-            this.s = '';
-          }
-        }else{
-          this.noProductSelected = true
-          // reseting the form
-          $(".alert").delay(2000).slideUp(200, () => {
-              this.noProductSelected = false
-          });
-        }
+        //   this.confirmDelete = true
+        //   $('.popup-wrapper').css("display","inherit");
+        //   if(this.checkedNumbers > 1){
+        //     this.s = 's';
+        //   }else{
+        //     this.s = '';
+        //   }
+        // }else{
+        //   this.noProductSelected = true
+        //   // reseting the form
+        //   $(".alert").delay(2000).slideUp(200, () => {
+        //       this.noProductSelected = false
+        //   });
+        // }
       },
 
-      closewindow: function(){
-        $('.popup-wrapper').css("display","none");
-        this.single = ''
-        this.selectedId = null
+      // closewindow: function(){
+      //   $('.popup-wrapper').css("display","none");
+      //   this.single = ''
+      //   this.selectedId = null
         
-      },
+      // },
       // checkedProduct(product){
       //   this.checkedProductArray.push(product.id);
       // },
@@ -1157,107 +1315,107 @@ export default {
 // ALERT PRODUCTS END<-----
 
 // CONFIRM DELETE POP-UP START <----
-.dflex{
-  display: flex;
-}
+// .dflex{
+//   display: flex;
+// }
 .dcolum{
   flex-direction: column;
 }
-.centercenter{
-  justify-content: center;
-  align-items: center;
-}
+// .centercenter{
+//   justify-content: center;
+//   align-items: center;
+// }
 .justcontaround{
   justify-content: space-around;
 }
 .alingcontaround{
   align-content: space-around;
 }
-.popup-wrapper{
-  display: none;
-  position: relative;
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background: rgba(0,0,0,.2);
-  z-index: 20;
-}
-.confirm-delete-pop-up{
-  margin: auto;
-  position: fixed;
-  top: 0; left: 0; bottom: 0; right: 0;
-  width: 380px;
-  height: 300px;
-  background-color:var(--lightwhite1);
-  display: flex;
-  justify-content: space-around;
-  align-content: space-around;
-  z-index: 30;
-  border: 1px solid var(--primaryT);
-  box-shadow: var(--shadow);
-  border-radius: 10px;
+// .popup-wrapper{
+//   display: none;
+//   position: relative;
+//   position: fixed;
+//   top: 0;
+//   right: 0;
+//   bottom: 0;
+//   left: 0;
+//   background: rgba(0,0,0,.2);
+//   z-index: 20;
+// }
+// .confirm-delete-pop-up{
+//   margin: auto;
+//   position: fixed;
+//   top: 0; left: 0; bottom: 0; right: 0;
+//   width: 380px;
+//   height: 300px;
+//   background-color:var(--lightwhite1);
+//   display: flex;
+//   justify-content: space-around;
+//   align-content: space-around;
+//   z-index: 30;
+//   border: 1px solid var(--primaryT);
+//   box-shadow: var(--shadow);
+//   border-radius: 10px;
   
-}
-.alert-wrapper{
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-}
-.alert-message{
-  text-align: center;
-}
-.delete-action{
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-  height: 100px;
-  width: 200px;
+// }
+// .alert-wrapper{
+//   height: 100%;
+//   display: flex;
+//   flex-direction: column;
+//   justify-content: space-around;
+//   align-items: center;
+// }
+// .alert-message{
+//   text-align: center;
+// }
+// .delete-action{
+//   display: flex;
+//   flex-direction: column;
+//   justify-content: space-around;
+//   align-items: center;
+//   height: 100px;
+//   width: 200px;
   
   
-}
-.delete-action > div{
-  display: flex;
-  height: 40px;
-  width: 100%;
-  border-radius: 30px;
-  outline: none;
-  justify-content: center;
-  align-items: center;
-}
-.alert-icon{
-  font-size: 2.5rem;
-  color: var(--warning);
-}
-.action-confirmed{
-  background-color: #9f0000;
-}
-.action-confirmed:hover{
-  background-color: #e30000;
-}
-.action-active{
-  background-color: var(--active);
-}
-.action-active:hover{
-  background-color: var(--active);
-}
-.action-restore{
-  background-color: var(--pending);
-}
-.action-restore:hover{
-  background-color: var(--pending);
-}
-.action-cancel{
-  background-color: var(--primary);
+// }
+// .delete-action > div{
+//   display: flex;
+//   height: 40px;
+//   width: 100%;
+//   border-radius: 30px;
+//   outline: none;
+//   justify-content: center;
+//   align-items: center;
+// }
+// .alert-icon{
+//   font-size: 2.5rem;
+//   color: var(--warning);
+// }
+// .action-confirmed{
+//   background-color: #9f0000;
+// }
+// .action-confirmed:hover{
+//   background-color: #e30000;
+// }
+// .action-active{
+//   background-color: var(--active);
+// }
+// .action-active:hover{
+//   background-color: var(--active);
+// }
+// .action-restore{
+//   background-color: var(--pending);
+// }
+// .action-restore:hover{
+//   background-color: var(--pending);
+// }
+// .action-cancel{
+//   background-color: var(--primary);
   
-}
-.action-cancel:hover{
-  background-color: var(--blueGoogle);
-}
+// }
+// .action-cancel:hover{
+//   background-color: var(--blueGoogle);
+// }
 // CONFIRM DELETE POP-UP END <----
 
 // SWITCH STYLE START <----
