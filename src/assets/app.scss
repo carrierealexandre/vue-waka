@@ -194,6 +194,12 @@ body {
   .action-restore:hover{
     background-color: var(--success);
   }
+  .action-suspend{
+    background-color: var(--pending);
+  }
+  .action-suspend:hover{
+    background-color: var(--pending);
+  }
   .action-delete{
     background-color: var(--archive);
   }

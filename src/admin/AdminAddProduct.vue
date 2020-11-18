@@ -1156,6 +1156,7 @@ export default {
     },
     restoreProduct(status){
       this.alertBadge()
+      window.scrollTo(0, 0);
       setTimeout(() => {
         this.product.status = status
         this.selectedProductStatus = this.product.status;
@@ -1359,6 +1360,8 @@ export default {
             localStorage.docRefProduct = docRef.id;
             localStorage.newAddedProduct = true;
             this.loadNewProduct();
+            window.scrollTo(0, 0);
+            this.alertBadge()
           })
           .catch( (error) => {
             console.log("Error adding document: ", error);
@@ -1433,6 +1436,7 @@ export default {
         this.fieldMissing = true;
         $('#productnameinput').removeClass('border-corrected-field')
         $('#productnameinput').addClass('border-missing-field')
+        window.scrollTo(0, 0);
 
       }else{
         this.product.status = this.selectedProductStatus;
@@ -1450,7 +1454,7 @@ export default {
         setTimeout(() => {
           
           this.$firestore.products.doc(this.docRefProduct).update(this.product);
-          
+          window.scrollTo(0, 0);
           this.saved = true;
           $(".alert").delay((this.alert.badgeMsg.length * 100)).fadeOut(2000);
         }, 2000);

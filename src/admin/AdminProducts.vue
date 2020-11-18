@@ -7,6 +7,27 @@
       :AdminPage='AdminPage'
       :AdminPageContent='AdminPageContent'
       ></whenempty>
+    
+        <div v-if="alert" class="center-screen alert alert-success" role="alert">
+          <div>
+            <label class="check-mark-label" for="">
+              <div class="check-icon"></div>
+            </label>
+          </div>
+          <div class="restore-message">
+            <div>
+              <span class="span-success-popup">{{alert.badgeSuccessTitle}}</span>
+            </div>
+            <div class="span-notice">
+              <span>{{alert.badgeMsg}}</span>
+            </div>
+          </div>
+          <div @click="closeAlert" class="close-alert-succes">
+            <h4>&#10006;</h4>
+          </div>
+          
+
+        </div>
 
         <div v-if="alert" class="popup-wrapper">
 
@@ -29,13 +50,18 @@
               </div>
               <div class="delete-action">
                 <div class="action-cancel" @click="closePopup" role="button">{{alert.leftBtn}}</div>
-                <div class="action-restore"  role="button">{{alert.rightBtn}}</div>
-                <!-- <div v-if="alert.type == 'update' && this.docRefProduct" class="action-restore" @click="updateData('update')" role="button">{{alert.rightBtn}}</div> -->
-                <!-- <div v-if="alert.type == 'create' && !this.docRefProduct" class="action-restore" @click="saveData('create')" role="button">{{alert.rightBtn}}</div> -->
-                <!-- <div v-if="alert.type == 'discard'" class="action-restore" @click="goBack()" role="button">{{alert.rightBtn}}</div> -->
-                <!-- <div v-if="alert.type == 'delete'" class="action-delete" @click="deleteProcess('delete', docRefProduct)" role="button">{{alert.rightBtn}}</div> -->
-                <!-- <div v-if="alert.type == 'archive'" class="action-delete" @click="restoreProduct('Archived')" role="button">{{alert.rightBtn}}</div> -->
-
+                <div v-if="alert.type == 'restore'" class="action-restore" @click="changeProductStatusTo('Pending','restore')" role="button">{{alert.rightBtn}}</div>
+                <div v-if="alert.type == 'activate'" class="action-restore" @click="changeProductStatusTo('Active','activate')" role="button">{{alert.rightBtn}}</div>
+                <div v-if="alert.type == 'archive' || alert.type == 'archives'" class="action-delete" @click="changeProductStatusTo('Archived', 'archive')" role="button">{{alert.rightBtn}}</div>
+                <div v-if="alert.type == 'delete' || alert.type == 'deletes'" class="action-delete" @click="deleteProduct(selectedId, 'delete')" role="button">{{alert.rightBtn}}</div>
+                <div v-if="alert.type == 'suspend' || alert.type == 'suspends'" class="action-suspend" @click="changeProductStatusTo('Pending', 'suspend')" role="button">{{alert.rightBtn}}</div>
+                <!-- <div class="action-cancel" @click="closewindow" role="button">Cancel</div> -->
+                <!-- <div v-if="activeBtn" @click="archiveProduct('Active')" class="action-active" role="button">Reactive</div> -->
+                <!-- <div v-if="activeBtn" @click="archiveProduct('Active')" class="action-active" role="button">Activate</div> -->
+                <!-- <div v-if="restorebtn" @click="archiveProduct('Pending')" class="action-restore" role="button">Restore</div> -->
+                <!-- <div v-if="archiveBtn" @click="archiveProduct('Archived')" class="action-confirmed" role="button">Archive</div> -->
+                <!-- <div v-if="deleteButton" @click="deleteProduct(selectedId)" class="action-confirmed" role="button">Delete</div> -->
+                <!-- <div v-if="suspendbtn" @click="archiveProduct('Pending')" class="action-restore" role="button">Suspend</div> -->
 
               </div>
               <div @click="closePopup" class="close-popup-icon">
@@ -116,13 +142,13 @@
           0 Product selected, please select the product(s) you wish to trash!
 
         </div> -->
-        
+<!--         
         <div v-show="productDeletedAlert"  class="center-screen alert alert-success" role="alert">
           <div><fa-icon class="alert-success-icon" :icon="['fa', 'check-circle']" /></div>
           <div><span class="span-success-popup">Success!</span></div>
           <div class=""><span>Product{{s}} Deleted</span></div>
 
-        </div>
+        </div> -->
         
         
         <div class="btn-group-wrapper">
@@ -279,7 +305,7 @@
                 </tr>
               </thead>
               <tbody id="productRow">
-                <tr class="data-row" v-for="(product, idx) in filteredProducts" :key="idx">
+                <tr  class="data-row" v-for="(product, idx) in filteredProducts" :key="idx">
                   <th class="selecttablerow" data-label="Select"><input value="1" class="myCheck" @click.stop="checkedMe($event, product)" type="checkbox" name="sample[]" ></th>
 
                   <td class="image-centered"  >
@@ -297,7 +323,7 @@
                       
                     </div>
                   </td>
-                  <td data-label="Product">{{product.name}}</td>
+                  <td @click="editProduct(product)" class="row-name-product" data-label="Product">{{product.name}}</td>
                   <!-- colored stastus to help visualize start -->
                   <td v-if="product.status == 'Active'" data-label="Status"><div class="active-status" >{{product.status}}</div></td>
                   <td v-if="product.status == 'Pending'" data-label="Status"><div class="pending-status" >{{product.status}}</div></td>
@@ -318,18 +344,18 @@
                         <div class="td-work-wrapper">
                           <!-- activate -->
                           <div v-if="product.status != 'Active' && product.status != 'Archived'"  class="">
-                            <button @click="openPopup('reactivate', product)" class="product-active"><fa-icon :icon="['fa', 'folder-plus']"/></button>
+                            <button @click="openPopup('activate', product)" class="product-active"><fa-icon :icon="['fa', 'folder-plus']"/></button>
                           </div>
                           <!-- restore -->
                           <div v-if="product.status == 'Archived'" class="">
-                            <button  @click="openPopup('restore')" class="product-restore"><fa-icon :icon="['fa', 'trash-restore-alt']"/></button>
+                            <button  @click="openPopup('restore', product)" class="product-restore"><fa-icon :icon="['fa', 'trash-restore-alt']"/></button>
                           </div>
                           <div v-if="product.status == 'Active'"  class="">
-                            <button @click="openPopup('suspend')" class="product-pending"><fa-icon :icon="['fa', 'folder-minus']"/></button>
+                            <button @click="openPopup('suspend', product)" class="product-pending"><fa-icon :icon="['fa', 'folder-minus']"/></button>
                           </div>
                           <!-- archive -->
                           <div v-if="product.status != 'Archived'"  class="">
-                            <button @click="openPopup('archive')" class="product-archive"><fa-icon :icon="['fa', 'inbox']"/></button>
+                            <button @click="openPopup('archive', product)" class="product-archive"><fa-icon :icon="['fa', 'inbox']"/></button>
                           </div>
 
                           <!-- edit -->
@@ -338,7 +364,7 @@
                           </div>
                           <!-- delete -->
                           <div class="">
-                            <button @click="openPopup('delete')"  class="product-trash"><fa-icon :icon="['fa', 'trash-alt']"/></button>
+                            <button @click="openPopup('delete', product)"  class="product-trash"><fa-icon :icon="['fa', 'trash-alt']"/></button>
                           </div>
                         </div>
                         
@@ -383,7 +409,7 @@ function getNextSibling(elem, selector) {
 }
 // fb, below here to use firebase
 
-import {db} from '../firebase';
+import {db, fb} from '../firebase';
 import $ from 'jquery'
 
 export const productsCategories = ["Beverages", "Chips","Utilities","Frozen"];
@@ -405,21 +431,41 @@ export default {
           level: 'warning',
           type:'restore',
           title:'Confirm Restore',
-          msg: 'By restoring this product will change its status to Pending so you can work on it again.',
+          msg: 'By restoring this product, it will change its status to Pending so you can work on it again.',
           leftBtn: 'Cancel',
           rightBtn: 'Restore',
           badgeSuccessTitle: 'Success!',
-          badgeMsg:' Your product as been restored',
+          badgeMsg:'Your product as been restored',
         },
         { 
           level: 'warning',
-          type:'reactivate',
-          title:'Confirm Reactivation',
-          msg: 'By reactivating, your product will now be available for your customer on your website. Do you want to reactivate this product?',
+          type:'restores',
+          title:'Confirm Restore',
+          msg: 'By restoring these products, it will change all their status to Pending so you can work on it again.',
           leftBtn: 'Cancel',
-          rightBtn: 'Reactivate',
+          rightBtn: 'Restore',
           badgeSuccessTitle: 'Success!',
-          badgeMsg:' Your product as been reactivated',
+          badgeMsg:'Your product as been restored',
+        },
+        { 
+          level: 'warning',
+          type:'activate',
+          title:'Confirm activation',
+          msg: 'By activating, this product will now be available for your customer on your website. Do you want to reactivate this product?',
+          leftBtn: 'Cancel',
+          rightBtn: 'Activate',
+          badgeSuccessTitle: 'Success!',
+          badgeMsg:'Your product as been Activated',
+        },
+        { 
+          level: 'warning',
+          type:'activates',
+          title:'Confirm activation',
+          msg: 'By activating, these products will now be available for your customer on your website. Do you want to wish to continue?',
+          leftBtn: 'Cancel',
+          rightBtn: 'Activate',
+          badgeSuccessTitle: 'Success!',
+          badgeMsg:'Your product as been Activated',
         },
         { 
           level: 'warning',
@@ -429,7 +475,7 @@ export default {
           leftBtn: 'Cancel',
           rightBtn: 'Suspend',
           badgeSuccessTitle: 'Success!',
-          badgeMsg:' Your products as been created',
+          badgeMsg:'products Suspended',
         },
         { 
           level: 'warning',
@@ -439,7 +485,7 @@ export default {
           leftBtn: 'Cancel',
           rightBtn: 'Suspend',
           badgeSuccessTitle: 'Success!',
-          badgeMsg:' Your product as been created',
+          badgeMsg:'Your product as been Suspended',
         },
         { 
           level: 'warning',
@@ -449,7 +495,7 @@ export default {
           leftBtn: 'Cancel',
           rightBtn: 'Archive Products',
           badgeSuccessTitle: 'Success!',
-          badgeMsg:' Your products as been Archive',
+          badgeMsg:'Your products as been Archived',
         },
         { 
           level: 'warning',
@@ -459,7 +505,7 @@ export default {
           leftBtn: 'Cancel',
           rightBtn: 'Archive Product',
           badgeSuccessTitle: 'Success!',
-          badgeMsg:' Your product as been Archive',
+          badgeMsg:'Your product as been Archived',
         },
         { 
           level: 'warning',
@@ -469,7 +515,7 @@ export default {
           leftBtn: 'Cancel',
           rightBtn: 'Delete Products',
           badgeSuccessTitle: 'Success!',
-          badgeMsg:' Your products as been deleted',
+          badgeMsg:'Your products as been deleted',
         },
         { 
           level: 'warning',
@@ -479,7 +525,7 @@ export default {
           leftBtn: 'Cancel',
           rightBtn: 'Delete Product',
           badgeSuccessTitle: 'Success!',
-          badgeMsg:' Your product as been deleted',
+          badgeMsg:'Your product as been deleted',
         },
       ],
       alert:{
@@ -639,6 +685,53 @@ export default {
       }
     },
     methods:{
+      openPopup: function(type,product){
+          if(product){
+            this.selectedId = product.id
+          }
+          let obj = this.alerts.find(x => x.type == type);
+          let index = this.alerts.indexOf(obj);
+          this.alert = this.alerts[index];
+          console.log(this.alert);
+          $('.popup-wrapper').fadeIn(200);
+        
+      
+      },
+      closePopup: function(){
+        // $(".confirm-delete-pop-up").slideUp(200,()=>{
+        //   $('.popup-wrapper').css("display","none");
+        // });
+        $('.popup-wrapper').fadeOut(200);
+        
+        this.alert = {}
+      },
+      badgeTimeOut(){
+        
+          
+          $('.check-icon').css("display","block");
+          $('.restore-message').css("visibility","visible");
+          $('.close-alert-succes').css("visibility","visible");
+          $('.check-mark-label').addClass('stop-check-animation');
+          $(".alert").delay((this.alert.badgeMsg.length * 100)).fadeOut(2000);
+        
+      },
+      
+      setAlertParam(type){
+        let obj = this.alerts.find(x => x.type == type);
+        let index = this.alerts.indexOf(obj);
+        this.alert = this.alerts[index];
+        console.log(this.alert);
+      },
+      alertBadge(){
+        $('.popup-wrapper').fadeOut(200);
+        // $('.popup-wrapper').css("display","none");
+        $('.alert').css("display","flex");
+        
+        
+      },
+      closeAlert(){
+        $('.alert').css("display","none");
+      },
       windowWidth(){
         if ($(window).width() < 960) {
           console.log('true');
@@ -938,8 +1031,25 @@ export default {
       refreshWindow(){
         location.reload();
       },
-      deleteProductItem(selectedId){
+      deleteProductItem(selectedId,type){
         db.collection("products").doc(selectedId).delete().then(() => {
+          // deleting the image
+          let product = this.products.find(x => x.id == selectedId);
+          let index = this.products.indexOf(product);
+          product = this.products[index];
+          let img = product.images[0];
+          console.log('this is your image ref: ',img);
+
+          let image = fb.storage().refFromURL(img);
+          image.delete().then(function(){
+            console.log('image deleted');
+          }).catch(function(error){
+            // uh-oh, an error occured
+            console.log('an error occurred:' + error );
+          })
+          console.log("Product : ", selectedId, "has been deleted");
+          this.setAlertParam(type);
+          this.badgeTimeOut();
           this.watcher();
           this.uncheckedMe();
         });
@@ -955,91 +1065,118 @@ export default {
         console.log(this.docRefProduct);
         this.$router.push('addproduct')
       },
-      archiveProduct(updateStatus){
-        if(this.selectedId){
+      // archiveProduct(updateStatus, type){
+      //   if(this.selectedId){
 
-          this.productDeletedAlert = true
-          // reseting the form
+      //     this.productDeletedAlert = true
+      //     // reseting the form
+      //     this.checkedNumbers = 0
+      //     // $('.popup-wrapper').css("display","none");
+      //     this.single = ''
+      //     this.products.find((product) => {
+      //       if(product.id == this.selectedId){
+      //         db.collection("products").doc(this.selectedId).update({
+      //           status: updateStatus
+      //         });
+      //       }
+            
+
+      //     })
+          
+      //     // this.$firestore.products.add(this.selectedId);
+          
+      //     // this.$firestore.products.doc(this.selectedId).delete();
+      //     this.closewindow();
+      //     $(".alert").delay(1000).slideUp(200, () => {
+      //       this.productDeletedAlert = false
+      //       this.watcher();
+      //       this.uncheckedMe();
+      //     });
+
+      //   }else{
+          
+      //     this.checkedProductArray.forEach( (productId) => {
+      //       this.products.find((product) => {
+      //         if(product.id == productId){
+      //           db.collection("products").doc(productId).update({
+      //             status: updateStatus
+      //           });
+      //         }
+              
+
+      //         })
+      //       this.closewindow();
+      //       $(".alert").delay(1000).slideUp(200, () => {
+      //         this.productDeletedAlert = false
+      //         this.watcher();
+      //         this.uncheckedMe();
+      //       });
+      //     })
+      //   }
+        
+        
+          
+      // },
+      changeProductStatusTo(updatedStatus,type){
+        console.log(this.selectedId);
+        if(this.selectedId){
+          this.product.status = updatedStatus
           this.checkedNumbers = 0
-          // $('.popup-wrapper').css("display","none");
           this.single = ''
+          this.alertBadge()
           this.products.find((product) => {
             if(product.id == this.selectedId){
               db.collection("products").doc(this.selectedId).update({
-                status: updateStatus
+                status: updatedStatus
+              })
+              .then(() => {
+                $(".alert").delay(2000).fadeOut(2000);
+                this.setAlertParam(type);
+                this.badgeTimeOut();
+                this.watcher();
+                this.uncheckedMe();
               });
             }
-            
-
-            })
+          })
           
-          // this.$firestore.products.add(this.selectedId);
-          
-          // this.$firestore.products.doc(this.selectedId).delete();
-          this.closewindow();
-          $(".alert").delay(1000).slideUp(200, () => {
-            this.productDeletedAlert = false
-            this.watcher();
-            this.uncheckedMe();
-          });
-
-        }else{
-          
+        }
+        if(this.checkedProductArray){
+          this.alertBadge()
           this.checkedProductArray.forEach( (productId) => {
-            // this.$firestore.products.add(item)
             this.products.find((product) => {
               if(product.id == productId){
                 db.collection("products").doc(productId).update({
-                  status: updateStatus
-                });
+                  status: updatedStatus
+                })
+                
               }
               
 
-              })
-            this.closewindow();
-            $(".alert").delay(1000).slideUp(200, () => {
-              this.productDeletedAlert = false
-              this.watcher();
-              this.uncheckedMe();
-            });
+            })
+        
           })
+          $(".alert").delay(2000).fadeOut(2000);
+          this.setAlertParam(type + "s");
+          console.log("the new type",type + "s");
+          this.badgeTimeOut();
+          this.watcher();
+          this.uncheckedMe();
+          
+          
         }
         
-        
-          
       },
-      deleteProduct(selectedId){
+      deleteProduct(selectedId, type){
         if(selectedId){
-
-          this.productDeletedAlert = true
-          // reseting the form
-          this.checkedNumbers = 0
-          // $('.popup-wrapper').css("display","none");
+          this.alertBadge()
           this.single = ''
-          this.deleteProductItem(selectedId);
-          db.collection("products").doc(selectedId).delete()
-          console.log("Product : ", selectedId, "has been deleted");
-          // this.$firestore.products.doc(this.selectedId).delete();
-          this.closewindow();
-          $(".alert").delay(1000).slideUp(200, () => {
-            this.productDeletedAlert = false
-            this.watcher();
-            this.uncheckedMe();
-          });
-
+          this.deleteProductItem(selectedId, type);
         }else{
-          
+          this.alertBadge();
           this.checkedProductArray.forEach( (item) => {
             this.deleteProductItem(item);
-            this.closewindow();
-            $(".alert").delay(1000).slideUp(200, () => {
-              this.productDeletedAlert = false
-            });
           })
         }
-        
-        
-          
       },
 
       selectorAll: function(event){
@@ -1067,27 +1204,11 @@ export default {
             this.checkedProductArray = []; 
         }
       },
-      // TEST FUNCTION FOR NEW PUPUP START
+    // TEST FUNCTION FOR NEW PUPUP START
 
         
-      openPopup: function(type){
-        
-          let obj = this.alerts.find(x => x.type == type);
-          let index = this.alerts.indexOf(obj);
-          this.alert = this.alerts[index];
-          console.log(this.alert);
-          $('.popup-wrapper').fadeIn(200);
-        
       
-      },
-    closePopup: function(){
-      // $(".confirm-delete-pop-up").slideUp(200,()=>{
-      //   $('.popup-wrapper').css("display","none");
-      // });
-      $('.popup-wrapper').fadeOut(200);
-      
-      this.alert = {}
-    },
+    
     // TEST FUNCTION FOR NEW PUPUP END
 
       // singleConfirmdeletewindow(string, doc){
@@ -1275,42 +1396,42 @@ export default {
 // 
 // POPUP STYLE START <----
 
-.center-screen{
-  margin: auto;
-  position: fixed;
-  top: 0; left: 0; bottom: 0; right: 0;
-  width: 380px;
-  height: 300px;
-  background-color: var(--lightwhite1);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-content: center;
-  z-index: 30;
-  border: 1px solid var(--primaryT);
-  box-shadow: var(--shadow);
-  border-radius: 10px;
+// .center-screen{
+//   margin: auto;
+//   position: fixed;
+//   top: 0; left: 0; bottom: 0; right: 0;
+//   width: 380px;
+//   height: 300px;
+//   background-color: var(--lightwhite1);
+//   display: flex;
+//   flex-direction: column;
+//   justify-content: center;
+//   align-content: center;
+//   z-index: 30;
+//   border: 1px solid var(--primaryT);
+//   box-shadow: var(--shadow);
+//   border-radius: 10px;
 
-}
-.center-screen > div {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-.alert-success-icon{
-  font-size: 3rem;
-  color: var(--success);
-}
-.alert-error-icon{
-  font-size: 3rem;
-  color: var(--danger);
-}
-.span-success-popup{
-  font-size: 2rem;
-  font-weight: 600;
-  color: var(--success);
-}
+// }
+// .center-screen > div {
+//   display: flex;
+//   flex-direction: column;
+//   justify-content: center;
+//   align-items: center;
+// }
+// .alert-success-icon{
+//   font-size: 3rem;
+//   color: var(--success);
+// }
+// .alert-error-icon{
+//   font-size: 3rem;
+//   color: var(--danger);
+// }
+// .span-success-popup{
+//   font-size: 2rem;
+//   font-weight: 600;
+//   color: var(--success);
+// }
 // POPUP STYLE END <----
 // ALERT PRODUCTS END<-----
 
@@ -1318,19 +1439,19 @@ export default {
 // .dflex{
 //   display: flex;
 // }
-.dcolum{
-  flex-direction: column;
-}
+// .dcolum{
+//   flex-direction: column;
+// }
 // .centercenter{
 //   justify-content: center;
 //   align-items: center;
 // }
-.justcontaround{
-  justify-content: space-around;
-}
-.alingcontaround{
-  align-content: space-around;
-}
+// .justcontaround{
+//   justify-content: space-around;
+// }
+// .alingcontaround{
+//   align-content: space-around;
+// }
 // .popup-wrapper{
 //   display: none;
 //   position: relative;
@@ -2152,6 +2273,9 @@ tr:hover{
 }
 .table thead th{
   border-bottom: 0;
+}
+.row-name-product:hover{
+  cursor: pointer;
 }
 thead tr th{
   // background-color: var(--blue1);
