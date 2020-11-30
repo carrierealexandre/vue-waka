@@ -75,7 +75,7 @@
 </template>
 
 <script>
-import {fb} from '../firebase'
+import {fb, db} from '../firebase'
 
 export default {
   name: "ModalLogin",
@@ -93,7 +93,16 @@ export default {
   methods: {
     register: function(){
       fb.auth().createUserWithEmailAndPassword(this.email, this.password)
-          .then(() => {
+          .then((user) => {
+            db.collection("Profiles").doc(user.user.uid).set({
+              name: this.name
+            })
+            .then(function(){
+              console.log("Document successfully written!");
+            })
+            .catch(function(error) {
+              console.log("Error Writing document: ", error);
+            })
             this.$router.replace('admin');
           })
           .catch(function(error) {

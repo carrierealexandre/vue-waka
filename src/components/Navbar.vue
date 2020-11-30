@@ -2,56 +2,180 @@
 <template>
   <div class="main-container">
 
-    <nav class="navbar"><!-- top-page-container Begin -->
+    <div class="navbar__main-content"><!-- top-page-container Begin -->
 
-      <div class="burger-wraper">
-        <div class="line1"></div>
-        <div class="line2"></div>
-        <div class="line3"></div>
-      </div>
+      
 
-      <div class="companie-logo__container">
-        <router-link to="/" class="companie-logo" href="index.html">
-          <fa-icon class="logo-icon__companie-logo" :icon="['fas', 'tree']"/>
-          <div class="logoText__Wrapper">
-            <span class="top">Waka</span>
-            <span class="bottom">Connection</span>
+      
+      <router-link to="/" class="companie-logo" href="index.html">
+        
+        <div class="logoText__Wrapper">
+          <div class="logoText">
+            <span>Wakabox</span>
           </div>
-        </router-link> 
-      </div>
+        </div>
 
-      <div class="search_container"><!-- search bar container Begin -->
-        <div class="search-bar-wrapper" id="search"><!-- collapse clearfix Begin -->
-          <form method="get" action="result.php" class="navbar-form"><!--navbar-form Begin -->
-            <div id="search-group" class="input-group "><!-- input-group Begin -->
-              <input type="text" class="form-control" placeholder="Search..." name="user_query" required>
-              <div class="input-group-btn"><!--input-group-btn begin -->
-                <button id="search-btn" type="submit" name="search" value="search" class="btn-search">
-                  <fa-icon :icon="['fa', 'search']"/>
+      </router-link> 
+      
+    
+      <div class="header__content">
+
+        <div class="header__content--left-section">
+
+          <div class="header__top">
+            <!-- SearchBox -->
+            <div class="search_container"><!-- search bar container Begin -->
+              <div class="search-bar-wrapper" id="search"><!-- collapse clearfix Begin -->
+                <form method="get" action="result.php" class="navbar-form"><!--navbar-form Begin -->
+                  <div id="search-group" class="rich-input "><!-- input-group Begin -->
+                    <input type="text" class="search__input" placeholder=" I'm looking for" name="user_query" required>
+                    <div class="input-group-btn"><!--input-group-btn begin -->
+                      <button id="search-btn" type="submit" name="search" value="search" class="btn-search">
+                        <fa-icon :icon="['fa', 'search']"/>
+                      </button>
+                    </div><!--input-group-btn Finish -->
+                  </div><!--input-group Finish -->
+                </form><!-- navbar-form Finish -->
+              </div><!-- collapse clearfix finish -->
+            </div><!-- search bar container finish -->
+          </div>
+
+          <!-- Select you Airport:  -->
+          <div class="selectAirport">
+            <button>
+              <span>Going to:</span>
+              <div class="selectAirport__Current--Airport ">
+                <span>Pikangikum</span>
+                <div class=" nav-utility__icon--arrow-down ">
+                  <fa-icon class="chevron-down"  :icon="['fa', 'chevron-down']" size="1x"/>
+                </div>
+                
+              </div>
+            </button>
+          </div>
+
+        </div>
+
+        <nav role="nav" class="nav-utility">
+          <ul>
+            <li>
+              <!-- Help -->
+              <button class="nav-button">
+
+                <div class="nav-utility__icon nav-utility__icon--help">
+                  <fa-icon :icon="['fa', 'question-circle']" size="1x"/>
+                </div>
+                <span class="nav-utility__label">
+                  Help
+                </span>
+                <div class="nav-utility__icon nav-utility__icon--arrow-down">
+                  <fa-icon class="chevron-down" :icon="['fa', 'chevron-down']" size="1x"/>
+                </div>
+
+              </button>
+            </li>
+            <li>
+              <!-- Account -->
+              <button class="nav-button" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                <div class="nav-utility__icon nav-utility__icon--acount">
+                  <fa-icon v-show="User" :icon="['fa', 'user-circle']" size="1x"/>
+                  <fa-icon v-show="!User" :icon="['fa', 'sign-in-alt']" size="1x"/>
+                </div>
+                <span class="nav-utility__label">
+                  Account
+                </span>
+                <div class="nav-utility__icon nav-utility__icon--arrow-down">
+                  <fa-icon class="chevron-down"  :icon="['fa', 'chevron-down']" size="1x"/>
+                </div>
+
+              </button>
+              <div>
+                <div class="dropdown-menu sub-menu-links" aria-labelledby="dropdownMenuLink">
+                  <a v-show="!User"><modallogin class="sub-menu-links-a" ></modallogin></a>
+                  
+                  <a v-show="!User"><modalregister class="sub-menu-links-a"
+                  :menuTitle='Register'
+                  ></modalregister></a>
+
+                  <a v-show="User" href="#" @click="logout" class="sub-menu-links-a">{{LogOut}}</a>
+                  
+                  <a class="sub-menu-links-a" href="#">Settings</a>           
+                  <router-link to="/admin" class="sub-menu-links-a"><span>Admin</span></router-link>
+
+                  
+
+                  
+                </div>
+              </div>
+            </li>
+            <li>
+              <!-- Cart -->
+              <router-link to="/cehckout" class="nav-button nav-button--utility" href="index.html">
+
+                <div class="nav-utility__icon nav-utility__icon--cart">
+                  <fa-icon :icon="['fa', 'shopping-cart']" size="1x"/>
+                </div>
+                <span>
+                  Cart
+                </span>
+                <span class="badge--count nav-utility__cart-badge">1</span>
+              </router-link>
+            </li>
+          </ul>
+        </nav>
+        <div class="header__bottom">
+          <nav class="navigation-menu-primary">
+            <ul class="nav-primary__item-list">
+              <!-- Shop -->
+              <li class="np-menu-item np-menu-item--women ">
+                <button class="nav-button">
+                  <span>Shop</span>
+                  <fa-icon class="np-menu__chervron chevron-down"  :icon="['fa', 'chevron-down']" size="1x"/>
                 </button>
-              </div><!--input-group-btn Finish -->
-            </div><!--input-group Finish -->
-          </form><!-- navbar-form Finish -->
-        </div><!-- collapse clearfix finish -->
-      </div><!-- search bar container finish -->
+                
+              </li>
+              <!-- Cargo -->
+              <li class="np-menu-item np-menu-item--women ">
+                <button class="nav-button">
+                  <span>Cargo</span>
+                  <fa-icon class="np-menu__chervron chevron-down"  :icon="['fa', 'chevron-down']" size="1x"/>
+                </button>
+              </li>
+              <!-- About Us -->
+              <li class="np-menu-item np-menu-item--women ">
+                <button class="nav-button">
+                  <span>Charter</span>
+                  <fa-icon class="np-menu__chervron chevron-down"  :icon="['fa', 'chevron-down']" size="1x"/>
+                </button>
+              </li>
+              <!-- About Us -->
+              <li class="np-menu-item np-menu-item--women ">
+                <button class="nav-button">
+                  <span>About Us</span>
+                  <fa-icon class="np-menu__chervron chevron-down"  :icon="['fa', 'chevron-down']" size="1x"/>
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
 
-      <div class="menu-wraper__navbar"><!-- nav-bar__right-wraper start -->
-        <ul class="menu-bar-lis">
+      </div>
+    </div> 
 
-          <li class="menu-bar__help  ">
-            <a class="bugger" href="#">
-              <fa-icon :icon="['fa', 'question-circle']" size="2x"/>
-              <span>Help <div><fa-icon :icon="['fa', 'caret-down']" size="1x"/></div></span>
-            </a>
-          </li>
+      <!-- <div class="menu-wraper__navbar">nav-bar__right-wraper start
+        <ul class="menu-bar-lis"> --> 
+
+          
 
 
 
-          <li  class="menu-bar__account dropdown show ">
+          <!-- <li  class="menu-bar__account dropdown show ">
             <a class="bugger menu-bar__account-a" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <fa-icon v-show="User" :icon="['fa', 'user-circle']" size="2x"/>
               <fa-icon v-show="!User" :icon="['fa', 'sign-in-alt']" size="2x"/>
-              <span v-show="User">Account<div><fa-icon :icon="['fa', 'caret-down']" size="1x"/></div></span>
+              <span v-show="User">Account<div><fa-icon :icon="['fa', 'chevron-down']" size="1x"/></div></span>
+              
               <span v-show="!User">Sing In</span>
             </a>
             <div>
@@ -64,15 +188,19 @@
 
                 <a v-show="User" href="#" @click="logout" class="sub-menu-links-a">{{LogOut}}</a>
                 
+                 <a class="sub-menu-links-a" href="#">Settings</a>           
+                <router-link to="/admin" class="sub-menu-links-a"><span>Admin</span></router-link>
 
-                <a class="sub-menu-links-a" href="#">Settings</a>
+                
+
+                
               </div>
             </div>
             
 
-          </li>
+          </li> -->
 
-          <li class="menu-bar__cart">
+          <!-- <li class="menu-bar__cart">
             <a class="bugger" href="#">
               <div>
                 <fa-icon :icon="['fa', 'shopping-cart']" size="3x"/>
@@ -80,17 +208,17 @@
                 <div class="cart-count">0</div>
               </div>
             </a>
-          </li>
-        </ul>
+          </li> -->
+        <!-- </ul> -->
 
 
         
-      </div>
+      <!-- </div> -->
 
-    </nav><!-- navbar container finish -->
+    <!-- </div> navbar container finish -->
     
-    <div class="sm__navbar"><!-- wrapper__nav-bar Begin -->
-      <div class="top-header-wrapper">
+    <!-- <div class="sm__navbar">wrapper__nav-bar Begin -->
+      <!-- <div class="top-header-wrapper">
           
         <nav class="nav-bar">
           <div class="burger-wraper">
@@ -156,7 +284,8 @@
           </div>
         </nav>
       </div>
-    </div>
+    </div> -->
+
   </div>
 </template>
 
@@ -222,11 +351,258 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-
+body{
+  
+  font-size: 16px;
+  line-height: 1.5;
+}
 * {
+  font-size: 16px;
+  line-height: 1.5;
   margin: 0;
   padding: 0;
+  font-family: Helvetica Neue,Helvetica,sans-serif;
 }
+
+// NEW NAVBAR STYLE START <----
+.main-container {
+  background-color: var(--dark);
+    margin-right: auto;
+    margin-left: auto;
+    // padding-left: 15px;
+    // padding-right: 15px;
+    min-width: 19em;
+}
+.navbar__main-content{
+  padding: 1rem;
+  width: 85em;
+  height: auto;
+  background-color: var(--dark);
+  display: flex;
+  margin: auto;
+  
+}
+
+.header__content{
+  width: 100%;
+  height: auto;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  justify-content: space-between;
+  align-items: center;
+}
+.header__content--left-section{
+  display: flex;
+  align-items: center;
+}
+.header__bottom{
+  grid-column: 1 / 3;
+}
+.nav-utility ul {
+  display: flex;
+}
+.selectAirport{
+  min-width: 60px;
+  padding-right: 1em;
+  margin: 0 40% 0 0
+}
+.selectAirport button{
+    cursor: pointer;
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    flex-direction: column;
+    color: var(--compGray);
+    z-index: 800;
+    text-decoration: none;
+    background-color: transparent;
+    border: none;
+    margin-bottom: 0;
+    line-height: 1.25;
+    // padding: 8px 14px;
+    font-size: 16px;
+    white-space: normal;
+    // margin: 0 0 .625em;
+    position: relative;
+}
+.selectAirport span{
+  font-size: 14px ;
+}
+.selectAirport__Current--Airport{
+  display: flex;
+    font-weight: 700;
+    overflow: hidden;
+    white-space: nowrap;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    font-family: sans-serif;
+    max-width: 10em;
+    margin: 0;
+    text-decoration: underline;
+}
+// search bar style
+.header__top{
+  width: 100%;
+}
+.search_container{
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    pointer-events: auto;
+    overflow: visible;
+    position: inherit;
+}
+.search-bar-wrapper{
+  padding: 0 1em 0 0;
+  background: none;
+}
+.navbar-form{
+  height: 100%;
+}
+input{
+  color: var(--compGray);
+}
+.search__input{
+  text-shadow: 0px 0px 0px var(--compGray);
+  -webkit-text-fill-color: transparent;
+  background: #333;
+  width: 100%;
+  min-height: 40px;
+  border: 0;
+  height: 2.5rem;
+  padding: 8px 12px;
+}
+.search__input:focus{
+  outline: none;
+}
+.rich-input{
+  display: flex;
+  height: 100%;
+  
+}
+.input-group-btn{
+  display: flex;
+  align-items: center;
+  margin: 0;
+  font-size: 18px;
+  background: #333;
+}
+.input-group-btn button{
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ outline: none;
+ width: 40px;
+ font-size: 1.2rem;
+ border: none;
+ height: 80%;
+ border-left: 1px solid var(--compGray);
+ color: var(--compGray);
+ background: none;
+}
+// companie logo style
+.companie-logo{
+  height: inherit;
+}
+.logoText__Wrapper {
+  display: flex;
+  height: 100%;
+  background-color: var(--compOrange);
+  margin: 0 1.5em 0 0;
+}
+.logoText{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.logoText span{
+  text-transform: uppercase;
+  padding: 0px 5px;
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  color: var(--dark);
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+// account cart help menu
+.nav-utility button, .nav-utility a {
+  display: flex;
+ 
+
+}
+
+.nav-button{
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  font-family: sans-serif;
+  text-transform: none;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  text-align: left;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 400;
+  background: none;
+  color: var(--compGray);
+}
+.nav-utility__icon{
+  display: flex;
+  align-items: flex-end;
+  padding: 0 10px 0 0;
+  margin: 0 0 2px;
+  width: auto;
+  height: auto;
+  min-width: 0;
+}
+.nav-utility__icon--arrow-down{
+  padding: 0 0 0 5px;
+  margin: 0;
+}
+.chevron-down{
+  font-size: 0.7rem;
+}
+.nav-utility__cart-badge{
+    font-weight: 600;
+    position: relative;
+    margin-left: .5em;
+    color: var(--dark);
+    padding: .2rem .25rem;
+    line-height: 1;
+    font-size: 12px;
+    border-radius: 1.5625rem;
+    min-width: 1.15rem;
+    background-color: var(--compOrange);
+    text-align: center;
+    white-space: nowrap;
+}
+// bottom menu style 
+.np-menu-item{
+  padding: 8px 1.5em 0 0;
+}
+.navigation-menu-primary ul {
+  display: flex;
+}
+.nav-utility li{
+  padding: 0 .75em;
+}
+.np-menu__chervron{
+  margin-left: 6px;
+}
+// NEW NAVBAR STYLE END<----
+
+
+
+
+
+
+
+
+
 // --sm navbar style start--
 
 // --sm navbar style end--
@@ -239,13 +615,6 @@ export default {
 }
 .sm__navbar{
   display: none;
-}
-.navbar{
-  width: 100%;
-  height: 60px;
-  background-color: var(--dark);
-  display: grid;
-  grid-template-columns: auto auto 1fr 350px;
 }
 // navar__general style end
 .burger-wraper{
@@ -292,28 +661,20 @@ export default {
 // navbar burger style end
 
 //navbar__logo container style start
-.companie-logo__container {
-  height: 60px;
-  padding: 0 60px 0 0;
-  display: flex;
-  align-items: center;
-}
-.logo-icon__companie-logo{
-  font-size: 2.6rem;
-}
-.companie-logo{
-  display: flex;
-  text-decoration: none;
-  color: white;
-}
-.logoText__Wrapper {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.4rem;
-  justify-content: center;
-  align-items: flex-start;
-  margin-left: 2px;
-}
+// .companie-logo__container {
+//   height: 60px;
+//   padding: 0 60px 0 0;
+//   display: flex;
+//   align-items: center;
+// }
+// .logo-icon__companie-logo{
+//   font-size: 2.6rem;
+// }
+// .companie-logo{
+//   display: flex;
+//   text-decoration: none;
+//   color: white;
+// }
 
 .top {
   font-size: 1.5rem;
@@ -327,34 +688,8 @@ export default {
 //navbar__logo container style end
 
 // navbar__search_container start
-.search_container{
-  justify-content: center;
-}
-.form-control{
-  border-right: none;
-}
-.input-group-btn{
-  display: flex;
-  align-items: center;
-  height: 38px;
-  background-color: white;
-  border-radius: 0 0.25rem 0.25rem 0;
-  border: 1px solid #ced4da;
-  border-left: none;
-}
-.input-group-btn button{
- display: flex;
- align-items: center;
- justify-content: center;
- outline: none;
- width: 40px;
- font-size: 1.2rem;
- border: none;
- height: 80%;
- border-left: 1px solid #ced4da;
- color: var(--blue);
- background: none;
-}
+
+
 // navbar__search_container end
 
 //navbar__menu style start
@@ -524,13 +859,13 @@ export default {
  .search_container{
   display: none;
  }
- .navbar{
-   grid-template-columns: auto 1fr auto;
- }
- .companie-logo__container{
-   justify-content: center;
-   padding: 0;
- }
+//  .navbar{
+//    grid-template-columns: auto 1fr auto;
+//  }
+//  .companie-logo__container{
+//    justify-content: center;
+//    padding: 0;
+//  }
  .menu-wraper__navbar{
   margin: 0;
  }

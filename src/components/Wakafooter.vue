@@ -147,7 +147,7 @@ export default {
 }
 .row{
     display: grid;
-    grid-template-columns: repeat(auto-fill, 290px);
+    grid-template-columns: repeat(4, 1fr);
     justify-content: center;
     margin: 0 20px;
     padding: 10px 0;

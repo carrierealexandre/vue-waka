@@ -2,13 +2,23 @@
 
 @import './admin.scss';
 
+// New Style colors: compDarkBlue: 0B2027 CompTealBlue: 40798C CompGray: C9CAD9 CompOrange: FF9F1C CompWhite: FFFFFF
+
 :root {
     --actionSuccess:#5cb85c;
+    --darkShadow: rgba(0,0,0,0.1);
     --actionSuccessT: rgba(92, 184, 92, 0.08);
     --active: #76A79E;
     --pending: #F3DE8A;
+    --greatedShadow: rgba(118, 167, 158, 1);
+    --archiveShadow: rgba(166, 52, 70, 1);
     --archive: #A63446;
-    --dark: #333;
+    // --dark: #222;
+    --compGray: #C9CAD9;
+    --compWhite: #FFFFFF;
+    --compOrange: #FF9F1C ;
+    --dark: #0B2027;
+    --CompTealBlue: #40798C;
     --grayDisable: #D3D3D3;
     --lightgray: #696969;
     --darkT: rgba(51, 51, 51, 0.75);

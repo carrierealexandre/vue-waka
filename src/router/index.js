@@ -9,6 +9,11 @@ import DeerLake from "../airports/DeerLake.vue";
 import Northspirit from "../airports/Northspirit.vue";
 import SandyLake from "../airports/SandyLake.vue";
 import Overview from "../admin/AdminOverview.vue";
+import MyProfile from "../admin/MyProfile.vue";
+import ChangeName from "../admin/ChangeName.vue";
+import ChangeEmail from "../admin/ChangeEmail.vue";
+import AdminAuth from "../admin/AdminAuth.vue";
+import ChangePhone from "../admin/ChangePhone.vue";
 import Airports from "../admin/AdminAirports.vue";
 import Flights from "../admin/AdminFlights.vue";
 import General from "../admin/AdminGeneral.vue";
@@ -75,6 +80,36 @@ const router = new VueRouter ({
         path: "overview",
         name: "overview",
         component: Overview,
+        meta: {hideNavigation: true,requiresAuth: true}
+      },
+      {
+        path: "myprofile",
+        name: "myprofile",
+        component: MyProfile,
+        meta: {hideNavigation: true,requiresAuth: true}
+      },
+      {
+        path: "myprofile/changename",
+        name: "changename",
+        component: ChangeName,
+        meta: {hideNavigation: true,requiresAuth: true}
+      },
+      {
+        path: "adminauth",
+        name: "adminauth",
+        component: AdminAuth,
+        meta: {hideNavigation: true,requiresAuth: true}
+      },
+      {
+        path: "myprofile/changephone",
+        name: "changephone",
+        component: ChangePhone,
+        meta: {hideNavigation: true,requiresAuth: true}
+      },
+      {
+        path: "myprofile/changeemail",
+        name: "changeemail",
+        component: ChangeEmail,
         meta: {hideNavigation: true,requiresAuth: true}
       },
       {

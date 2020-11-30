@@ -367,7 +367,7 @@
   
   /*----------------page-wrapper----------------*/
   .page-wrapper {
-    height: 100vh; }
+    height: 100vh }
     .page-wrapper .theme {
       width: 40px;
       height: 40px;
@@ -388,6 +388,9 @@
       background: #46454c; }
     .page-wrapper .theme.light-theme {
       background: #ececec; }
+    .page-content{
+      height: 100%;
+    }
     .page-wrapper .page-content {
       display: inline-block;
       width: 100%;

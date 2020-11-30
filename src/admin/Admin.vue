@@ -8,7 +8,10 @@
             <div class="sidebar-content">
                 <!-- sidebar-brand  -->
                 <div class="sidebar-item sidebar-brand">
-                    <a href="#">WakaConnection</a>
+                            <router-link to="/">
+                                WakaConnection
+                            </router-link>
+                    
                     <div id="close-sidebar" @click=" toggled=!toggled">
                       <i class="fas fa-times"></i>
                     </div>
@@ -19,8 +22,10 @@
                         <i class="fas fa-user-circle fa-3x" fa></i>
                     </div>
                     <div class="user-info">
-                        <span class="user-name">Alexandre
-                            <strong>Carriere</strong>
+                        <span class="user-name">
+                            
+                            {{profile.name}}
+                            <!-- <strong>Carriere</strong> -->
                         </span>
                         <span class="user-role">Administrator</span>
                         <span class="user-status">
@@ -71,7 +76,7 @@
                           <div id="collapseOne" class="collapse " aria-labelledby="headingOne" data-parent="#accordion">
                             <div class="card-body">
                               <ul>
-                                <li>
+                                <li @click="hideSideBar">
                                   
                                     
                                     <router-link class="submenu__sidebar" to="/admin/products">
@@ -301,10 +306,30 @@
                         <i class="fa fa-cog"></i>
                         <!-- <span class="badge-sonar"></span> -->
                     </a>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuMessage">
-                        <a class="dropdown-item" href="#">My profile</a>
-                        <a class="dropdown-item" href="#">Help</a>
-                        <a class="dropdown-item" href="#">Setting</a>
+                    <div id="geared-menu-admin" class="dropdown-menu" aria-labelledby="dropdownMenuMessage">
+                        <router-link class="dropdown-item" to="/admin/adminauth">
+                             <fa-icon :icon="['fa', 'user-shield']" />
+                            <span class="menu-text">Login & security</span>
+                            <!-- <span class="badge badge-pill badge-warning">New</span> -->
+                        </router-link>
+                        
+                        <router-link class="dropdown-item" to="/admin/adminauth">
+                             <fa-icon :icon="['fa', 'question-circle']" />
+                            <span class="menu-text">Users & Permissions</span>
+                            <!-- <span class="badge badge-pill badge-warning">New</span> -->
+                        </router-link>
+                        
+                        <router-link class="dropdown-item" to="/admin/myprofile">
+                             <fa-icon :icon="['fa', 'question-circle']" />
+                            <span class="menu-text">Help</span>
+                            <!-- <span class="badge badge-pill badge-warning">New</span> -->
+                        </router-link>
+
+                        <router-link class="dropdown-item" to="/admin/myprofile">
+                             <fa-icon :icon="['fa', 'cogs']" />
+                            <span class="menu-text">Settings</span>
+                            <!-- <span class="badge badge-pill badge-warning">New</span> -->
+                        </router-link>
                     </div>
                 </div>
                 <div>
@@ -320,7 +345,7 @@
             </div>
         </nav>
         <!-- page-content  -->
-        <main class="page-content">
+        <main class="page-content" @click="hideSideBar">
             
               <router-view/>   
             
@@ -334,7 +359,7 @@
 <script>
 // @ is an alias to /src
 // import Admin from "@/components/Admin.vue";
-import {fb} from "../firebase";
+import {fb, db} from "../firebase";
 import $ from 'jquery'
 
 export default {
@@ -342,7 +367,35 @@ export default {
   components: {
     // Admin
   },
+  firestore(){
+      const user = fb.auth().currentUser;
+      return{
+          profile: db.collection('Profiles').doc(user.uid),
+      }
+      
+  },
+  created(){
+    var user = fb.auth().currentUser;
+    this.email = user.email
+
+    if($(window).width() < 960) {
+    this.toggled=!this.toggled
+        console.log('your window is less than 960','true');
+        return true
+    }else {
+        console.log('false');
+        return false
+    }
+
+    
+
+  },
   methods:{
+    hideSideBar(){
+        if($(window).width() < 960){
+            this.toggled=!this.toggled
+        }
+    },
     DropDown:function(){
       $(this).next(".sidebar-submenu").slideDown(200);
     },
@@ -374,10 +427,20 @@ export default {
     
   },
   
+  
+    
+  
+  
   data(){
     return{
       toggled:true,
-      
+      email:null,
+      Profile:{
+          namne:null,
+          phone:null,
+          adress:null,
+          zipCode:null,
+      }
       
     }
   }
@@ -387,6 +450,7 @@ export default {
 
 <style lang="scss">
 // General Styling
+
 .somestuff {
     z-index: 99;
 }
@@ -409,6 +473,15 @@ export default {
   cursor: pointer;
 }
 // STYLE SIDE BAR
+// GEAR SETING MENU START <---
+
+#geared-menu-admin span{
+    padding-left: 10px;
+}
+
+// GEAR SETING MENU END <---
+
+
 // DROPDOWN MENU
 .notch{
   font-size: 0.6rem;

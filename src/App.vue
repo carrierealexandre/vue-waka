@@ -1,14 +1,14 @@
 <template>
   <div id="app">
     <navbar v-if="!$route.meta.hideNavigation"></navbar>
-    <homemenu 
+    <!-- <homemenu 
       v-if="!$route.meta.hideNavigation"
       v-bind:Airports="Airports"
       v-bind:Current="Current"
       v-bind:Currentwx="Currentwx"
       v-bind:Path="Path"
       
-      ></homemenu>
+      ></homemenu> -->
     <router-view
       v-bind:Airports="Airports"
       v-bind:Current="Current"

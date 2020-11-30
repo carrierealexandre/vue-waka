@@ -390,7 +390,7 @@ export default {
     padding: 10px 0 10px 0;
     height: auto;
     column-gap: 5px;
-    grid-template-columns: repeat(auto-fill, 250px);
+    grid-template-columns: repeat(5, 250px);
     justify-content: center;
     grid-gap: 5px;
     

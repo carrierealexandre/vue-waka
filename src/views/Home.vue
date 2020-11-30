@@ -177,7 +177,7 @@ export default {
   object-fit: cover;
   background-size: cover;
   width: 100%;
-  height: 540px;
+  height: 680px;
 }
 .heroMessage__wrapper{
   padding: 40px 40px;

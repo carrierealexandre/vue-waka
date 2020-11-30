@@ -308,7 +308,7 @@
                 <tr  class="data-row" v-for="(product, idx) in filteredProducts" :key="idx">
                   <th class="selecttablerow" data-label="Select"><input value="1" class="myCheck" @click.stop="checkedMe($event, product)" type="checkbox" name="sample[]" ></th>
 
-                  <td class="image-centered"  >
+                  <td @click="editProduct(product)" class="editProductStyle image-centered"   >
 
                     <div v-if="!product.images.length" class="icon-image-wrapper">
                       <div class="image-box when-empty-image-sizer">
@@ -323,18 +323,18 @@
                       
                     </div>
                   </td>
-                  <td @click="editProduct(product)" class="row-name-product" data-label="Product">{{product.name}}</td>
+                  <td @click="editProduct(product)" class="editProductStyle " data-label="Product">{{product.name}}</td>
                   <!-- colored stastus to help visualize start -->
-                  <td v-if="product.status == 'Active'" data-label="Status"><div class="active-status" >{{product.status}}</div></td>
-                  <td v-if="product.status == 'Pending'" data-label="Status"><div class="pending-status" >{{product.status}}</div></td>
-                  <td v-if="product.status == 'Archived'" data-label="Status"><div class="archived-status" >{{product.status}}</div></td>
-                  <td v-if="!product.status" data-label="Status"><div id="archived-status" >Unknown</div></td>
+                  <td @click="editProduct(product)" v-if="product.status == 'Active'" data-label="Status"><div class="editProductStyle active-status" >{{product.status}}</div></td>
+                  <td @click="editProduct(product)" v-if="product.status == 'Pending'" data-label="Status"><div class="editProductStyle pending-status" >{{product.status}}</div></td>
+                  <td  @click="editProduct(product)" v-if="product.status == 'Archived'" data-label="Status"><div class="editProductStyle archived-status" >{{product.status}}</div></td>
+                  <td @click="editProduct(product)" v-if="!product.status" data-label="Status"><div id="archived-status" class="editProductStyle " >Unknown</div></td>
                   <!-- colored stastus to help visualize end -->
-                  <td data-label="Quantity">{{product.qty}}</td>
-                  <td data-label="Price">{{product.price / 100 }}</td>
-                  <td data-label="Weight">{{product.weight + product.Unit}}</td>
-                  <td v-if="product.categorie" data-label="Categorie">{{product.categorie}}</td>
-                  <td v-if="!product.categorie" data-label="Categorie">Unknown</td>
+                  <td @click="editProduct(product)" class="editProductStyle "  data-label="Quantity">{{product.qty}}</td>
+                  <td @click="editProduct(product)" class="editProductStyle "  data-label="Price">{{product.price / 100 }}</td>
+                  <td @click="editProduct(product)" class="editProductStyle "  data-label="Weight">{{product.weight + product.Unit}}</td>
+                  <td @click="editProduct(product)" class="editProductStyle "  v-if="product.categorie" data-label="Categorie">{{product.categorie}}</td>
+                  <td @click="editProduct(product)" class="editProductStyle "  v-if="!product.categorie" data-label="Categorie">Unknown</td>
                   <td v-if="product.vendor" data-label="Vendor">{{product.vendor}}</td>
                   <td v-if="!product.vendor" data-label="Vendor">Unknown</td>
                   <td data-label="" class="show-more-tools" >
@@ -569,7 +569,7 @@ export default {
       selectefDoc: null,
       // in productselected: [], we'll have to update the function ifmoreProducts() to falsify the 's' or not.
       checkedNumbers: 0 ,
-      single: null,
+      // single: null,
       selectedId: null,
       // activeItem: null,
       // realProduct: null,
@@ -687,6 +687,7 @@ export default {
     methods:{
       openPopup: function(type,product){
           if(product){
+            this.uncheckedMe()
             this.selectedId = product.id
           }
           let obj = this.alerts.find(x => x.type == type);
@@ -698,10 +699,8 @@ export default {
       
       },
       closePopup: function(){
-        // $(".confirm-delete-pop-up").slideUp(200,()=>{
-        //   $('.popup-wrapper').css("display","none");
-        // });
         $('.popup-wrapper').fadeOut(200);
+        this.selectedId = null;
         
         this.alert = {}
       },
@@ -739,7 +738,7 @@ export default {
         }else {
           console.log('false');
           return false
- }
+        }
 
       },
       // filtering queries for categories
@@ -1051,7 +1050,7 @@ export default {
           this.setAlertParam(type);
           this.badgeTimeOut();
           this.watcher();
-          this.uncheckedMe();
+          // this.uncheckedMe();
         });
         
         // this.$firestore.products.doc(selectedId).delete();
@@ -1122,7 +1121,7 @@ export default {
         if(this.selectedId){
           this.product.status = updatedStatus
           this.checkedNumbers = 0
-          this.single = ''
+          // this.single = ''
           this.alertBadge()
           this.products.find((product) => {
             if(product.id == this.selectedId){
@@ -1169,7 +1168,7 @@ export default {
       deleteProduct(selectedId, type){
         if(selectedId){
           this.alertBadge()
-          this.single = ''
+          // this.single = ''
           this.deleteProductItem(selectedId, type);
         }else{
           this.alertBadge();
@@ -2274,7 +2273,7 @@ tr:hover{
 .table thead th{
   border-bottom: 0;
 }
-.row-name-product:hover{
+.editProductStyle:hover{
   cursor: pointer;
 }
 thead tr th{
