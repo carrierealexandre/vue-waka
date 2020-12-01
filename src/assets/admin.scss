@@ -489,7 +489,7 @@
 
 
     .default-theme .sidebar-wrapper {
-        background-color: #1d1d1d; }
+        background-color: var(--dark); }
         .default-theme .sidebar-wrapper .sidebar-item {
           border-top: 1px solid #2b2b2b; }
           .default-theme .sidebar-wrapper .sidebar-item:first-child {
@@ -504,7 +504,7 @@
           color: #d8d8d8; }
         .default-theme .sidebar-wrapper .sidebar-search input.search-menu,
         .default-theme .sidebar-wrapper .sidebar-search .input-group-text {
-          background-color: #2b2b2b;
+          background-color: var(--dark);
           border: none;
           -webkit-box-shadow: none;
           box-shadow: none;
@@ -512,15 +512,15 @@
         .default-theme .sidebar-wrapper .sidebar-menu a:hover i,
         .default-theme .sidebar-wrapper .sidebar-menu a:hover:before,
         .default-theme .sidebar-wrapper .sidebar-menu li.active a i {
-          color: #22ff16; }
+          color: var(--compOrange); }
         .default-theme .sidebar-wrapper .sidebar-menu ul li a i {
-          background-color: #2b2b2b; }
+          background-color: var(--dark); }
         .default-theme .sidebar-wrapper .sidebar-menu .sidebar-dropdown div {
-          background-color: #2b2b2b; }
+          background-color: var(--dark); }
         .default-theme .sidebar-wrapper .sidebar-menu .header-menu span {
           color: #868686; }
         .default-theme .sidebar-wrapper .sidebar-footer {
-          background-color: #2b2b2b;
+          background-color: var(--dark);
           -webkit-box-shadow: 0px -1px 5px #1d1d1d;
           box-shadow: 0px -1px 5px #1d1d1d;
           border-top: 1px solid #2b2b2b; }
@@ -546,7 +546,7 @@
         background-color: transparent; }
       
       .default-theme.sidebar-bg .sidebar-wrapper:before {
-        background-color: rgba(42, 42, 42, 0.9); }
+        background-color: var(--dark); }
       
       .default-theme.sidebar-bg .sidebar-wrapper a:not(.dropdown-item),
       .default-theme.sidebar-bg .sidebar-wrapper .sidebar-header,

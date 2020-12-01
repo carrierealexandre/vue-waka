@@ -156,7 +156,11 @@
           <div>
             <h3>Products Admin</h3>
           </div>
-          
+          <router-link class="btn btn-primary CompTealBlue" to="/admin/addproduct">
+            
+                  Add new
+            
+          </router-link>
         </div>
 
         
@@ -1603,18 +1607,31 @@ input:checked + .slider:before {
 // HEADER STYLE START <----
 .btn-group-wrapper{
   
-  width: 100%;
+  width: auto;
   display: flex;
-  justify-content: center;
-  background-color: var(--lightwhite1);
+  justify-content: space-between;
+  background-color: var(--dark);
+  padding: 0 50px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
   
   align-items: center;
 }
 .btn-group-wrapper h3 {
-  font-size: 2.5rem;
-  color: var(--blue);
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--compGray);
   margin-bottom: 0;
+}
+.CompTealBlue{
+  color: var(--drak) !important;
+  background-color: var(--compOrange);
+  margin: 10px 0;
+  outline: none;
+  border: none;
+}
+.CompTealBlue:hover{
+  color: var(--drak) !important;
+  background-color: var(--compOrange);
 }
 
 

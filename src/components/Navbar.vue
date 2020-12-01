@@ -42,16 +42,21 @@
 
           <!-- Select you Airport:  -->
           <div class="selectAirport">
-            <button>
+            <button @click="dropAirportMenu">
               <span>Going to:</span>
               <div class="selectAirport__Current--Airport ">
                 <span>Pikangikum</span>
                 <div class=" nav-utility__icon--arrow-down ">
                   <fa-icon class="chevron-down"  :icon="['fa', 'chevron-down']" size="1x"/>
                 </div>
-                
               </div>
             </button>
+            <ul class="drop-menu">
+              <li><a href="#">Drop-menu 1</a></li>
+              <li><a href="#">Drop-menu 2</a></li>
+              <li><a href="#">Drop-menu 3</a></li>
+              <li><a href="#">Drop-menu 4</a></li>
+            </ul>
           </div>
 
         </div>
@@ -128,33 +133,251 @@
           <nav class="navigation-menu-primary">
             <ul class="nav-primary__item-list">
               <!-- Shop -->
-              <li class="np-menu-item np-menu-item--women ">
-                <button class="nav-button">
+              <li class="mega-menu-item mega-menu-item--grocery ">
+                <button id="shopBtn" @click="groceryMegaMenu" class="nav-button">
                   <span>Shop</span>
-                  <fa-icon class="np-menu__chervron chevron-down"  :icon="['fa', 'chevron-down']" size="1x"/>
+                  <fa-icon id="shopMegaMenuicon" class="np-menu__chervron chevron-down "  :icon="['fa', 'chevron-down']" size="1x"/>
                 </button>
+                <div id="shopMegaMenuBox" class="mega-box ">
+                  
+                  <div class="content">
+                    <div class="row">
+                      <img src="../../public/home_img/cart.jpg"  alt="">
+                    </div>
+                    <div class="row">
+                      <header>Grocery</header>
+                      <ul class="mega-links">
+                        <li>
+                          <router-link class="mega-links__a" to="/cehckout">Frozen</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">Refridgerated</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">Health & Beauty</router-link>
+                        </li>
+
+                      </ul>
+                    </div>
+                    <div class="row">
+                      <header class="not-visible">Invisible</header>
+                      <ul class="mega-links">
+                        <li>
+                          <router-link  to="/cehckout">Beverage</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">Clening Supply</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">Chips</router-link>
+                        </li>
+
+                      </ul>
+                    </div>
+                    <div class="row last-row">
+                      
+                      <ul class="mega-links">
+                        <li>
+                          <router-link  to="/cehckout">Shop all</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">deals</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">New</router-link>
+                        </li>
+
+                      </ul>
+                    </div>
+                  </div>
+
+                </div>
+                
                 
               </li>
-              <!-- Cargo -->
-              <li class="np-menu-item np-menu-item--women ">
-                <button class="nav-button">
-                  <span>Cargo</span>
-                  <fa-icon class="np-menu__chervron chevron-down"  :icon="['fa', 'chevron-down']" size="1x"/>
+              <!-- Services -->
+              <li class="mega-menu-item mega-menu-item--cargo ">
+                <button id="cargoBtn" @click="cargoMegaMenu" class="nav-button">
+                  <span>Services</span>
+                  <fa-icon id="cargoMegaMenuicon" class="np-menu__chervron chevron-down"  :icon="['fa', 'chevron-down']" size="1x"/>
                 </button>
+                <div id="cargoMegaMenuBox" class="mega-box ">
+                  
+                  <div  class="content">
+                    <div class="row">
+                      <img src="../../public/home_img/delivery.jpg"  alt="">
+                    </div>
+                    <div class="row last-row">
+                      <header>Cargo Delivery</header>
+                      <ul class="mega-links">
+                        <li>
+                          <router-link class="mega-links__a" to="/cehckout">Shipping rate</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">System delivery</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">Limitation</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">Notifications</router-link>
+                        </li>
+
+                      </ul>
+                    </div>
+                    <div class="row last-row">
+                      <header>Community</header>
+                      <ul class="mega-links ">
+                        <li>
+                          <router-link  to="/cehckout">Receiving</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">Airports</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">Weather</router-link>
+                        </li>
+
+                      </ul>
+                    </div>
+                    <div class="row last-row">
+                      <header>Support</header>
+                      <ul class="mega-links ">
+                        <li>
+                          <router-link  to="/cehckout">Assistance</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">Freight tracking</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">recals</router-link>
+                        </li>
+
+                      </ul>
+                    </div>
+                  </div>
+
+                </div>
               </li>
               <!-- About Us -->
-              <li class="np-menu-item np-menu-item--women ">
-                <button class="nav-button">
-                  <span>Charter</span>
-                  <fa-icon class="np-menu__chervron chevron-down"  :icon="['fa', 'chevron-down']" size="1x"/>
+              <li class="mega-menu-item mega-menu-item--charter ">
+                <button id="charterBtn" @click="charterMegaMenu" class="nav-button">
+                  <span>Covid-19 info</span>
                 </button>
+                <!-- <div id="charterMegaMenuBox" class="mega-box ">
+                  
+                  <div  class="content">
+                    <div class="row">
+                      <img src="../../public/home_img/delivery.jpg"  alt="">
+                    </div>
+                    <div class="row">
+                      <header>Grocery</header>
+                      <ul class="mega-links">
+                        <li>
+                          <router-link class="mega-links__a" to="/cehckout">Frozen</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">Refridgerated</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">Health & Beauty</router-link>
+                        </li>
+
+                      </ul>
+                    </div>
+                    <div class="row">
+                      <header class="not-visible">Invisible</header>
+                      <ul class="mega-links">
+                        <li>
+                          <router-link  to="/cehckout">Beverage</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">Clening Supply</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">Chips</router-link>
+                        </li>
+
+                      </ul>
+                    </div>
+                    <div class="row last-row">
+                      
+                      <ul class="mega-links">
+                        <li>
+                          <router-link  to="/cehckout">Shop all</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">deals</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">New</router-link>
+                        </li>
+
+                      </ul>
+                    </div>
+                  </div>
+                </div> -->
               </li>
+              
               <!-- About Us -->
-              <li class="np-menu-item np-menu-item--women ">
-                <button class="nav-button">
+              <li class="mega-menu-item mega-menu-item--about-us ">
+                <button id="aboutUsBtn" @click="aboutUsMegaMenu" class="nav-button">
                   <span>About Us</span>
-                  <fa-icon class="np-menu__chervron chevron-down"  :icon="['fa', 'chevron-down']" size="1x"/>
+                  <fa-icon id="aboutUsMegaMenuIcon" class="np-menu__chervron chevron-down"  :icon="['fa', 'chevron-down']" size="1x"/>
                 </button>
+                <div id="AboutUsMegaMenuBox" class="mega-box ">
+                  
+                  <div  class="content">
+                    <div class="row">
+                      <img src="../../public/home_img/delivery.jpg"  alt="">
+                    </div>
+                    <div class="row">
+                      <header>Grocery</header>
+                      <ul class="mega-links">
+                        <li>
+                          <router-link class="mega-links__a" to="/cehckout">Frozen</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">Refridgerated</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">Health & Beauty</router-link>
+                        </li>
+
+                      </ul>
+                    </div>
+                    <div class="row">
+                      <header class="not-visible">Invisible</header>
+                      <ul class="mega-links">
+                        <li>
+                          <router-link  to="/cehckout">Beverage</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">Clening Supply</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">Chips</router-link>
+                        </li>
+
+                      </ul>
+                    </div>
+                    <div class="row last-row">
+                      
+                      <ul class="mega-links">
+                        <li>
+                          <router-link  to="/cehckout">Shop all</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">deals</router-link>
+                        </li>
+                        <li>
+                          <router-link  to="/cehckout">New</router-link>
+                        </li>
+
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               </li>
             </ul>
           </nav>
@@ -292,6 +515,8 @@
 <script>
 // import ModalLogin from './ModalLogin.vue';
 import {fb} from '../firebase'
+import $ from 'jquery'
+
 // import logout from '../admin/Admin'
 
 export default {
@@ -312,6 +537,31 @@ export default {
     }
   },
   methods: {
+    groceryMegaMenu: function(){
+      $("#shopBtn").toggleClass("nav-button-active")
+      $("#shopMegaMenuBox").toggleClass("content-active")
+      $("#shopMegaMenuicon").toggleClass("rotate-menu-icon")
+    },
+    cargoMegaMenu: function(){
+      $("#cargoBtn").toggleClass("nav-button-active")
+      $("#cargoMegaMenuBox").toggleClass("content-active")
+      $("#cargoMegaMenuicon").toggleClass("rotate-menu-icon")
+    },
+    charterMegaMenu: function(){
+      $("#charterBtn").toggleClass("nav-button-active")
+      $("#charterMegaMenuBox").toggleClass("content-active")
+      $("#charterMegaMenuIcon").toggleClass("rotate-menu-icon")
+    },
+    aboutUsMegaMenu: function(){
+      $("#aboutUsBtn").toggleClass("nav-button-active")
+      $("#AboutUsMegaMenuBox").toggleClass("content-active")
+      $("#aboutUsMegaMenuIcon").toggleClass("rotate-menu-icon")
+    },
+    dropAirportMenu: function(){
+      $(".drop-menu").toggleClass("climb-menu")
+      
+      
+    },
     showLogin() {
       this.$modal.show('modal-login');
     },
@@ -365,23 +615,34 @@ body{
 }
 
 // NEW NAVBAR STYLE START <----
-.main-container {
-  background-color: var(--dark);
-    margin-right: auto;
-    margin-left: auto;
-    // padding-left: 15px;
-    // padding-right: 15px;
-    min-width: 19em;
-}
-.navbar__main-content{
-  padding: 1rem;
-  width: 85em;
-  height: auto;
-  background-color: var(--dark);
-  display: flex;
-  margin: auto;
+
+// ORIGINAL
+// .navbar__main-content{
+//   padding: 1rem;
+//   width: 85em;
+//   height: auto;
+//   background-color: var(--dark);
+//   display: flex;
+//   margin: auto;
   
-}
+// }
+// CODENEPAL
+
+// .main-container {
+//   position: fixed;
+//   background-color: var(--dark);
+//   width: 100%;
+//   z-index: 999;
+  
+// }
+// .navbar__main-content{
+//   background-color: var(--dark);
+//   max-width: 1250px;
+//   padding: 0 30px;
+//   margin: auto;
+//   display: flex;
+//   padding: 1rem;
+// }
 
 .header__content{
   width: 100%;
@@ -550,6 +811,25 @@ input{
   background: none;
   color: var(--compGray);
 }
+.nav-button:focus{
+  outline: none;
+}
+.nav-button-active{
+  color: var(--compOrange) !important;
+}
+.nav-button::after{
+  position: absolute;
+  content: '';
+  height: 0px;
+  width: 100%;
+  bottom: -16px;
+  background: var(--compWhite);
+  transition: all 0.3s ease ;
+}
+.nav-button-active::after{
+  height: 5px;
+  transition: all 0.3s ease ;
+}
 .nav-utility__icon{
   display: flex;
   align-items: flex-end;
@@ -565,6 +845,7 @@ input{
 }
 .chevron-down{
   font-size: 0.7rem;
+  transition: all 0.5s ease;
 }
 .nav-utility__cart-badge{
     font-weight: 600;
@@ -581,10 +862,11 @@ input{
     white-space: nowrap;
 }
 // bottom menu style 
-.np-menu-item{
+
+.np-menu-item, .mega-menu-item{
   padding: 8px 1.5em 0 0;
-}
-.navigation-menu-primary ul {
+  }
+.nav-primary__item-list{
   display: flex;
 }
 .nav-utility li{
@@ -592,6 +874,141 @@ input{
 }
 .np-menu__chervron{
   margin-left: 6px;
+}
+// CODENEPAL
+
+.main-container {
+  position: fixed;
+  background-color: var(--dark);
+  width: 100%;
+  z-index: 999;
+  
+}
+.navbar__main-content{
+  position: relative;
+  background-color: var(--dark);
+  max-width: 1250px;
+  padding: 0 30px;
+  margin: auto;
+  display: flex;
+  padding: 1rem;
+}
+.selectAirport .drop-menu{
+  background: var(--compWhite) ;
+  width: 180px;
+  top: 65px;
+  height: 0%;
+  line-height: 45px;
+  position: absolute;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.5s ease !important;
+  overflow: hidden;
+  border-radius: 2.5px;
+  box-shadow: var(--shadow);
+}
+.selectAirport button,.selectAirport button:focus{
+  outline: none;
+}
+.climb-menu{
+  height: 100% !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transition: all 0.5s ease !important;
+}
+
+
+
+.drop-menu li a {
+  width: 100%;
+  display: block;
+  padding: 0 0 0 15px;
+  font-weight: 400;
+  border-radius: 0px;
+}
+// MEGA_MENU
+.mega-box{
+  position: absolute;
+  z-index: -1 ;
+  top: -246px;
+  width: 100%;
+  left: 0;
+  box-shadow: var(--shadow1);
+  transition: all 0.5s ease;
+}
+.mega-box .content{
+  
+  background: var(--compWhite);
+  padding: 25px 20px;
+  overflow: hidden;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  transition: all 0.5s ease;
+}
+.mega-menu-item .content-active{
+  top: 109px !important;
+  transition: all 0.5s ease;
+}
+
+.rotate-menu-icon{
+  transform: rotate(180deg);
+  transition: 0.5s ease;
+}
+
+.content .row{
+  display: block;
+  width:  calc(25% - 30px);
+  line-height: 45px;
+  
+}
+.content .row li a{
+  color: var(--drak);
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 500;
+  padding: 9px 15px;
+}
+.content .row li a:hover{
+  color: var(--compGray);
+}
+.content .row img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.content .row header{
+  color: var(--dark) ;
+  font-size: 20px;
+  font-weight: 700;
+}
+.content .row ul, .mega-links__a {
+ color: var(--dark);
+ text-decoration: none;
+ font-size: 18px;
+ font-weight: 500;
+ padding: 9px 15px;
+
+}
+.content .last-row .mega-links{
+  border-left:  1px solid rgba(0, 0, 0, 0.09);
+}
+.mega-links li{
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-content: space-between;
+}
+.content .row:nth-child(1),
+.content .row:nth-child(1){
+  border-left: 0px;
+}
+.mega-links li a{
+  padding: 0 20px;
+  font-size: 17px;
+}
+.not-visible{
+  opacity: 0;
 }
 // NEW NAVBAR STYLE END<----
 
