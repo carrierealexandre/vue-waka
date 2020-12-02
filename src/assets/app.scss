@@ -16,13 +16,16 @@
     --archive: #A63446;
     // --dark: #222;
     --compGray: #C9CAD9;
+    --compGrayTransparent: #c9cad91a;
     --compWhite: #FFFFFF;
-    --compOrange: #FF9F1C ;
+    --compOrange: #E28413 ;
+    --compOrangeHover: #FF9F1C ;
+
     --dark: #0B2027;
     --CompTealBlue: #40798C;
     --grayDisable: #D3D3D3;
     --lightgray: #696969;
-    --darkT: rgba(51, 51, 51, 0.75);
+    --darkT:#0b2027ec;
     --primary: #ddd;
     --primaryT: rgba(238, 238, 238, 0.75);
     --light: #fff;
@@ -80,7 +83,27 @@ body {
 // POPUP ALERT STYLE START <----
 
 // Popup Window style start <----
-
+.comp-btn-dark-rect{
+  border-radius: 1px;
+  margin: 0 !important;
+  font-family: Helvetica Neue,Helvetica,sans-serif !important;
+  font-weight: 700;
+  line-height: normal !important;
+  text-transform: none;
+  padding: .75em 2em !important;
+  color: #fff;
+  background-color: #191919;
+  border-color: transparent;
+  font-size: 16px !important;
+  text-align: center;
+  vertical-align: middle;
+  touch-action: manipulation;
+  cursor: pointer !important;
+  display: inline-block;
+  background-image: none;
+  border: 1px solid transparent;
+  user-select: none;
+}
 .dflex{
     display: flex;
   }

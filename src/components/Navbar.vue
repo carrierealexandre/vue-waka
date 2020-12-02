@@ -42,30 +42,54 @@
 
           <!-- Select you Airport:  -->
           <div class="selectAirport">
-            <button @click="dropAirportMenu">
+            <button class="selectAirport__top-menu-btn" @click="dropAirportMenu" >
               <span>Going to:</span>
               <div class="selectAirport__Current--Airport ">
-                <span>Pikangikum</span>
+              <span v-if="Current">{{Current}}</span>
+              <span v-if="!Current">Select your airport</span>
                 <div class=" nav-utility__icon--arrow-down ">
                   <fa-icon class="chevron-down"  :icon="['fa', 'chevron-down']" size="1x"/>
                 </div>
               </div>
             </button>
-            <ul class="drop-menu">
-              <li><a href="#">Drop-menu 1</a></li>
-              <li><a href="#">Drop-menu 2</a></li>
-              <li><a href="#">Drop-menu 3</a></li>
-              <li><a href="#">Drop-menu 4</a></li>
-            </ul>
+            <div  id="toggleAirportMenu" class="drop-menu">
+              <div class="selected-airpport__wrapper">
+                <div class="selected-airpport__header">
+                  <p class="selected-airpport__header--title">My Airport :</p>
+                  <button @click="dropAirportMenu" class="selected-airpport__toggle">
+                    <span class="selected-airpport__toggle-close">&#10006;</span>
+                  </button>
+                </div>
+
+                <div class="selected-airpport__airport">
+                  <span class="selected-airpport__airport--title">Pikangikum Aiport</span>
+                  <div class="selected-airpport__airport--info">
+                    Pikangikum Ontario
+                    , 
+                    N51 49 11 W93 58 24
+                    <span>(514) 220-8591</span>
+                  </div>
+                  <span>Open monday to friday - 8:00am to 5:00pm</span>
+                </div>
+                <div class="selected-airpport__actions">
+                  <a href="#" class="selected-airpport__actions--details">Aiport details</a>
+                  <button class="comp-btn-dark-rect">
+                    Change airport
+                  </button>
+                </div>
+
+              </div>
+            </div><!-- popup start -->
+          
           </div>
 
         </div>
 
         <nav role="nav" class="nav-utility">
           <ul>
-            <li>
+            <li class="menu__help--li">
               <!-- Help -->
-              <button class="nav-button">
+              <button id="helpMenu" @click="dropHelpMenu" class="nav-button top-nav-button ">
 
                 <div class="nav-utility__icon nav-utility__icon--help">
                   <fa-icon :icon="['fa', 'question-circle']" size="1x"/>
@@ -78,14 +102,48 @@
                 </div>
 
               </button>
-            </li>
-            <li>
-              <!-- Account -->
-              <button class="nav-button" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <ul id="toggleHelpMenu" class="drop-menu help-bg ">
+                <li>
+                  <div class="drop-down__body">
+                    <ul>
+                      <li class="drop-menu__items">
+                        <a href="#">Help Centre</a>
+                        
+                        
+                      </li>
+                    
+                    
+                      <li  class="drop-menu__items">
+                        <a href="#">Shiping info</a>
+                        
+                        
+                      </li>
+                    
+                    
+                      <li class="drop-menu__items">
+                        <a href="#">Returns and guarantee</a>
+                        
+                        
+                      </li>
+                    
+                    
+                      <li class="drop-menu__items">
+                        <a href="#">contact us</a>
+                        
+                        
+                      </li>
 
-                <div class="nav-utility__icon nav-utility__icon--acount">
-                  <fa-icon v-show="User" :icon="['fa', 'user-circle']" size="1x"/>
-                  <fa-icon v-show="!User" :icon="['fa', 'sign-in-alt']" size="1x"/>
+                    </ul>
+                  </div>
+                </li>
+              </ul>
+            </li>
+            <li class="menu__help--li" >
+              <!-- Account -->
+              <button id="accountMenu" @click="dropAccountMenu" class="nav-button top-nav-button" >
+
+                <div class="nav-utility__icon nav-utility__icon--help">
+                  <fa-icon  :icon="['fa', 'user-circle']" size="1x"/>
                 </div>
                 <span class="nav-utility__label">
                   Account
@@ -95,24 +153,74 @@
                 </div>
 
               </button>
-              <div>
-                <div class="dropdown-menu sub-menu-links" aria-labelledby="dropdownMenuLink">
-                  <a v-show="!User"><modallogin class="sub-menu-links-a" ></modallogin></a>
-                  
-                  <a v-show="!User"><modalregister class="sub-menu-links-a"
-                  :menuTitle='Register'
-                  ></modalregister></a>
+              <ul id="toggleAccountMenu" class="drop-menu  ">
+                <li class="signin__link">
+                  <div class="signin__link--item">
+                    <span v-if="!User">HELLO</span>
+                    <span v-if="User">HI, {{Profile.firstName}}</span>
+                    <!-- <span v-if="User">{{profile.firstName}}</span>  -->
+                    <button v-if="!User" class="btn btn-primary"><modallogin ></modallogin></button>
 
-                  <a v-show="User" href="#" @click="logout" class="sub-menu-links-a">{{LogOut}}</a>
-                  
-                  <a class="sub-menu-links-a" href="#">Settings</a>           
-                  <router-link to="/admin" class="sub-menu-links-a"><span>Admin</span></router-link>
+                    
+                  </div>
+                </li>
+                <li>
+                  <div class="drop-down__body">
+                    <ul>
+                      <li class="drop-menu__items">
+                        <a href="#">Order history</a>
+                        
+                          <fa-icon class="chevron-right__drop-menu" :icon="['fa', 'chevron-right']" size="1x"/>
+                        
+                      </li>
+                    
+                    
+                      <li v-if="!User" class="drop-menu__items">
+                        <a href="#">Account</a>
+                        
+                          <fa-icon class="chevron-right__drop-menu" :icon="['fa', 'chevron-right']" size="1x"/>
+                        
+                      </li>
+                    
+                    
+                      <li v-if="User" class="drop-menu__items">
+                        <a href="#">Manage credit cards</a>
+                        
+                          <fa-icon class="chevron-right__drop-menu" :icon="['fa', 'chevron-right']" size="1x"/>
+                        
+                      </li>
+                    
+                    
+                      <li v-if="User" class="drop-menu__items">
+                        <a href="#">Manage my account</a>
+                        
+                          <fa-icon class="chevron-right__drop-menu" :icon="['fa', 'cogs']" size="1x"/>
+                        
+                      </li>
+                    
+                    
+                      <li v-if="User" class="drop-menu__items">
+                        <a  @click="logout" href="#">{{LogOut}}</a>
+                        
+                        <fa-icon class="chevron-right__drop-menu" :icon="['fa', 'sign-out-alt']" size="1x"/>
+                        
+                      </li>
 
+                    </ul>
+                  </div>
+                </li>
+                
+                <li v-if="!User"  class="drop-menu__footer--li">
                   
+                  <div class="drop-menu__footer--item">
+                    <div class="drop-menu__items--btn">
+                      <a href="#"><modalregister></modalregister></a>
+                    </div>
+                  </div>
 
-                  
-                </div>
-              </div>
+                </li>
+                
+              </ul>
             </li>
             <li>
               <!-- Cart -->
@@ -127,17 +235,25 @@
                 <span class="badge--count nav-utility__cart-badge">1</span>
               </router-link>
             </li>
+            
+          <label for="menu-btn" class="btn menu-btn">|||</label>
           </ul>
         </nav>
         <div class="header__bottom">
           <nav class="navigation-menu-primary">
+            <input type="radio" name="slide" id="menu-btn">
+            <input type="radio" name="slide" id="cancel-btn">
+
             <ul class="nav-primary__item-list">
+              <label for="cancel-btn" class=" btn cancel-btn">&times;</label>
               <!-- Shop -->
               <li class="mega-menu-item mega-menu-item--grocery ">
-                <button id="shopBtn" @click="groceryMegaMenu" class="nav-button">
+                <button id="shopBtn" @click="groceryMegaMenu" class="nav-button sub-menu--btn desktop-item">
                   <span>Shop</span>
                   <fa-icon id="shopMegaMenuicon" class="np-menu__chervron chevron-down "  :icon="['fa', 'chevron-down']" size="1x"/>
                 </button>
+                <input type="checkbox" id="showMega">
+                <label for="showMega" class="mobile-item">Shop</label>
                 <div id="shopMegaMenuBox" class="mega-box ">
                   
                   <div class="content">
@@ -197,14 +313,15 @@
               </li>
               <!-- Services -->
               <li class="mega-menu-item mega-menu-item--cargo ">
-                <button id="cargoBtn" @click="cargoMegaMenu" class="nav-button">
+                <button id="cargoBtn" @click="cargoMegaMenu" class="nav-button sub-menu--btn">
                   <span>Services</span>
                   <fa-icon id="cargoMegaMenuicon" class="np-menu__chervron chevron-down"  :icon="['fa', 'chevron-down']" size="1x"/>
                 </button>
                 <div id="cargoMegaMenuBox" class="mega-box ">
                   
                   <div  class="content">
-                    <div class="row">
+                    <div class="row mega-row--img">
+                      
                       <img src="../../public/home_img/delivery.jpg"  alt="">
                     </div>
                     <div class="row last-row">
@@ -261,7 +378,7 @@
               </li>
               <!-- About Us -->
               <li class="mega-menu-item mega-menu-item--charter ">
-                <button id="charterBtn" @click="charterMegaMenu" class="nav-button">
+                <button id="charterBtn" @click="charterMegaMenu" class="nav-button sub-menu--btn">
                   <span>Covid-19 info</span>
                 </button>
                 <!-- <div id="charterMegaMenuBox" class="mega-box ">
@@ -321,7 +438,7 @@
               
               <!-- About Us -->
               <li class="mega-menu-item mega-menu-item--about-us ">
-                <button id="aboutUsBtn" @click="aboutUsMegaMenu" class="nav-button">
+                <button id="aboutUsBtn" @click="aboutUsMegaMenu" class="nav-button sub-menu--btn">
                   <span>About Us</span>
                   <fa-icon id="aboutUsMegaMenuIcon" class="np-menu__chervron chevron-down"  :icon="['fa', 'chevron-down']" size="1x"/>
                 </button>
@@ -380,6 +497,7 @@
                 </div>
               </li>
             </ul>
+            
           </nav>
         </div>
 
@@ -514,7 +632,7 @@
 
 <script>
 // import ModalLogin from './ModalLogin.vue';
-import {fb} from '../firebase'
+import {fb, db} from '../firebase'
 import $ from 'jquery'
 
 // import logout from '../admin/Admin'
@@ -523,8 +641,43 @@ export default {
   
   
   name: "Navbar",
+  props:{
+    Current: String,
+    Currentwx: String,
+    Path: String,
+    Airports: Array,
+    // changeAirport: Function
+    
+  },
   components:{
     // ModalLogin
+  },
+  // firestore(){
+  //   if(this.User){
+  //     const user = fb.auth().currentUser;
+  //     return{
+  //         profile: db.collection('Profiles').doc(user.uid),
+  //     }
+
+  //   }
+      
+  // },
+  watch: {
+    User(){
+      if(this.User){
+        
+        console.log("login");
+        const user = fb.auth().currentUser;
+        var docRef = db.collection("Profiles").doc(user.uid);
+        docRef.get().then((doc) => {
+          this.profile =  doc.data();
+        })
+      }
+      if(!this.User){
+        console.log("LogOUT");
+        
+      }
+    }
   },
   data() {
      
@@ -532,7 +685,9 @@ export default {
       showModal: false,
       LogOut:'Logout',
       Register:'Register',
-      User:false
+      User:false,
+      Profiles:[],
+      Profile:{}
       
     }
   },
@@ -558,9 +713,15 @@ export default {
       $("#aboutUsMegaMenuIcon").toggleClass("rotate-menu-icon")
     },
     dropAirportMenu: function(){
-      $(".drop-menu").toggleClass("climb-menu")
-      
-      
+      $("#toggleAirportMenu").toggleClass("climb-menu")
+    },
+    dropHelpMenu: function(){
+      $("#helpMenu").toggleClass("top-nav-button-active")
+      $("#toggleHelpMenu").toggleClass("bouncing-menu")
+    },
+    dropAccountMenu: function(){
+      $("#accountMenu").toggleClass("top-nav-button-active")
+      $("#toggleAccountMenu").toggleClass("bouncing-menu")
     },
     showLogin() {
       this.$modal.show('modal-login');
@@ -574,7 +735,8 @@ export default {
     logout(){
           fb.auth().signOut()
           .then(() => {
-              this.$router.replace('/airports');
+              console.log("logOut");
+              this.Profile = {}
           })
           .catch((err) =>{
               console.log(err);
@@ -583,12 +745,21 @@ export default {
 
   },
   mounted() {
+    
     let self = this
-    fb.auth().onAuthStateChanged(function(user) {
+    fb.auth().onAuthStateChanged((user) => {
       
       if (user) {
         self.User = true
-        
+        console.log("login");
+        const user = fb.auth().currentUser;
+        console.log(user);
+        var docRef = db.collection("Profiles").doc(user.uid);
+        docRef.get().then((doc) => {
+          console.log(doc.id);
+          console.log(doc.data());
+          this.Profile = doc.data();
+        })
       }
       
     })
@@ -667,7 +838,7 @@ body{
   padding-right: 1em;
   margin: 0 40% 0 0
 }
-.selectAirport button{
+.selectAirport .selectAirport__top-menu-btn{
     cursor: pointer;
     display: flex;
     justify-content: flex-start;
@@ -817,10 +988,10 @@ input{
 .nav-button-active{
   color: var(--compOrange) !important;
 }
-.nav-button::after{
+.sub-menu--btn::after{
   position: absolute;
   content: '';
-  height: 0px;
+  height: 1px;
   width: 100%;
   bottom: -16px;
   background: var(--compWhite);
@@ -875,6 +1046,9 @@ input{
 .np-menu__chervron{
   margin-left: 6px;
 }
+
+
+
 // CODENEPAL
 
 .main-container {
@@ -893,27 +1067,243 @@ input{
   display: flex;
   padding: 1rem;
 }
+//Select Aiport dropdown
+.selected-airpport__wrapper{
+  margin: 2em;
+}
 .selectAirport .drop-menu{
+  z-index: 5;
   background: var(--compWhite) ;
-  width: 180px;
+  width: 380px;
   top: 65px;
   height: 0%;
   line-height: 45px;
   position: absolute;
-  opacity: 0;
-  visibility: hidden;
   transition: all 0.5s ease !important;
   overflow: hidden;
-  border-radius: 2.5px;
-  box-shadow: var(--shadow);
+  border-radius: 1.5px;
+  box-shadow: var(--shadow1);
+}
+.selected-airpport__header{
+  display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #666;
+    line-height: 20px;
+}
+.selected-airpport__header--title{
+  font-family: Helvetica Neue,Helvetica,sans-serif;
+    font-size: 14px;
+    color: #666;
+    line-height: 20px;
+        margin: 0 0 12px;
+}
+.selected-airpport__toggle{
+  background-color: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    
+}
+.selected-airpport__toggle-close{
+  
+    color: #000;
+    font-size: 20px !important;
+    cursor: pointer;
+    text-decoration: none;
+    position: relative;
+    right: -3px;
+    margin: 0;
+}
+.selected-airpport__airport{
+  display: flex;
+    flex-direction: column;
+}
+.selected-airpport__airport--title{
+      width: 100%;
+    line-height: normal;
+    font-size: 16px;
+    font-weight: 700;
+    color: #191919;
+}
+.selected-airpport__airport--info{
+  
+    margin: 1em 0;
+    color: #666;
+    line-height: 20px;
+    display: flex;
+    flex-direction: column;
+}
+.selected-airpport__actions{
+      display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 1px;
+    margin-top: 1em;
+    text-decoration: underline;
+}
+.selected-airpport__actions--details{
+  
+    line-height: 19px;
+    font-size: 16px;
+    color: #191919;
+    margin: 0 1em 0 0;
+}
+// END
+.menu__help--li{
+  position: relative;
+}
+.help-bg{
+  background: var(--compWhite) !important ;
+
+}
+.nav-utility .drop-menu{
+  background: var(--darkT) ;
+  min-width: 16.5rem;
+  top: 35px;
+  // height: 0%;
+  // left: 25px;
+  left: -50%;
+  line-height: 45px;
+  position: absolute;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease !important;
+  overflow: hidden;
+  border-radius: 1.5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,.1);
+  display: flex;
+  flex-direction: column;;
+}
+.signin__link{
+  padding: 0 !important;
+}
+.signin__link--item{
+  background: var(--compWhite);
+  padding: .85rem;
+  position: relative;
+  border-radius: 2px 2px 0 0;
+  display: flex;
+  flex-direction: row;
+  text-transform: uppercase;
+  justify-content: space-between;
+}
+.signin__link--item span{
+  font-size: 20px;
+  padding: .3rem 0;
+  font-weight: 700;
+  color: var(--dark);
+}
+.signin__link--item button{
+      padding: 8px 14px;
+      font-weight: 700;
+      background: var(--compOrange);
+      border: none;
+      outline: none;
+      color: var(--compWhite);
+
+}
+.signin__link--item button:hover{
+      background: orangvar(--compOrangeHover);
+      outline: none;
+}
+.top-nav-button::after{
+  position: absolute;
+  content: '';
+  
+  height: 0;
+  width: 100%;
+  bottom: -16px;
+  background: var(--compWhite);
+  transition: all 0.3s ease ;
+  
+}
+.top-nav-button-active::after{
+  height: 5px;
+}
+.drop-down__body ul{
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+}
+.drop-menu__items:last-of-type{
+  border-bottom: none;
+}
+.drop-menu__items{
+  border-bottom: 1px solid var(--compGrayTransparent);
+}
+
+.help-bg .drop-menu__items{
+  border-bottom: 1px solid var(--compGray);
+}
+.drop-menu__items{
+  position: relative;
+  padding: 1rem .75rem !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--compGray);
+}
+.drop-menu__items:hover{
+  color: var(--compWhite);
+}
+.drop-menu__items a{
+  padding: 0 !important;
+  color: var(--compWhite);
+}
+.help-bg .drop-menu__items a{
+  padding: 0 !important;
+  color: var(--dark);
+}
+.drop-menu__items a:hover{
+  color: var(--compOrange);
+  text-decoration: none;
+}
+.drop-menu__footer--li{
+  padding:0 !important;
+}
+.drop-menu__footer--item{
+  padding: 0 .25rem .25rem;
+  display: flex;  
+  width: 100%;
+}
+.drop-menu__items--btn{
+  margin: .5rem;
+  display: flex;
+  flex-grow: 1;
+  text-align: center;
+}
+.drop-menu__items--btn a{
+  font-weight: 700 !important;
+  // line-height: 1.25;
+  padding: 8px 14px !important;
+  font-size: 16px;
+  line-height: 1.5;
+  border-radius: 4px !important;
+  white-space: normal;
+  color: var(--compWhite);
+  border: 1px solid var(--compWhite);
+  background-color: transparent;
+  border-color: #fff;
+}
+.drop-menu__items--btn a:hover{
+  border: 1px solid var(--compGray);
+  text-decoration: none;
+
+}
+.bouncing-menu{
+  top: 40px !important;
+  transition: all 0.3s ease !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+
 }
 .selectAirport button,.selectAirport button:focus{
   outline: none;
 }
 .climb-menu{
-  height: 100% !important;
-  opacity: 1 !important;
-  visibility: visible !important;
+  height: fit-content !important;
   transition: all 0.5s ease !important;
 }
 
@@ -932,6 +1322,9 @@ input{
   z-index: -1 ;
   top: -246px;
   width: 100%;
+  opacity: 0;
+  padding: 0 30px;
+  visibility: hidden;
   left: 0;
   box-shadow: var(--shadow1);
   transition: all 0.5s ease;
@@ -947,6 +1340,8 @@ input{
   transition: all 0.5s ease;
 }
 .mega-menu-item .content-active{
+  opacity: 1;
+  visibility: visible;
   top: 109px !important;
   transition: all 0.5s ease;
 }
@@ -955,7 +1350,9 @@ input{
   transform: rotate(180deg);
   transition: 0.5s ease;
 }
-
+.mega-row--img{
+  position: relative;
+}
 .content .row{
   display: block;
   width:  calc(25% - 30px);
@@ -1009,6 +1406,146 @@ input{
 }
 .not-visible{
   opacity: 0;
+}
+.nav-primary__item-list .btn, .nav-utility .menu-btn{
+  color: var(--compGray);
+  font-size: 30px;
+  cursor: pointer;
+  display: none;
+}
+
+.nav-primary__item-list .cancel-btn{
+  position: absolute;
+  right: 30px;
+  top: 10px;
+}
+@media screen and (max-width: 970px) {
+  .content .row img{
+    display: none;
+  }
+  .nav-primary__item-list .btn, .nav-utility .menu-btn{
+    display: block;
+  }
+  .main-container .nav-primary__item-list{
+    position: fixed;
+    height: 100vh;
+    width: 100%;
+    max-width: 350px;
+    background: var(--dark);
+    display: block;
+    top: 0;
+    // left: 0;
+    left: -100%;
+    overflow-y: auto;
+    line-height: 50px;
+    padding: 50px 10px;
+    box-shadow: 0 15px 15px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+  }
+  #menu-btn:checked ~ .nav-primary__item-list{
+    left: 0%;
+  }
+  #menu-btn:checked ~ .btn.menu-btn{
+    display: none;
+  }
+  #showMega,#menu-btn,#cancel-btn{
+    display: none;
+  }
+  #showMega:checked ~ .mega-box{
+    max-height: 100%;
+  }
+  .nav-primary__item-list .desktop-item{
+    display: none;
+  }
+  .nav-primary__item-list .mobile-item{
+    display: block;
+    font-size: 20px;
+    color: var(--compWhite);
+    font-weight: 500;
+    padding-left: 20px;
+    cursor: pointer;
+    border-radius: 5;
+    transition: all 0.3 ease;
+  }
+
+  .sub-menu--btn::after{
+    display: none;
+  }
+  .nav-primary__item-list::-webkit-scrollbar{
+    width: 0px;
+  }
+  .nav-primary__item-list li{
+    margin: 15px 10px !important;
+  }
+  .nav-primary__item-list li a{
+    // padding: 0 20px !important;
+    display: block;
+    font-size: 20px;
+  }
+  // .drop-menu{
+  //   position: static;
+  //   opacity: 1;
+  //   visibility: visible;
+  //   top: 65px;
+  //   padding-left: 20px;
+  //   width: 100%;
+  // }
+  // .drop-menu li{
+  //   margin: 0;
+  // }
+  // .drop-menu li a{
+  //   font-size: 18px ;
+  //   border-radius: 5px;
+  // }
+  // MEGA_MENU
+  .mega-box{
+    position: static;
+    top: 65pc;
+    width: 100%;
+    opacity: 1;
+    visibility: visible;
+    padding: 20px ;
+    max-height: 0px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: none;
+  }
+  .mega-box .content{
+    
+    background: var(--dark);
+    flex-direction: column;
+    padding: 20px 20px 0 20px;
+  }
+  // fixing colours
+  .content .row li a, .content .row header{
+    color: var(--compGray);
+    padding:0;
+    font-weight: 600;
+  }
+  .mega-box .content .row{
+    width: 100%;
+    margin-bottom: 15px;
+    border-top: 1px solid var(--compGray);
+  }
+  // 
+  .mega-box .content .row:nth-child(1),
+  .mega-box .content .row:nth-child(2){
+    border-top: 0px;
+  }
+
+  .mega-links li{
+    padding: 0;
+  }
+  .content .last-row .mega-links,.content .row .mega-links{
+    border: 0px;
+    padding-left: 15px;
+  }
+  .row .mega-links li{
+    margin: 0;
+  }
+  .content .row header{
+    font-size: 19px;
+  }
 }
 // NEW NAVBAR STYLE END<----
 

@@ -1,7 +1,8 @@
 /* eslint-disable */ 
 <template>
+  
   <div class="modalregister">
-    <a href="#" @click.stop="show" class="text-copy-primary uppercase hover:text-gray-600">{{menuTitle}}</a>
+    <a href="#" @click.stop="show" class="">Create an account </a>
     <modal name="modal-register" @opened="opened" :adaptive="true" :height="460" :width="400">
       <div class="login__container">
         <h2 class="login__container-h2 flex-center-center">Register</h2>
@@ -138,12 +139,12 @@ export default {
 <style scoped lang="scss">
 // SIGN IN MODAL
 a{
- color: var(--blue);
- font-weight: 600;
- font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
- display: flex;
- flex-direction: column;
- width: 100%;
+  font-weight: 700 ;
+  font-size: 16px;
+  white-space: normal;
+  color: var(--compWhite);
+  text-decoration: none;;
+  
 }
 .login__container {
   padding: 8px 10px 8px 10px;

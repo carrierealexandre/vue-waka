@@ -1,6 +1,11 @@
 <template>
   <div id="app">
-    <navbar v-if="!$route.meta.hideNavigation"></navbar>
+    <navbar v-if="!$route.meta.hideNavigation"
+            v-bind:Airports="Airports"
+            v-bind:Current="Current"
+            v-bind:Currentwx="Currentwx"
+            v-bind:Path="Path"
+    ></navbar>
     <!-- <homemenu 
       v-if="!$route.meta.hideNavigation"
       v-bind:Airports="Airports"

@@ -436,7 +436,8 @@ export default {
       toggled:true,
       email:null,
       Profile:{
-          namne:null,
+          fisrtName: null,
+          lastName:null,
           phone:null,
           adress:null,
           zipCode:null,

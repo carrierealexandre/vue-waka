@@ -90,7 +90,7 @@ export default {
 
         fb.auth().signInWithEmailAndPassword(this.email, this.password)
           .then(() => {
-            this.$router.replace('admin');
+            console.log("login");
           })
           .catch(function(error) {
             // Handle Errors here.
@@ -128,13 +128,14 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 // SIGN IN MODAL
+*{
+  
+  font-family: Helvetica Neue,Helvetica,sans-serif;
+}
 a{
- color: var(--blue);
- font-weight: 600;
- font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
- display: flex;
- flex-direction: column;
- width: 100%;
+  font-weight: 700;
+  color: var(--compWhite);
+  text-decoration: none;
 }
 .login__container {
   padding: 8px 10px 8px 10px;
