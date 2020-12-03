@@ -252,8 +252,8 @@
                   <span>Shop</span>
                   <fa-icon id="shopMegaMenuicon" class="np-menu__chervron chevron-down "  :icon="['fa', 'chevron-down']" size="1x"/>
                 </button>
-                <input type="checkbox" id="showMega">
-                <label for="showMega" class="mobile-item">Shop</label>
+                <input type="checkbox" id="showMegaShop">
+                <label for="showMegaShop" class="mobile-item">Shop </label>
                 <div id="shopMegaMenuBox" class="mega-box ">
                   
                   <div class="content">
@@ -313,10 +313,12 @@
               </li>
               <!-- Services -->
               <li class="mega-menu-item mega-menu-item--cargo ">
-                <button id="cargoBtn" @click="cargoMegaMenu" class="nav-button sub-menu--btn">
+                <button id="cargoBtn" @click="cargoMegaMenu" class="nav-button sub-menu--btn desktop-item">
                   <span>Services</span>
                   <fa-icon id="cargoMegaMenuicon" class="np-menu__chervron chevron-down"  :icon="['fa', 'chevron-down']" size="1x"/>
                 </button>
+                <input type="checkbox" id="showMegaServices">
+                <label for="showMegaServices" class="mobile-item">Services</label>
                 <div id="cargoMegaMenuBox" class="mega-box ">
                   
                   <div  class="content">
@@ -378,9 +380,11 @@
               </li>
               <!-- About Us -->
               <li class="mega-menu-item mega-menu-item--charter ">
-                <button id="charterBtn" @click="charterMegaMenu" class="nav-button sub-menu--btn">
+                <button id="charterBtn" @click="charterMegaMenu" class="nav-button sub-menu--btn desktop-item">
                   <span>Covid-19 info</span>
                 </button>
+                <input type="checkbox" id="showMegaServices">
+                <label for="" class="mobile-item">Covid-19 info</label>
                 <!-- <div id="charterMegaMenuBox" class="mega-box ">
                   
                   <div  class="content">
@@ -438,10 +442,12 @@
               
               <!-- About Us -->
               <li class="mega-menu-item mega-menu-item--about-us ">
-                <button id="aboutUsBtn" @click="aboutUsMegaMenu" class="nav-button sub-menu--btn">
+                <button id="aboutUsBtn" @click="aboutUsMegaMenu" class="nav-button sub-menu--btn desktop-item">
                   <span>About Us</span>
                   <fa-icon id="aboutUsMegaMenuIcon" class="np-menu__chervron chevron-down"  :icon="['fa', 'chevron-down']" size="1x"/>
                 </button>
+                <input type="checkbox" id="showMegaAbout">
+                <label for="showMegaAbout" class="mobile-item">About Us</label>
                 <div id="AboutUsMegaMenuBox" class="mega-box ">
                   
                   <div  class="content">
@@ -845,7 +851,7 @@ body{
     flex-wrap: wrap;
     flex-direction: column;
     color: var(--compGray);
-    z-index: 800;
+    z-index: 9;
     text-decoration: none;
     background-color: transparent;
     border: none;
@@ -1326,7 +1332,6 @@ input{
   padding: 0 30px;
   visibility: hidden;
   left: 0;
-  box-shadow: var(--shadow1);
   transition: all 0.5s ease;
 }
 .mega-box .content{
@@ -1338,6 +1343,8 @@ input{
   width: 100%;
   justify-content: space-between;
   transition: all 0.5s ease;
+  box-shadow: 0 16px 16px rgba(0,0,0,0.12);;
+
 }
 .mega-menu-item .content-active{
   opacity: 1;
@@ -1419,26 +1426,41 @@ input{
   right: 30px;
   top: 10px;
 }
+.header__bottom input{
+  display: none;
+}
+.mega-menu-item label{
+  display: none;
+}
 @media screen and (max-width: 970px) {
+  // deleting margin and padding of the buger menu's Item
+  .mega-menu-item{
+    margin: 0 !important;
+  }
+  // 
   .content .row img{
     display: none;
+  }
+  .nav-primary__item-list .btn{
+    color: var(--dark);
   }
   .nav-primary__item-list .btn, .nav-utility .menu-btn{
     display: block;
   }
   .main-container .nav-primary__item-list{
     position: fixed;
+    z-index: 10;
     height: 100vh;
     width: 100%;
     max-width: 350px;
-    background: var(--dark);
+    background: var(--compWhite);
     display: block;
     top: 0;
     // left: 0;
     left: -100%;
     overflow-y: auto;
     line-height: 50px;
-    padding: 50px 10px;
+    padding: 50px 0px;
     box-shadow: 0 15px 15px rgba(0,0,0,0.15);
     transition: all 0.3s ease;
   }
@@ -1448,24 +1470,38 @@ input{
   #menu-btn:checked ~ .btn.menu-btn{
     display: none;
   }
-  #showMega,#menu-btn,#cancel-btn{
+  #showMegaShop, #showMegaServices, #showMegaAbout,#menu-btn,#cancel-btn{
     display: none;
   }
-  #showMega:checked ~ .mega-box{
-    max-height: 100%;
+  #showMegaShop:checked ~ .mega-box, #showMegaServices:checked ~ .mega-box, #showMegaAbout:checked ~ .mega-box{
+    max-height: 1500px;
+    
+    // padding: 20px;
+  }
+  #showMegaShop:checked ~ label, #showMegaServices:checked ~ label, #showMegaAbout:checked ~ label{
+    background: var(--compGray);
   }
   .nav-primary__item-list .desktop-item{
     display: none;
   }
   .nav-primary__item-list .mobile-item{
-    display: block;
-    font-size: 20px;
-    color: var(--compWhite);
-    font-weight: 500;
+    display: flex;
+    align-items: center;
+    font-size: 17px;
+    color: var(--dark);
+    font-weight: 300;
     padding-left: 20px;
+    font-family: sans-serif;
     cursor: pointer;
     border-radius: 5;
     transition: all 0.3 ease;
+    height: 60px;
+  }
+  .nav-primary__item-list .mobile-item:hover{
+    background: var(--compGray);
+    color: var(--dark);
+    border-radius: 1.5px;
+
   }
 
   .sub-menu--btn::after{
@@ -1475,7 +1511,10 @@ input{
     width: 0px;
   }
   .nav-primary__item-list li{
-    margin: 15px 10px !important;
+    margin: 0 !important;
+  }
+  .mega-menu-item{
+    padding: 0;
   }
   .nav-primary__item-list li a{
     // padding: 0 20px !important;
@@ -1504,7 +1543,7 @@ input{
     width: 100%;
     opacity: 1;
     visibility: visible;
-    padding: 20px ;
+    padding: 0px ;
     max-height: 0px;
     overflow: hidden;
     transition: all 0.3s ease;
@@ -1512,15 +1551,16 @@ input{
   }
   .mega-box .content{
     
-    background: var(--dark);
+    background: var(--compWhite);
     flex-direction: column;
     padding: 20px 20px 0 20px;
   }
   // fixing colours
   .content .row li a, .content .row header{
-    color: var(--compGray);
+    color: var(--dark);
     padding:0;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 300;
   }
   .mega-box .content .row{
     width: 100%;
@@ -1540,8 +1580,14 @@ input{
     border: 0px;
     padding-left: 15px;
   }
-  .row .mega-links li{
+  .row .mega-links li a{
     margin: 0;
+    padding: 5px 10px;
+  }
+  .row .mega-links li a:hover{
+    background: var(--compGray);
+    border-radius: 1.5px;
+    color: var(--dark);
   }
   .content .row header{
     font-size: 19px;
